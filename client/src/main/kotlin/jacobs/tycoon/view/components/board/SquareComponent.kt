@@ -1,4 +1,4 @@
-package jacobs.tycoon.view.components
+package jacobs.tycoon.view.components.board
 
 import org.js.mithril.Component
 import org.js.mithril.VNode
@@ -15,9 +15,10 @@ abstract class SquareComponent(
             attributes {
                 style = jsObject {
                     border = "1.2px solid black"
+                    textAlign = "center"
                 }
             }
-            contents( name )
+            content( name )
         }
     }
 

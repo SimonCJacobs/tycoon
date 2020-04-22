@@ -37,7 +37,7 @@ class HyperScriptBuilder(
 
     private var attributes: Any? = null
     private var child: VNode? = null
-    private var children: Collection < VNode >? = null
+    private var children: Array < out VNode >? = null
     private var stringContents: String? = null
 
     init {
@@ -50,7 +50,7 @@ class HyperScriptBuilder(
             return m( this.tag.toString(), this.attributes, this.child )
         this.children.also {
             if ( null != it )
-                return m( this.tag.toString(), this.attributes, it.toTypedArray() )
+                return m( this.tag.toString(), this.attributes, it )
         }
         this.stringContents.also {
             if ( null != it )
@@ -58,7 +58,7 @@ class HyperScriptBuilder(
         }
         this.tag.also {
             if ( null != it )
-                return m( it.toString() )
+                return m( it.toString(), this.attributes, "" )
         }
         throw Error( "Unknown hyperscript format: all arguments null (*should* never get here!)" )
     }
@@ -76,10 +76,14 @@ class HyperScriptBuilder(
         }
 
         fun children( children: Collection < VNode > ) {
+            this.builder.children = children.toTypedArray()
+        }
+
+        fun children( vararg children: VNode ) {
             this.builder.children = children
         }
 
-        fun contents( stringContents: String ) {
+        fun content( stringContents: String ) {
             this.builder.stringContents = stringContents
         }
 

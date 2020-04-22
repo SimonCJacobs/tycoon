@@ -1,8 +1,8 @@
-package jacobs.tycoon.domain
+package jacobs.tycoon.domain.board
 
 class Street( name: String, listPrice: Int ) : Property( name, listPrice ) {
 
-    override fun < T > accept( squareVisitor: SquareVisitor < T > ): T {
+    override fun < T > accept( squareVisitor: SquareVisitor<T>): T {
         return squareVisitor.visit( this )
     }
 

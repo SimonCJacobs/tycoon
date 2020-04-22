@@ -1,4 +1,4 @@
-package jacobs.tycoon.domain
+package jacobs.tycoon.domain.board
 
 class LondonBoard : StandardBoard() {
 

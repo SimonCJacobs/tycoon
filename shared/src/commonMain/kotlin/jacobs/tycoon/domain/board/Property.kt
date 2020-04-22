@@ -1,4 +1,6 @@
-package jacobs.tycoon.domain
+package jacobs.tycoon.domain.board
+
+import jacobs.tycoon.domain.Player
 
 abstract class Property (
     name: String,

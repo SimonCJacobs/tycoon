@@ -1,7 +1,6 @@
 package jacobs.tycoon.network
 
 import org.js.mithril.SimpleRequestOptions
-import org.js.mithril.request
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.js.Js
 import io.ktor.client.features.websocket.WebSockets
@@ -47,10 +46,6 @@ class Network (
                     this@Network.selectIncomingOrOutgoing( incoming, outgoing )
                 }
             }
-    }
-
-    fun getText() : Promise < String > {
-        return request( object : SimpleRequestOptions { override val url = "http://localhost:8080/" } )
     }
 
     fun registerMessageReceiver( receiver: ( String ) -> Unit ) {

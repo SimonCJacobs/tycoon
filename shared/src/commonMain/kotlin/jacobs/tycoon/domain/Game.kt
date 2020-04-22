@@ -1,6 +1,8 @@
 package jacobs.tycoon.domain
 
-class Game {
+import jacobs.tycoon.domain.logs.ActionLog
+
+class Game( private val loggo: ActionLog ) {
     var message = "Pluto"
     var num = 0
 }
