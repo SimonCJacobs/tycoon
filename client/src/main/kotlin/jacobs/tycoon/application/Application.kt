@@ -7,7 +7,7 @@ import kotlinx.coroutines.launch
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 
-class Application ( kodein: Kodein) {
+class Application ( kodein: Kodein ) {
 
     private val coroutineScope: CoroutineScope by kodein.instance()
     private val network: Network by kodein.instance()

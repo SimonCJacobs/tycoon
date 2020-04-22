@@ -7,5 +7,5 @@ enum class Tag {
     ol, ul, li,
     a,
     table, th, tr, col, td,
-    button
+    form, label, input, select, option, button
 }

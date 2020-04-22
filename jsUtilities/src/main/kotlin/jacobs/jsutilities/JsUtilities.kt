@@ -6,6 +6,10 @@ fun Map < String, Any >.jsObject(): Any {
     return jsObject as Any
 }
 
+fun jsObject(): Any {
+    return object {}
+}
+
 fun jsObject( closure: dynamic.() -> Unit ): Any {
     return object {}.apply( closure )
 }

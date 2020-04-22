@@ -1,19 +1,24 @@
 package jacobs.tycoon.view
 
 import jacobs.mithril.m
-import jacobs.tycoon.domain.GameStage
-import jacobs.tycoon.domain.GameStateProvider
+import jacobs.tycoon.controller.MainController
 import jacobs.tycoon.view.components.pages.EntryPage
 import jacobs.tycoon.view.components.pages.MainPage
 import jacobs.tycoon.view.components.pages.Page
 import org.js.mithril.Component
 import org.js.mithril.VNode
 import org.kodein.di.Kodein
+import org.kodein.di.direct
 import org.kodein.di.erased.instance
 
 class PageWrapper( kodein: Kodein ) : Component {
 
-    private val gameStateProvider: GameStateProvider by kodein.instance()
+    /**
+     * Note that Kodein's lazy loading can't be used on components: it seems that doing
+     * so puts the properties on the JavaScript prototype so they are regenerated during
+     * the Mithril DOM cycle
+     */
+    private val mainController: MainController by kodein.instance()
 
     private val entryPage: EntryPage by kodein.instance()
     private val mainPage: MainPage by kodein.instance()
@@ -23,9 +28,9 @@ class PageWrapper( kodein: Kodein ) : Component {
     }
 
     private fun getCurrentPage(): Page {
-        return when( this.gameStateProvider.stage ) {
-            GameStage.PLAYER_SIGN_UP -> this.entryPage
-            GameStage.IN_PLAY -> this.mainPage
+        return when( this.mainController.getViewStage() ) {
+            ViewState.SIGN_UP -> this.entryPage
+            ViewState.PLAYING_AREA -> this.mainPage
         }
     }
 

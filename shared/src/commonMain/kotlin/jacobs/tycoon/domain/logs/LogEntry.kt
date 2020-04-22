@@ -1,7 +1,7 @@
 package jacobs.tycoon.domain.logs
 
-abstract class LogEntry {
+import jacobs.tycoon.domain.players.Player
 
-    abstract fun < T > accept( writer: LogProcessor < T > ): T
+sealed class LogEntry
 
-}
+class PlayerJoined( val player: Player ) : LogEntry()
