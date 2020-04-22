@@ -1,11 +1,11 @@
 package jacobs.tycoon.domain
 
-class GameStateProvider (
-    private val game: Game
-) {
+import org.kodein.di.Kodein
+import org.kodein.di.erased.instance
 
-    fun message() : String {
-        return game.message + " " + game.num
-    }
+class GameStateProvider ( kodein: Kodein ) {
+    private val game: Game by kodein.instance()
+
+    var stage: GameStage = GameStage.PLAYER_SIGN_UP
 
 }

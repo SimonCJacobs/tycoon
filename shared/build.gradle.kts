@@ -16,6 +16,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api( kotlin( "stdlib-common" ) )
+                implementation( "org.kodein.di:kodein-di-erased:${ Versions.kodein }"  )
             }
         }
         val jvmMain by getting {

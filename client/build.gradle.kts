@@ -13,6 +13,7 @@ dependencies {
     implementation( project( ":shared", "jsDefault" ) )
     implementation( project( ":jsUtilities", "JsDefault" ) )
     implementation( project( ":mithril", "JsDefault" ) )
+    implementation( "org.kodein.di:kodein-di-erased:${ Versions.kodein }"  )
     implementation( "io.ktor:ktor-client-core:${ Versions.ktor }"  )
     implementation( "io.ktor:ktor-client-js:${ Versions.ktor }"  )
     implementation( "io.ktor:ktor-client-websockets:${ Versions.ktor }"  )
@@ -39,7 +40,6 @@ kotlin {
 tasks {
     withType( Kotlin2JsCompile::class ) {
         kotlinOptions {
-            allWarningsAsErrors = true
             freeCompilerArgs = listOf(
                 "-Xopt-in=kotlin.ExperimentalStdlibApi",
                 "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",

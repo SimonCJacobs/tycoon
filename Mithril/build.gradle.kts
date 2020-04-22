@@ -8,7 +8,7 @@ plugins {
 
 dependencies {
     implementation( kotlin( "stdlib-js" ) )
-    implementation( npm( "mithril" ) )
+    implementation( npm( "mithril", Versions.mithril ) )
     implementation( project( ":jsUtilities", "JsDefault" ) )
 }
 

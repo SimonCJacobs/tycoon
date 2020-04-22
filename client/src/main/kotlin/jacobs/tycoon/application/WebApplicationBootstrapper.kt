@@ -1,19 +1,12 @@
 package jacobs.tycoon.application
 
-import jacobs.tycoon.controller.MainController
-import jacobs.tycoon.domain.Game
-import jacobs.tycoon.domain.GameStateProvider
-import jacobs.tycoon.domain.board.LondonBoard
-import jacobs.tycoon.domain.logs.ActionLog
-import jacobs.tycoon.network.Network
-import jacobs.tycoon.view.MainPage
-import jacobs.tycoon.view.View
-import jacobs.tycoon.view.components.board.BoardComponent
-import jacobs.tycoon.view.components.board.SquareComponentFactory
-import jacobs.tycoon.view.components.console.Console
-import jacobs.tycoon.view.components.console.LogWriter
-import kotlinx.coroutines.MainScope
-import kotlin.browser.document
+import jacobs.tycoon.controller.controllerModule
+import jacobs.tycoon.domain.domainModule
+import jacobs.tycoon.network.networkModule
+import jacobs.tycoon.view.viewModule
+import org.kodein.di.Kodein
+import org.kodein.di.direct
+import org.kodein.di.erased.instance
 
 class WebApplicationBootstrapper {
 
@@ -23,23 +16,14 @@ class WebApplicationBootstrapper {
     }
 
     private fun createApplication(): Application {
-        val log = ActionLog()
-        val game = Game( log )
-        val scope = MainScope()
-        val network = Network( scope )
-        val mainController = MainController( game, network )
-        val gameStateProvider = GameStateProvider( game )
-        val mainElement = document.getElementById( "main" )!!
-        val board = LondonBoard()
-        val squareComponentFactory = SquareComponentFactory()
-        val boardComponent = BoardComponent( board, squareComponentFactory )
-        val logWriter = LogWriter()
-        val gameConsole = Console( log, logWriter )
-        val mainPage = MainPage(
-            gameStateProvider, mainController, boardComponent, gameConsole
-        )
-        val view = View( mainElement, mainPage )
-        return Application( scope, network, view )
+        val kodein = Kodein {
+            import( applicationModule )
+            import( domainModule )
+            import( controllerModule )
+            import( networkModule )
+            import( viewModule )
+        }
+        return kodein.direct.instance()
     }
 
 }

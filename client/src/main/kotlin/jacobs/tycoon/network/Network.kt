@@ -17,11 +17,13 @@ import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.selects.selectUnbiased
+import org.kodein.di.Kodein
+import org.kodein.di.erased.instance
 import kotlin.js.Promise
 
-class Network (
-    private val coroutineScope: CoroutineScope
-) {
+class Network ( kodein: Kodein ) {
+
+    private val coroutineScope: CoroutineScope by kodein.instance()
 
     companion object {
         private const val OUTGOING_MESSAGE_DELAY_MS = 100L

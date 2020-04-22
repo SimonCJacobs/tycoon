@@ -6,5 +6,6 @@ enum class Tag {
     div, aside,
     ol, ul, li,
     a,
-    table, th, tr, col, td
+    table, th, tr, col, td,
+    button
 }

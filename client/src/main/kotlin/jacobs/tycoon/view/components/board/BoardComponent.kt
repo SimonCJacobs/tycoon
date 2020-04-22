@@ -6,15 +6,20 @@ import jacobs.jsutilities.jsObject
 import jacobs.tycoon.domain.board.Board
 import jacobs.mithril.m
 import jacobs.mithril.Tag
+import org.kodein.di.Kodein
+import org.kodein.di.direct
+import org.kodein.di.erased.instance
 
-class BoardComponent(
-    board: Board,
+class BoardComponent( kodein: Kodein ) : Component {
+
+    private val board: Board by kodein.instance()
+
         // TODO: Construction of the components can probably happen in DI container
-    squareComponentFactory: SquareComponentFactory
-) : Component {
+    private val squares: List < SquareComponent > = {
+        val squareComponentFactory: SquareComponentFactory = kodein.direct.instance()
+        board.squareList.map { squareComponentFactory.getFromSquare( it ) }
+    }()
 
-    private val squares: List < SquareComponent >
-        = board.squareList.map { squareComponentFactory.getFromSquare( it ) }
     /**
      * All boards must have a square count of the form 4k + 4, and a board in such a form will have
      * a side of length k + 2

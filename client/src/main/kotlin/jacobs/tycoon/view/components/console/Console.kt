@@ -7,8 +7,13 @@ import jacobs.mithril.m
 import jacobs.mithril.Tag
 import org.js.mithril.Component
 import org.js.mithril.VNode
+import org.kodein.di.Kodein
+import org.kodein.di.erased.instance
 
-class Console( private val log: ActionLog, private val processor: LogProcessor < String > ) : Component {
+class Console( kodein: Kodein ) : Component {
+
+    private val log: ActionLog by kodein.instance()
+    private val processor: LogProcessor < String > by kodein.instance()
 
     override fun view(): VNode {
         return m( Tag.aside ) {

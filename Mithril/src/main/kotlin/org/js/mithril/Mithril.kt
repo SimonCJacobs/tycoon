@@ -22,3 +22,5 @@ internal external fun render( element: Element, vNode: VNode )
 
 internal external fun request( options: SimpleRequestOptions ) : Promise < String >
 internal external fun < T > request( options: ExtractionRequestOptions < T > ) : Promise < T >
+
+internal external fun route( element: Element, defaultRoute: String, routes: Any )
