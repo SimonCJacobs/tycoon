@@ -1,9 +1,10 @@
 package jacobs.mithril
 
-import external.mithril.Component
-import external.mithril.mount as mountJs
+import org.js.mithril.Component
+import org.js.mithril.mount as mountJs
 import org.w3c.dom.Element
 
+@ExperimentalJsExport
 class Mithril {
 
     val hyperScriptFactory = HyperScriptFactory()

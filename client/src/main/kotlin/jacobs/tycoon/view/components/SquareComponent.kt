@@ -1,13 +1,12 @@
 package jacobs.tycoon.view.components
 
-import external.mithril.Component
-import external.mithril.VNode
+import org.js.mithril.Component
+import org.js.mithril.VNode
 import jacobs.jsutilities.jsObject
-import jacobs.mithril.HyperScriptFactory
+import jacobs.mithril.m
 import jacobs.mithril.Tag
 
 abstract class SquareComponent(
-    private val m: HyperScriptFactory,
     private val name : String
 ) : Component {
 

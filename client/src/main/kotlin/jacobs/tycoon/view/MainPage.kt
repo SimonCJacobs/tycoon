@@ -1,9 +1,8 @@
 package jacobs.tycoon.view
 
-import external.mithril.Component
-import external.mithril.VNode
-import jacobs.mithril.HyperScriptFactory
-import jacobs.mithril.Tag
+import org.js.mithril.Component
+import org.js.mithril.VNode
+import jacobs.mithril.m
 import jacobs.tycoon.controller.MainController
 import jacobs.tycoon.domain.GameStateProvider
 import jacobs.tycoon.view.components.BoardComponent
@@ -11,7 +10,6 @@ import jacobs.tycoon.view.components.BoardComponent
 class MainPage (
     private val state: GameStateProvider,
     private val controller: MainController,
-    private val m: HyperScriptFactory,
     private val board: BoardComponent
 ) : Component {
 

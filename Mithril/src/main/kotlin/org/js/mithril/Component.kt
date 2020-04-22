@@ -1,4 +1,4 @@
-package external.mithril
+package org.js.mithril
 
 interface Component {
     @JsName( "view" )

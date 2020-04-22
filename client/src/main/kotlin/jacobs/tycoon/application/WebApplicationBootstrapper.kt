@@ -27,14 +27,13 @@ class WebApplicationBootstrapper {
         val mainController = MainController( game, network )
         val gameStateProvider = GameStateProvider( game )
         val mainElement = document.getElementById( "main" )!!
-        val mithril = Mithril()
         val board = LondonBoard()
-        val squareComponentFactory = SquareComponentFactory( mithril.hyperScriptFactory )
-        val boardComponent = BoardComponent( mithril.hyperScriptFactory, board, squareComponentFactory )
+        val squareComponentFactory = SquareComponentFactory()
+        val boardComponent = BoardComponent( board, squareComponentFactory )
         val mainPage = MainPage(
-            gameStateProvider, mainController, mithril.hyperScriptFactory, boardComponent
+            gameStateProvider, mainController, boardComponent
         )
-        val view = View( mithril, mainElement, mainPage )
+        val view = View( mainElement, mainPage )
         return Application( scope, network, view )
     }
 

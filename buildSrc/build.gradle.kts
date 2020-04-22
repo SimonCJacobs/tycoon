@@ -3,7 +3,11 @@ repositories {
 }
 
 plugins {
-     // TODO: Get this access to work in Intellij (it's ok on command line. Somehow the IDE runs the build
-     // of this first and before evaluating gradle.properties
-    kotlin( "jvm" ) version "1.3.72" // System.getProperty( "kotlin-version" )
+        // TODO: This should be the "kotlin-dsl" plugin but it's not working
+    kotlin( "jvm" ) version "1.3.72"
 }
+
+    // TODO( "Get this warning disabling to work" )
+/* kotlinDslPluginOptions {
+    experimentalWarning.set( false )
+} */

@@ -1,3 +1,3 @@
 rootProject.name = "tycoon"
 
-include( "shared", "client", "server" )
+include( "shared", "client", "server", "mithril", "jsUtilities" )

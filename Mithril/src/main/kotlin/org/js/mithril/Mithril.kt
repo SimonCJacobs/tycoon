@@ -1,6 +1,6 @@
 @file:JsModule( "mithril" )
 @file:JsNonModule
-package external.mithril
+package org.js.mithril
 
 import org.w3c.dom.Element
 import kotlin.js.Promise

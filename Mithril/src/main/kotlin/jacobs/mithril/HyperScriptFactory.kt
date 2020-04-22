@@ -1,9 +1,12 @@
 package jacobs.mithril
 
-import external.mithril.Component
-import external.mithril.VNode
-import external.mithril.m
+import org.js.mithril.Component
+import org.js.mithril.VNode
+import org.js.mithril.m
 import jacobs.jsutilities.jsObject
+
+@ExperimentalJsExport
+val m = HyperScriptFactory()
 
 @ExperimentalJsExport
 class HyperScriptFactory {

@@ -1,7 +1,7 @@
 package jacobs.tycoon.network
 
-import external.mithril.SimpleRequestOptions
-import external.mithril.request
+import org.js.mithril.SimpleRequestOptions
+import org.js.mithril.request
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.js.Js
 import io.ktor.client.features.websocket.WebSockets
@@ -17,7 +17,6 @@ import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.SendChannel
 import kotlinx.coroutines.channels.produce
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.selects.select
 import kotlinx.coroutines.selects.selectUnbiased
 import kotlin.js.Promise
 

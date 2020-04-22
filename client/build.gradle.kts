@@ -1,5 +1,4 @@
 import org.jetbrains.kotlin.gradle.tasks.Kotlin2JsCompile
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalDceDsl
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.Mode
 
 repositories {
@@ -12,7 +11,8 @@ plugins {
 
 dependencies {
     implementation( project( ":shared", "jsDefault" ) )
-    implementation( npm( "mithril" ) )
+    implementation( project( ":jsUtilities", "JsDefault" ) )
+    implementation( project( ":mithril", "JsDefault" ) )
     implementation( "io.ktor:ktor-client-core:${ Versions.ktor }"  )
     implementation( "io.ktor:ktor-client-js:${ Versions.ktor }"  )
     implementation( "io.ktor:ktor-client-websockets:${ Versions.ktor }"  )
@@ -20,7 +20,6 @@ dependencies {
     implementation( npm( "text-encoding", "0.7.0" ) )
     implementation( npm( "abort-controller", "3.0.0" ) )
 }
-
 
 kotlin {
     target {
