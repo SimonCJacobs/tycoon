@@ -1,3 +1,7 @@
 .gradle/
 .idea/
 build
+
+
+# OS file system
+.DS_Store
