@@ -40,9 +40,7 @@ tasks {
             freeCompilerArgs = listOf(
                 "-Xopt-in=kotlin.ExperimentalStdlibApi",
                 "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-                "-Xopt-in=kotlin.js.ExperimentalJsExport",
-                "-Xopt-in=kotlinx.serialization.ImplicitReflectionSerializer",
-                "-Xopt-in=io.ktor.util.KtorExperimentalAPI"
+                "-Xopt-in=kotlin.js.ExperimentalJsExport"
             )
         }
     }

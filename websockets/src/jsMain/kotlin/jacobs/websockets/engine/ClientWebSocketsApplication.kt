@@ -8,10 +8,6 @@ import io.ktor.http.HttpMethod
 import io.ktor.util.KtorExperimentalAPI
 import jacobs.websockets.ClientWebSocketParameters
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.serialization.ImplicitReflectionSerializer
-import org.kodein.di.Kodein
-import org.kodein.di.erased.bind
-import org.kodein.di.erased.instance
 
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi @KtorExperimentalAPI
 internal class ClientWebSocketsApplication  (

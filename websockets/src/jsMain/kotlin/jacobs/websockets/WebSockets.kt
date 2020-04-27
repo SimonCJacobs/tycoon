@@ -4,7 +4,6 @@ import io.ktor.util.KtorExperimentalAPI
 import jacobs.websockets.engine.ClientWebSocketsApplication
 import jacobs.websockets.engine.JsTimestampFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.serialization.ImplicitReflectionSerializer
 
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi @KtorExperimentalAPI
 class WebSockets {

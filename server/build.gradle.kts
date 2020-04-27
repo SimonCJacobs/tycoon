@@ -28,9 +28,7 @@ tasks {
         kotlinOptions {
             freeCompilerArgs = listOf(
                 "-Xopt-in=kotlin.ExperimentalStdlibApi",
-                "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
-                "-Xopt-in=io.ktor.util.KtorExperimentalAPI",
-                "-Xopt-in=kotlinx.serialization.ImplicitReflectionSerializer"
+                "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
             )
             jvmTarget = Versions.javaBytecode
         }

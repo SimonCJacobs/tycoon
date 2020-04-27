@@ -10,7 +10,7 @@ import jacobs.tycoon.view.ViewState
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 
-class MainController (kodein: Kodein ) {
+class MainController ( kodein: Kodein ) {
 
     private val game: Game by kodein.instance()
     private val network: Network by kodein.instance()
