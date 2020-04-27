@@ -1,12 +1,12 @@
 package jacobs.tycoon.controller
 
+import jacobs.mithril.Mithril
 import jacobs.tycoon.domain.Game
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.network.Network
 import jacobs.tycoon.state.GameState
 import jacobs.tycoon.view.components.pages.EntryPageState
 import org.kodein.di.Kodein
-import org.kodein.di.direct
 import org.kodein.di.erased.instance
 
 class UserInterfaceController( kodein: Kodein ) {
@@ -32,6 +32,13 @@ class UserInterfaceController( kodein: Kodein ) {
         console.log( "Button click" )
         this.mainController.addPlayer( entryPageState.playerName, entryPageState.selectedPiece )
         this.mainController.goToPlayingAreaView()
+    }
+
+    fun triggerNetworkRequest( entryPageState: EntryPageState ) {
+        this.network.sendStringRequest( entryPageState.playerName ) {
+            entryPageState.testText = it
+            Mithril().redraw()
+        }
     }
 
 }

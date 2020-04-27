@@ -3,11 +3,12 @@ repositories {
 }
 
 plugins {
-    kotlin( "js" ) version Versions.kotlin
+    kotlin( "js" )
 }
 
 dependencies {
     implementation( kotlin( "stdlib-js" ) )
+    testImplementation( kotlin( "test-js" ) )
 }
 
 kotlin {
@@ -16,9 +17,13 @@ kotlin {
             dceTask {
                 enabled = false
             }
+            testTask {
+                useMocha()
+            }
             webpackTask {
                 enabled = false
             }
         }
     }
+
 }

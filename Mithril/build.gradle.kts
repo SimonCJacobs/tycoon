@@ -3,7 +3,7 @@ repositories {
 }
 
 plugins {
-    kotlin( "js" ) version Versions.kotlin
+    kotlin( "js" )
 }
 
 dependencies {

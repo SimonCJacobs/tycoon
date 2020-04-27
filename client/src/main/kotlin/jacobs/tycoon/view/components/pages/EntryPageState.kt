@@ -7,4 +7,5 @@ class EntryPageState(
     var selectedPiece: PlayingPiece
 ) {
     var playerName: String = ""
+    var testText = "Nothing"
 }

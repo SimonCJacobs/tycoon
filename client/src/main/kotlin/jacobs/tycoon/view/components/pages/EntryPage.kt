@@ -11,7 +11,7 @@ import org.kodein.di.erased.instance
 class EntryPage( kodein: Kodein ) : Page {
 
     private val uiController: UserInterfaceController by kodein.instance()
-
+        // TODO think this should probably be started elsewhere
     private val state : EntryPageState = uiController.getAvailablePieces()
         .let {
             EntryPageState(
@@ -24,7 +24,13 @@ class EntryPage( kodein: Kodein ) : Page {
         return m( Tag.div ) {
             children(
                 getPlayerEntryForm(),
-                getSubmitButton()
+                getSubmitButton(),
+                m( Tag.button ) {
+                    eventHandlers {
+                        onclick = { uiController.triggerNetworkRequest( state ) }
+                    }
+                    content(  "click me!" ) },
+                m( Tag.h3 ) { content( state.testText ) }
             )
         }
     }

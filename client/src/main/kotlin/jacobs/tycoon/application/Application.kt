@@ -15,7 +15,7 @@ class Application ( kodein: Kodein ) {
 
     fun start() {
         this.view.initialise()
-      //  this.coroutineScope.launch { network.connect() }
+        this.coroutineScope.launch { network.connect() }
     }
 
 }

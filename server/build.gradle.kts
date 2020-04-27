@@ -1,9 +1,11 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 repositories {
     jcenter()
 }
 
 plugins {
-    kotlin( "jvm" ) version Versions.kotlin
+    kotlin( "jvm" )
     application
 }
 
@@ -13,12 +15,24 @@ application {
 
 dependencies {
     implementation( kotlin( "stdlib-jdk8" ) )
-    implementation( "io.ktor:ktor-server-netty:${ Versions.ktor }" )
-    implementation( "io.ktor:ktor-websockets:${ Versions.ktor }" )
+    implementation( project( ":shared", "jvmDefault" ) )
+    implementation( project( ":websockets" ) )
+    implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core:${ Versions.kotlinCoroutines }" )
 }
 
 tasks {
-    val run by getting( JavaExec::class ) {
+    withType < JavaExec > {
         standardOutput = System.`out`
+    }
+    withType < KotlinCompile > {
+        kotlinOptions {
+            freeCompilerArgs = listOf(
+                "-Xopt-in=kotlin.ExperimentalStdlibApi",
+                "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
+                "-Xopt-in=io.ktor.util.KtorExperimentalAPI",
+                "-Xopt-in=kotlinx.serialization.ImplicitReflectionSerializer"
+            )
+            jvmTarget = Versions.javaBytecode
+        }
     }
 }

@@ -1,9 +1,11 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 repositories {
     jcenter()
 }
 
 plugins {
-    kotlin( "multiplatform" ) version Versions.kotlin
+    kotlin( "multiplatform" )
 }
 
 kotlin {
@@ -33,3 +35,8 @@ kotlin {
 
 }
 
+tasks {
+    withType < KotlinCompile > {
+        kotlinOptions.jvmTarget = Versions.javaBytecode
+    }
+}

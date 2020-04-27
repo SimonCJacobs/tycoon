@@ -1,92 +1,58 @@
 package jacobs.tycoon.network
 
-import org.js.mithril.SimpleRequestOptions
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.js.Js
-import io.ktor.client.features.websocket.WebSockets
-import io.ktor.client.features.websocket.ws
-import io.ktor.http.HttpMethod
-import io.ktor.http.cio.websocket.Frame
-import io.ktor.http.cio.websocket.FrameType
-import io.ktor.http.cio.websocket.readText
-import io.ktor.util.KtorExperimentalAPI
+import jacobs.tycoon.ApplicationSettings
+import jacobs.websockets.MessageContent
+import jacobs.websockets.StringContent
+import jacobs.websockets.WebSocket
+import jacobs.websockets.WebSockets
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.channels.ReceiveChannel
-import kotlinx.coroutines.channels.SendChannel
-import kotlinx.coroutines.channels.produce
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.selects.selectUnbiased
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
-import kotlin.js.Promise
 
 class Network ( kodein: Kodein ) {
 
     private val coroutineScope: CoroutineScope by kodein.instance()
-
-    companion object {
-        private const val OUTGOING_MESSAGE_DELAY_MS = 100L
-    }
-
-    @ExperimentalStdlibApi
-    private val messageQueue: ArrayDeque < String > = ArrayDeque()
     private val messageReceivers: MutableList < ( String ) -> Unit > = mutableListOf()
 
-    @KtorExperimentalAPI
-    suspend fun connect() {
-        HttpClient ( Js ) {
-            install( WebSockets )
-        }
-            .ws(
-                method = HttpMethod.Get,
-                host = "localhost",
-                port = 8080,
-                path = "/socket"
-            ) {
-                while ( true ) {
-                    this@Network.selectIncomingOrOutgoing( incoming, outgoing )
+    private lateinit var deferredConnection: Deferred < Unit >
+    private lateinit var websocket: WebSocket
+
+    fun connect() {
+        this.deferredConnection = this.coroutineScope.async {
+            websocket = WebSockets()
+                .websocketClient {
+                    coroutineScope = this@Network.coroutineScope
+                    hostname = ApplicationSettings.SOCKET_HOST
+                    notificationHandler = { handleNotification( it ) }
+                    requestHandler = { handleRequest( it ) }
+                    port = ApplicationSettings.SOCKET_PORT
                 }
-            }
+        }
+    }
+
+    fun handleNotification( messageContent: MessageContent ) {
+        console.log( "network received notification", messageContent )
+    }
+
+    fun handleRequest( messageContent: MessageContent ): StringContent {
+        console.log( "network received request", messageContent )
+        return StringContent( "my beard is green" )
     }
 
     fun registerMessageReceiver( receiver: ( String ) -> Unit ) {
         this.messageReceivers.add( receiver )
     }
 
-    @ExperimentalStdlibApi
-    fun sendMessage( message: String ) {
-        this.messageQueue.addLast( message )
-    }
-
-    private suspend fun selectIncomingOrOutgoing( incoming: ReceiveChannel < Frame >, outgoing: SendChannel < Frame > ) {
-        selectUnbiased < Unit > {
-            incoming.onReceive {
-                incomingFrame -> this@Network.callMessageHandlers( incomingFrame )
-            }
-            getOutgoingMessageProducer().onReceive {
-                outgoingMessage -> outgoing.send( Frame.Text( outgoingMessage ) )
-            }
-        }
-    }
-
-    @ExperimentalStdlibApi @ExperimentalCoroutinesApi
-    private fun getOutgoingMessageProducer(): ReceiveChannel < String > {
-        return this.coroutineScope.produce < String > {
-            while ( true ) {
-                if ( this@Network.messageQueue.isNotEmpty() )
-                    send( this@Network.messageQueue.removeFirst() )
-                delay( OUTGOING_MESSAGE_DELAY_MS )
-            }
-        }
-    }
-
-    private fun callMessageHandlers( messageFrame: Frame ) {
-        if ( messageFrame.frameType == FrameType.TEXT ) {
-            val text = ( messageFrame as Frame.Text ).readText()
-            this.messageReceivers.forEach {
-                eachReceiver -> eachReceiver.invoke( text )
-            }
+    fun sendStringRequest( str: String, doAfter: ( String ) -> Unit ) {
+        coroutineScope.launch {
+            deferredConnection.await()
+            val returnObject = websocket.request( StringContent( str ) )
+            val returnContent = ( returnObject as StringContent ).string
+            doAfter( returnContent )
         }
     }
 

@@ -6,29 +6,26 @@ repositories {
 }
 
 plugins {
-    kotlin( "js" ) version Versions.kotlin
+    kotlin( "js" )
 }
 
 dependencies {
     implementation( project( ":shared", "jsDefault" ) )
     implementation( project( ":jsUtilities", "JsDefault" ) )
     implementation( project( ":mithril", "JsDefault" ) )
+    implementation( project( ":websockets" )  )
     implementation( "org.kodein.di:kodein-di-erased:${ Versions.kodein }"  )
-    implementation( "io.ktor:ktor-client-core:${ Versions.ktor }"  )
-    implementation( "io.ktor:ktor-client-js:${ Versions.ktor }"  )
-    implementation( "io.ktor:ktor-client-websockets:${ Versions.ktor }"  )
-        // See https://github.com/ktorio/ktor/issues/1400
-    implementation( npm( "text-encoding", "0.7.0" ) )
-    implementation( npm( "abort-controller", "3.0.0" ) )
+    implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${ Versions.kotlinCoroutines }" )
+
 }
 
 kotlin {
     target {
         browser {
             dceTask {
-                    // See https://github.com/ktorio/ktor/issues/1400
-                keep( "ktor-ktor-io.\$\$importsForInline\$\$.ktor-ktor-io.io.ktor.utils.io" )
                 this.dceOptions.devMode = false
+                // See https://github.com/ktorio/ktor/issues/1399 and /1400 expect fix in kotlin 1.4.0
+                keep( "ktor-ktor-io.\$\$importsForInline\$\$.ktor-ktor-io.io.ktor.utils.io" )
             }
             webpackTask {
                 this.mode = Mode.DEVELOPMENT
@@ -44,6 +41,7 @@ tasks {
                 "-Xopt-in=kotlin.ExperimentalStdlibApi",
                 "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
                 "-Xopt-in=kotlin.js.ExperimentalJsExport",
+                "-Xopt-in=kotlinx.serialization.ImplicitReflectionSerializer",
                 "-Xopt-in=io.ktor.util.KtorExperimentalAPI"
             )
         }
