@@ -13,11 +13,11 @@ import org.kodein.di.erased.instance
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi
 internal class IncomingFrameProcessor( kodein: Kodein ) : CommunicationVisitor {
 
-    private val communicationCodec: CommunicationCodec by kodein.instance()
-    private val responseDirector: ResponseDirector by kodein.instance()
-    private val jsonSerializer: JsonSerializer by kodein.instance()
-    private val notificationHandler: ( MessageContent ) -> Unit by kodein.instance( tag = "notification" )
-    private val requestHandler: ( MessageContent ) -> MessageContent by kodein.instance( tag = "request" )
+    private val communicationCodec by kodein.instance < CommunicationCodec > ()
+    private val responseDirector by kodein.instance < ResponseDirector > ()
+    private val jsonSerializer by kodein.instance < JsonSerializer > ()
+    private val notificationHandler by kodein.instance < ( MessageContent ) -> Unit > ( tag = "notification" )
+    private val requestHandler by kodein.instance < ( MessageContent ) -> MessageContent > ( tag = "request" )
 
     fun processIncomingFrame( frame: Frame ) {
         this.jsonSerializer.frameToMessage( frame )

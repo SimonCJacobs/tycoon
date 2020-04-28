@@ -9,9 +9,9 @@ import org.kodein.di.erased.instance
 
 class Application ( kodein: Kodein ) {
 
-    private val coroutineScope: CoroutineScope by kodein.instance()
-    private val network: Network by kodein.instance()
-    private val view: View by kodein.instance()
+    private val coroutineScope by kodein.instance < CoroutineScope > ()
+    private val network by kodein.instance < Network > ()
+    private val view by kodein.instance < View > ()
 
     fun start() {
         this.view.initialise()

@@ -15,7 +15,7 @@ import org.kodein.di.erased.instance
 
 class Network ( kodein: Kodein ) {
 
-    private val coroutineScope: CoroutineScope by kodein.instance()
+    private val coroutineScope by kodein.instance < CoroutineScope > ()
     private val messageReceivers: MutableList < ( String ) -> Unit > = mutableListOf()
 
     private lateinit var deferredConnection: Deferred < Unit >

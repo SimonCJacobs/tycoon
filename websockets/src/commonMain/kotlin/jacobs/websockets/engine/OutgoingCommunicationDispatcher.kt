@@ -11,11 +11,11 @@ import kotlin.coroutines.suspendCoroutine
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi
 internal class OutgoingCommunicationDispatcher ( kodein: Kodein ) {
 
-    private val communicationCodec: CommunicationCodec by kodein.instance()
-    private val jsonSerializer: JsonSerializer by kodein.instance()
-    private val messageIdRepository: MessageIdRepository by kodein.instance()
-    private val responseDirector: ResponseDirector by kodein.instance()
-    private val webSocketEngine: WebSocketEngine by kodein.instance()
+    private val communicationCodec by kodein.instance < CommunicationCodec > ()
+    private val jsonSerializer by kodein.instance < JsonSerializer > ()
+    private val messageIdRepository by kodein.instance < MessageIdRepository > ()
+    private val responseDirector by kodein.instance < ResponseDirector > ()
+    private val webSocketEngine by kodein.instance < WebSocketEngine > ()
 
     init {
         this.responseDirector.setOutgoingResponsePath { response -> dispatchResponse( response ) }

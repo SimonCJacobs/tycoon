@@ -12,8 +12,8 @@ import org.kodein.di.erased.instance
 
 class Console( kodein: Kodein ) : Component {
 
-    private val log: ActionLog by kodein.instance()
-    private val processor: LogProcessor < String > by kodein.instance()
+    private val log by kodein.instance < ActionLog > ()
+    private val processor by kodein.instance < LogProcessor < String > >()
 
     override fun view(): VNode {
         return m( Tag.aside ) {

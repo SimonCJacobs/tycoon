@@ -2,34 +2,37 @@ package jacobs.websockets.engine
 
 import jacobs.websockets.WebSocket
 import jacobs.websockets.WebSocketParameters
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.launch
-import org.kodein.di.Kodein
-import org.kodein.di.direct
-import org.kodein.di.erased.instance
 
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi
-internal abstract class WebSocketsApplication < T : WebSocketParameters > (
-    private val timestampFactory: TimestampFactory
+internal abstract class WebSocketsApplication < T : WebSocketParameters < T > > (
+    timestampFactory: TimestampFactory
 ) {
-        // TODO: Get it to work on socket scopes. currently only good for one socket
-        //  TODO: Also figure out how not to duplicate true singletons
+    private val container: Container < T > by lazy { this.getPlatformContainerImplementation( timestampFactory ) }
+    private val parametersBySocket: MutableMap < WebSocket, T > = mutableMapOf()
 
-    suspend fun getNewWebSocket( parameters: T ): WebSocket {
-        val subKodein = Kodein {
-            import( getEngineModule < T >( timestampFactory ) )
-            import( parameters.asKodeinModule() )
-        }
-        val scope : CoroutineScope by subKodein.instance()
-        scope.launch { launchEngine( subKodein, parameters ) }
-        return subKodein.direct.instance()
+    protected abstract fun getPlatformContainerImplementation( timestampFactory: TimestampFactory ): Container < T >
+
+    abstract fun closeAll()
+
+    fun closeSocket( socket: WebSocket ) {
+        this.parametersBySocket.remove( socket )!!
+            .let {
+                this.container.deleteScopeRegistry( it )
+                this.stopEngine( it )
+            }
     }
 
-    private suspend fun launchEngine( subKodein: Kodein, parameters: T ) {
-        startEngine( engine = subKodein.direct.instance() , parameters = parameters )
+    suspend fun getNewWebSocket( parameters: T ): WebSocket {
+        this.container.prepareForNewScope( parameters )
+        this.container.getEngine( parameters )
+            .also { this.startEngine( it, parameters ) }
+        val socket = this.container.getWebSocket( parameters )
+        this.parametersBySocket.put( socket, parameters )
+        return socket
     }
 
     protected abstract suspend fun startEngine( engine: WebSocketEngine, parameters: T )
+    protected abstract fun stopEngine( parameters: T )
 
 }

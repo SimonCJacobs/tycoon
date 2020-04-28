@@ -1,6 +1,6 @@
 package jacobs.websockets
 
-import kotlin.test.Test
+/*import kotlin.test.Test
 import kotlin.test.asserter
 
 class AcceptanceTests {
@@ -10,4 +10,4 @@ class AcceptanceTests {
         asserter.assertEquals( "does it work", 5, 5 )
     }
 
-}
+}*/

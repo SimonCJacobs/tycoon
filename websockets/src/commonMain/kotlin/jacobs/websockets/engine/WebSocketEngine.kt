@@ -14,9 +14,9 @@ import org.kodein.di.erased.instance
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi
 internal class WebSocketEngine( kodein: Kodein ) {
 
-    private val coroutineScope: CoroutineScope by kodein.instance()
-    private val incomingFrameProcessor: IncomingFrameProcessor by kodein.instance()
-    private val messageLoopDelay: Long by kodein.instance( tag = "outgoing" )
+    private val coroutineScope by kodein.instance < CoroutineScope >()
+    private val incomingFrameProcessor by kodein.instance < IncomingFrameProcessor > ()
+    private val messageLoopDelay by kodein.instance < Long > ( tag = "outgoing" )
 
     private val outgoingFrameQueue: ArrayDeque < Frame > = ArrayDeque()
     private val frameProducer = coroutineScope.produce {

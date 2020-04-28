@@ -38,6 +38,7 @@ tasks {
     withType( Kotlin2JsCompile::class ) {
         kotlinOptions {
             freeCompilerArgs = listOf(
+                "-Xopt-in=io.ktor.util.KtorExperimentalAPI",
                 "-Xopt-in=kotlin.ExperimentalStdlibApi",
                 "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi",
                 "-Xopt-in=kotlin.js.ExperimentalJsExport"

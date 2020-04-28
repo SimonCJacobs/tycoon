@@ -12,10 +12,10 @@ import org.kodein.di.erased.instance
 
 class MainController ( kodein: Kodein ) {
 
-    private val game: Game by kodein.instance()
-    private val network: Network by kodein.instance()
-    private val state: GameState by kodein.instance()
-    private val clientState: ClientState by kodein.instance()
+    private val game by kodein.instance < Game > ()
+    private val network by kodein.instance < Network > ()
+    private val state by kodein.instance < GameState > ()
+    private val clientState by kodein.instance < ClientState > ()
 
     init {
         this.network.registerMessageReceiver( this::incomingMessage )

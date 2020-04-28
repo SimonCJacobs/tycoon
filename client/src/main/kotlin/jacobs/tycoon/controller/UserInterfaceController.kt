@@ -11,10 +11,10 @@ import org.kodein.di.erased.instance
 
 class UserInterfaceController( kodein: Kodein ) {
 
-    private val game: Game by kodein.instance()
-    private val mainController: MainController by kodein.instance()
-    private val network: Network by kodein.instance()
-    private val state: GameState by kodein.instance()
+    private val game by kodein.instance < Game > ()
+    private val mainController by kodein.instance < MainController > ()
+    private val network by kodein.instance < Network > ()
+    private val state by kodein.instance < GameState > ()
 
     fun getAvailablePieces(): List < PlayingPiece > {
         return this.game.getAvailablePieces(

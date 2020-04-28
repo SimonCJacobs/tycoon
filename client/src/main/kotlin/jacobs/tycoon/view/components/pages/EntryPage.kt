@@ -10,7 +10,7 @@ import org.kodein.di.erased.instance
 
 class EntryPage( kodein: Kodein ) : Page {
 
-    private val uiController: UserInterfaceController by kodein.instance()
+    private val uiController by kodein.instance < UserInterfaceController > ()
         // TODO think this should probably be started elsewhere
     private val state : EntryPageState = uiController.getAvailablePieces()
         .let {

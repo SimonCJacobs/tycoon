@@ -11,9 +11,9 @@ import org.kodein.di.erased.instance
 
 class MainPage ( kodein: Kodein ) : Page {
 
-    private val controller: MainController by kodein.instance()
-    private val board: BoardComponent by kodein.instance()
-    private val gameConsole: Console by kodein.instance()
+    private val controller by kodein.instance < MainController > ()
+    private val board by kodein.instance < BoardComponent > ()
+    private val gameConsole by kodein.instance < Console > ()
 
     override fun view() : VNode {
         return m( Tag.div ) {

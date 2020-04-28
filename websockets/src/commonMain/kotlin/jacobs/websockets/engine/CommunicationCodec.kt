@@ -6,8 +6,8 @@ import org.kodein.di.erased.instance
 
 internal class CommunicationCodec( kodein: Kodein ) {
 
-    private val jsonSerializer: JsonSerializer by kodein.instance()
-    private val timestampFactory: TimestampFactory by kodein.instance()
+    private val jsonSerializer by kodein.instance < JsonSerializer > ()
+    private val timestampFactory by kodein.instance < TimestampFactory > ()
 
     private var lastTimestamp: String = "0"
     private var timestampCounter: Int = 0

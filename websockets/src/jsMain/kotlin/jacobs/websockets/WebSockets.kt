@@ -10,8 +10,8 @@ class WebSockets {
 
     private val application = ClientWebSocketsApplication( JsTimestampFactory() )
 
-    suspend fun websocketClient( closure: ClientWebSocketParameters.() -> Unit ): WebSocket {
-        val parameters = ClientWebSocketParameters().apply { closure() }
+    suspend fun websocketClient( closure: ClientParameters.() -> Unit ): WebSocket {
+        val parameters = ClientParameters().apply { closure() }
         return application.getNewWebSocket( parameters )
     }
 

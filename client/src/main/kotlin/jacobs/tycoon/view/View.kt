@@ -7,8 +7,8 @@ import org.w3c.dom.Element
 
 class View ( kodein: Kodein ) {
 
-    private val mainElement: Element by kodein.instance( tag = "main" )
-    private val pageWrapper: PageWrapper by kodein.instance()
+    private val mainElement by kodein.instance < Element > ( tag = "main" )
+    private val pageWrapper by kodein.instance < PageWrapper > ()
 
     fun initialise() {
         Mithril().mount( this.mainElement, this.pageWrapper )

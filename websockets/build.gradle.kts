@@ -88,16 +88,18 @@ kotlin {
                 implementation( "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${ Versions.kotlinSerialization }" )
                 implementation( "io.ktor:ktor-server-netty:${ Versions.ktor }" )
                 implementation( "io.ktor:ktor-websockets:${ Versions.ktor }" )
+                implementation( "ch.qos.logback:logback-classic:${ Versions.logback }" )
             }
         }
         val jvmTest by getting {
             dependencies {
                 implementation( kotlin( "test-junit" ) )
+                implementation( "org.assertj:assertj-core:${ Versions.assertJ }" )
             }
         }
         val jvmAcceptanceTest by getting {
-            dependsOn( jvmMain )
-            dependsOn( jvmTest )
+            //dependsOn( jvmMain )
+            //dependsOn( jvmTest )
         }
     }
 

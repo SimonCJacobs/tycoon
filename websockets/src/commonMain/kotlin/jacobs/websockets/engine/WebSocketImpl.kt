@@ -12,11 +12,11 @@ import org.kodein.di.erased.instance
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi
 internal class WebSocketImpl ( kodein: Kodein ) : WebSocket {
 
-        // Not lazy as we need this class to initialise to complete the communication paths
-    private val outgoingCommunicationDispatcher: OutgoingCommunicationDispatcher = kodein.direct.instance()
+    private val closeSocketLambda by kodein.instance < ( WebSocket ) -> Unit >( tag = "closeSocket" )
+    private val outgoingCommunicationDispatcher by kodein.instance < OutgoingCommunicationDispatcher > ()
 
-    override suspend fun close() {
-        TODO()
+    override fun close() {
+        this.closeSocketLambda.invoke( this )
     }
 
     override suspend fun notify( notificationObject: MessageContent ): MessageContent {

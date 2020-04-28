@@ -18,10 +18,10 @@ class PageWrapper( kodein: Kodein ) : Component {
      * so puts the properties on the JavaScript prototype so they are regenerated during
      * the Mithril DOM cycle
      */
-    private val mainController: MainController by kodein.instance()
+    private val mainController by kodein.instance < MainController > ()
 
-    private val entryPage: EntryPage by kodein.instance()
-    private val mainPage: MainPage by kodein.instance()
+    private val entryPage by kodein.instance < EntryPage > ()
+    private val mainPage by kodein.instance < MainPage > ()
 
     override fun view(): VNode {
         return m( this.getCurrentPage() )

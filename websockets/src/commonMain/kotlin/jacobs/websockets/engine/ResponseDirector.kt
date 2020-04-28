@@ -9,7 +9,7 @@ import org.kodein.di.erased.instance
  */
 internal class ResponseDirector( kodein: Kodein ) {
 
-    private val messageIdRepository: MessageIdRepository by kodein.instance()
+    private val messageIdRepository by kodein.instance < MessageIdRepository > ()
     private lateinit var outgoingResponseDispatchLambda : ( Response ) ->  Unit
 
     fun dispatchIncomingResponse( response: Response ) {
