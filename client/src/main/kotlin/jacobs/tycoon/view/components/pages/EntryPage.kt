@@ -2,7 +2,7 @@ package jacobs.tycoon.view.components.pages
 
 import jacobs.mithril.Tag
 import jacobs.mithril.m
-import jacobs.tycoon.controller.UserInterfaceController
+import jacobs.tycoon.clientcontroller.UserInterfaceController
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import org.js.mithril.VNode
 import org.kodein.di.Kodein
@@ -10,32 +10,26 @@ import org.kodein.di.erased.instance
 
 class EntryPage( kodein: Kodein ) : Page {
 
-    private val uiController by kodein.instance < UserInterfaceController > ()
-        // TODO think this should probably be started elsewhere
-    private val state : EntryPageState = uiController.getAvailablePieces()
-        .let {
-            EntryPageState(
-                availablePieces = it,
-                selectedPiece = it.random()
-            )
-        }
+    private val uiController by kodein.instance <UserInterfaceController> ()
+    private val state : EntryPageState = EntryPageState( uiController.getAvailablePiecesAsync() )
 
     override fun view(): VNode {
+        return if ( ! state.isReady )
+            m( Tag.h1 ){ content( "Waiting for server" ) }
+        else
+            this.getPlayerEntryForm()
+    }
+
+    private fun getPlayerEntryForm() : VNode {
         return m( Tag.div ) {
             children(
-                getPlayerEntryForm(),
-                getSubmitButton(),
-                m( Tag.button ) {
-                    eventHandlers {
-                        onclick = { uiController.triggerNetworkRequest( state ) }
-                    }
-                    content(  "click me!" ) },
-                m( Tag.h3 ) { content( state.testText ) }
+                getPlayerEntryFields(),
+                getSubmitButton()
             )
         }
     }
 
-    private fun getPlayerEntryForm() : VNode {
+    private fun getPlayerEntryFields() : VNode {
         return m( Tag.form ) {
             children(
                 getPlayerNameEntry(),
@@ -56,9 +50,7 @@ class EntryPage( kodein: Kodein ) : Page {
                         value = state.playerName
                     }
                     eventHandlers {
-                        onInputExt = {
-                            console.log(  it )
-                            state.playerName = it.target.asDynamic().value as String }
+                        onInputExt = { state.playerName = it.target.asDynamic().value as String }
                     }
                 }
             )
@@ -85,7 +77,7 @@ class EntryPage( kodein: Kodein ) : Page {
                     }
             }
             children(
-                uiController.getAvailablePieces()
+                state.availablePieces
                     .map { getNamedPieceOptionElement( it ) }
             )
         }

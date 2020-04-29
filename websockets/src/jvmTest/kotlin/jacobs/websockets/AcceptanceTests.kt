@@ -49,7 +49,7 @@ class AcceptanceTests {
      */
     private fun startServerAsync( serverPort: Int, waitParameter: Boolean? = null ): Deferred < WebSocket > {
         return this.ownScope.async {
-            WebSockets().websocketServer {
+            ServerWebSockets().websocketServer {
                 coroutineScope = ownScope
                 port = serverPort
                 if ( null != waitParameter ) wait = waitParameter

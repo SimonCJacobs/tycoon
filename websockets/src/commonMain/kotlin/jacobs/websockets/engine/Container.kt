@@ -1,6 +1,7 @@
 package jacobs.websockets.engine
 
-import jacobs.websockets.MessageContent
+import jacobs.websockets.content.ContentClassCollection
+import jacobs.websockets.content.MessageContent
 import jacobs.websockets.WebSocket
 import jacobs.websockets.WebSocketParameters
 import kotlinx.coroutines.CoroutineScope
@@ -8,6 +9,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.kodein.di.Kodein
 import org.kodein.di.direct
 import org.kodein.di.erased.bind
+import org.kodein.di.erased.eagerSingleton
 import org.kodein.di.erased.instance
 import org.kodein.di.erased.provider
 import org.kodein.di.erased.singleton
@@ -15,6 +17,7 @@ import org.kodein.di.erased.singleton
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi
 internal abstract class Container < T : WebSocketParameters < T > > (
     private val application: WebSocketsApplication < T >,
+    contentClasses: ContentClassCollection,
     timestampFactory: TimestampFactory
 ) {
 
@@ -23,6 +26,7 @@ internal abstract class Container < T : WebSocketParameters < T > > (
         import( engineModule() )
         import( sharedParametersModule() )
         //import( ownParametersModule() )
+        bind < ContentClassCollection >() with instance( contentClasses )
         bind < TimestampFactory >() with instance( timestampFactory )
     }
     private val closeSocket: ( WebSocket ) -> Unit = { application.closeSocket( it ) }
@@ -32,7 +36,8 @@ internal abstract class Container < T : WebSocketParameters < T > > (
             bind < ( WebSocket ) -> Unit > ( tag = "closeSocket" ) with singleton { closeSocket }
             bind < CommunicationCodec >() with singleton { CommunicationCodec( kodein ) }
             bind < IncomingFrameProcessor >() with scoped().singleton { IncomingFrameProcessor( kodein ) }
-            bind < JsonSerializer >() with instance( JsonSerializer() )
+                // Eager because it registers MessageContent classes as serializable
+            bind < JsonSerializer >() with eagerSingleton { JsonSerializer( kodein ) }
             bind < MessageIdRepository >() with scoped().singleton { MessageIdRepository() }
             bind < OutgoingCommunicationDispatcher >() with
                 scoped().singleton { OutgoingCommunicationDispatcher( kodein ) }
@@ -45,9 +50,9 @@ internal abstract class Container < T : WebSocketParameters < T > > (
     private fun sharedParametersModule(): Kodein.Module {
         return Kodein.Module( "parameters" ) {
             bind < CoroutineScope > () with contexted().provider { context.coroutineScope }
-            bind < ( MessageContent ) -> Unit > ( tag = "notification" ) with
+            bind < (MessageContent) -> Unit > ( tag = "notification" ) with
                 contexted().provider { context.notificationHandler }
-            bind  < ( MessageContent ) -> MessageContent >( tag = "request" ) with
+            bind  < (MessageContent) -> MessageContent>( tag = "request" ) with
                 contexted().provider { context.requestHandler }
             bind < Long >( tag = "outgoing" ) with contexted().provider { context.outgoingMessageDelay }
         }

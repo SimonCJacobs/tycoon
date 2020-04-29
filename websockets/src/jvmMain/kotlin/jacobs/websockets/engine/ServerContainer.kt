@@ -1,6 +1,7 @@
 package jacobs.websockets.engine
 
 import io.ktor.util.KtorExperimentalAPI
+import jacobs.websockets.content.ContentClassCollection
 import jacobs.websockets.ServerParameters
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.kodein.di.Kodein
@@ -11,9 +12,10 @@ import org.kodein.di.erased.scoped as kodeinScoped
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi @KtorExperimentalAPI
 internal class ServerContainer(
     application: WebSocketsApplication < ServerParameters >,
+    contentClasses: ContentClassCollection,
     timestampFactory: TimestampFactory
 )
-    : Container < ServerParameters >( application, timestampFactory ) {
+    : Container < ServerParameters >( application, contentClasses, timestampFactory ) {
 
     override fun kodeinInContext( kodein: Kodein, parameters: ServerParameters ): Kodein {
         return kodein.on( parameters )

@@ -1,6 +1,6 @@
 package jacobs.websockets.engine
 
-import jacobs.websockets.MessageContent
+import jacobs.websockets.content.MessageContent
 import kotlin.reflect.KClass
 
 /**
@@ -27,7 +27,7 @@ internal sealed class SocketCommunication {
                 throw Error( "No class of name $name" )
         }
 
-        fun create( name: String, content: MessageContent, id: MessageIdentifier ): SocketCommunication {
+        fun create(name: String, content: MessageContent, id: MessageIdentifier ): SocketCommunication {
             return this.getFromName( name ).createInstance( content, id )
         }
     }
@@ -41,7 +41,7 @@ internal sealed class SocketCommunication {
 }
 
 internal sealed class PrimarySocketCommunication : SocketCommunication() {
-    fun getResponseWithNewContent( newContent: MessageContent ): Response {
+    fun getResponseWithNewContent( newContent: MessageContent): Response {
         return Response( newContent, this.id!! )
     }
 }
@@ -78,7 +78,7 @@ internal class Response(
     }
 }
 
-internal expect fun < T : SocketCommunication > KClass < T >.createInstance( content: MessageContent, id: MessageIdentifier ) : T
+internal expect fun < T : SocketCommunication > KClass < T >.createInstance(content: MessageContent, id: MessageIdentifier ) : T
 
 fun < T : SocketCommunication > KClass < T >.getIdentifier(): String {
     return this.simpleName!!

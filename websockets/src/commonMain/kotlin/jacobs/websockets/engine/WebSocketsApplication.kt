@@ -5,13 +5,12 @@ import jacobs.websockets.WebSocketParameters
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi
-internal abstract class WebSocketsApplication < T : WebSocketParameters < T > > (
-    timestampFactory: TimestampFactory
-) {
-    private val container: Container < T > by lazy { this.getPlatformContainerImplementation( timestampFactory ) }
+internal abstract class WebSocketsApplication < T : WebSocketParameters < T > > {
+
+    private val container: Container < T > by lazy { this.getPlatformContainerImplementation() }
     private val parametersBySocket: MutableMap < WebSocket, T > = mutableMapOf()
 
-    protected abstract fun getPlatformContainerImplementation( timestampFactory: TimestampFactory ): Container < T >
+    protected abstract fun getPlatformContainerImplementation(): Container < T >
 
     abstract fun closeAll()
 

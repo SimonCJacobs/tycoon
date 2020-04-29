@@ -2,23 +2,36 @@ package jacobs.websockets.engine
 
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.readText
-import jacobs.websockets.BooleanContent
-import jacobs.websockets.MessageContent
-import jacobs.websockets.StringContent
+import jacobs.websockets.content.BooleanContent
+import jacobs.websockets.content.ContentClassCollection
+import jacobs.websockets.content.MessageContent
+import jacobs.websockets.content.StringContent
+import jacobs.websockets.content.getWebSocketContentClasses
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.modules.SerializersModule
+import org.kodein.di.Kodein
+import org.kodein.di.direct
+import org.kodein.di.erased.instance
 
-internal class JsonSerializer {
+internal class JsonSerializer( kodein: Kodein ) {
 
     private val socketModule = SerializersModule {
         polymorphic( MessageContent::class ) {
-            BooleanContent::class with BooleanContent.serializer()
-            StringContent::class with StringContent.serializer()
+            getWebSocketContentClasses().forEach {
+                clazz, serializer -> addSubclass( clazz, serializer )
+            }
+            contentClassCollection( kodein ).forEach {
+                clazz, serializer -> addSubclass( clazz, serializer )
+            }
         }
     }
     private val json: Json = Json( configuration = JsonConfiguration.Stable, context = socketModule )
+
+    private fun contentClassCollection( kodein: Kodein ): ContentClassCollection {
+        return kodein.direct.instance()
+    }
 
     fun frameToMessage( frame: Frame ) : Message {
         val textFrame = frame as Frame.Text
@@ -33,7 +46,7 @@ internal class JsonSerializer {
         return json.parse( PolymorphicSerializer( MessageContent::class ), serializedContent )
     }
 
-    fun serializeContent( content: MessageContent ): String {
+    fun serializeContent( content: MessageContent): String {
         return json.stringify( PolymorphicSerializer( MessageContent::class ), content )
     }
 

@@ -9,9 +9,9 @@ import org.kodein.di.erased.instance
 
 class GameState( kodein: Kodein ) {
 
-    val board: Board by kodein.instance()
-    val pieceSet: PieceSet by kodein.instance()
-    val players: GamePlayers by kodein.instance()
+    val board by kodein.instance < Board > ()
+    val pieceSet by kodein.instance < PieceSet > ()
+    val players by kodein.instance < GamePlayers > ()
     var stage: GameStage = GameStage.PLAYER_SIGN_UP
 
 }

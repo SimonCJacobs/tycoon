@@ -8,18 +8,20 @@ import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
+import jacobs.websockets.content.ContentClassCollection
 import jacobs.websockets.ServerParameters
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi @KtorExperimentalAPI
 internal class ServerWebSocketsApplication(
-    timestampFactory: JvmTimestampFactory
-) : WebSocketsApplication < ServerParameters > ( timestampFactory ) {
+    private val contentClasses: ContentClassCollection,
+    private val timestampFactory: JvmTimestampFactory
+) : WebSocketsApplication < ServerParameters > () {
 
     private val serversByParameters: MutableMap < ServerParameters, ApplicationEngine > = mutableMapOf()
 
-    override fun getPlatformContainerImplementation( timestampFactory: TimestampFactory ): Container < ServerParameters > {
-        return ServerContainer( this, timestampFactory )
+    override fun getPlatformContainerImplementation(): Container < ServerParameters > {
+        return ServerContainer( this, this.contentClasses, this.timestampFactory )
     }
 
     override fun closeAll() {

@@ -1,8 +1,8 @@
 package jacobs.websockets.engine
 
 import io.ktor.http.cio.websocket.Frame
-import jacobs.websockets.BooleanContent
-import jacobs.websockets.MessageContent
+import jacobs.websockets.content.BooleanContent
+import jacobs.websockets.content.MessageContent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
@@ -16,8 +16,8 @@ internal class IncomingFrameProcessor( kodein: Kodein ) : CommunicationVisitor {
     private val communicationCodec by kodein.instance < CommunicationCodec > ()
     private val responseDirector by kodein.instance < ResponseDirector > ()
     private val jsonSerializer by kodein.instance < JsonSerializer > ()
-    private val notificationHandler by kodein.instance < ( MessageContent ) -> Unit > ( tag = "notification" )
-    private val requestHandler by kodein.instance < ( MessageContent ) -> MessageContent > ( tag = "request" )
+    private val notificationHandler by kodein.instance < (MessageContent) -> Unit > ( tag = "notification" )
+    private val requestHandler by kodein.instance < (MessageContent) -> MessageContent> ( tag = "request" )
 
     fun processIncomingFrame( frame: Frame ) {
         this.jsonSerializer.frameToMessage( frame )
@@ -50,7 +50,7 @@ internal class IncomingFrameProcessor( kodein: Kodein ) : CommunicationVisitor {
     }
 
     private fun getConfirmationContent(): BooleanContent {
-        return BooleanContent( true )
+        return BooleanContent(true)
     }
 
 }

@@ -10,7 +10,7 @@ plugins {
 }
 
 application {
-    mainClassName = "jacobs.tycoon.application.MainKt"
+    mainClassName = "jacobs.tycoon.MainKt"
 }
 
 dependencies {
@@ -27,6 +27,7 @@ tasks {
     withType < KotlinCompile > {
         kotlinOptions {
             freeCompilerArgs = listOf(
+                "-Xopt-in=io.ktor.util.KtorExperimentalAPI",
                 "-Xopt-in=kotlin.ExperimentalStdlibApi",
                 "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
             )

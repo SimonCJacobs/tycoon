@@ -1,6 +1,6 @@
 package jacobs.websockets.engine
 
-import jacobs.websockets.MessageContent
+import jacobs.websockets.content.MessageContent
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
@@ -34,7 +34,7 @@ internal class OutgoingCommunicationDispatcher ( kodein: Kodein ) {
     }
 
     private fun dispatchCommunicationAndCallback( communication: PrimarySocketCommunication,
-             continuation: Continuation < MessageContent > ) {
+             continuation: Continuation <MessageContent> ) {
         val message = this.communicationCodec.getMessageFromPrimaryCommunication( communication )
         this.messageIdRepository.logOutgoingMessage( message, continuation.resumeCallback() )
         this.passMessageToEngine( message )

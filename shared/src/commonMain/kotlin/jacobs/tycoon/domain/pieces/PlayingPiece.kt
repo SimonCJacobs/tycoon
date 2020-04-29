@@ -1,9 +1,11 @@
 package jacobs.tycoon.domain.pieces
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 class PlayingPiece(
     val name: String
 ) {
-
     override fun equals( other: Any? ): Boolean {
         if ( other is PlayingPiece )
             return this.name == other.name

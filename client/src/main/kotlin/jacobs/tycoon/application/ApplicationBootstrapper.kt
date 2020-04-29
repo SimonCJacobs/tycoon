@@ -1,16 +1,14 @@
 package jacobs.tycoon.application
 
 import jacobs.tycoon.clientstate.clientStateModule
-import jacobs.tycoon.controller.controllerModule
+import jacobs.tycoon.clientcontroller.clientControllerModule
 import jacobs.tycoon.domain.domainModule
-import jacobs.tycoon.network.networkModule
-import jacobs.tycoon.state.stateModule
 import jacobs.tycoon.view.viewModule
 import org.kodein.di.Kodein
 import org.kodein.di.direct
 import org.kodein.di.erased.instance
 
-class WebApplicationBootstrapper {
+class ApplicationBootstrapper {
 
     fun bootstrap() {
         this.createApplication()
@@ -21,10 +19,8 @@ class WebApplicationBootstrapper {
         val kodein = Kodein {
             import( applicationModule )
             import( clientStateModule )
-            import( controllerModule )
+            import( clientControllerModule() )
             import( domainModule )
-            import( networkModule )
-            import( stateModule )
             import( viewModule )
         }
         return kodein.direct.instance()

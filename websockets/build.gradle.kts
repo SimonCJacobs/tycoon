@@ -6,8 +6,8 @@ repositories {
 }
 
 plugins {
-    kotlin( "multiplatform" ) //version Versions.kotlin
-    kotlin( "plugin.serialization" ) //version Versions.kotlin
+    kotlin( "multiplatform" )
+    kotlin( "plugin.serialization" )
 }
 
 kotlin {
@@ -53,7 +53,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 implementation( kotlin( "stdlib-common" ) )
-                implementation( "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:${ Versions.kotlinSerialization }" )
+                api( "org.jetbrains.kotlinx:kotlinx-serialization-runtime-common:${ Versions.kotlinSerialization }" )
                 implementation( "org.kodein.di:kodein-di-erased:${ Versions.kodein }"  )
                 implementation( "io.ktor:ktor-client-core:${ Versions.ktor }" )
                 implementation( "io.ktor:ktor-client-websockets:${ Versions.ktor }"  )
@@ -69,7 +69,7 @@ kotlin {
             dependencies {
                 implementation( kotlin( "stdlib-js" ) )
                 implementation( project( ":jsUtilities" ) )
-                implementation( "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:${ Versions.kotlinSerialization }" )
+                api( "org.jetbrains.kotlinx:kotlinx-serialization-runtime-js:${ Versions.kotlinSerialization }" )
                 implementation( "io.ktor:ktor-client-js:${ Versions.ktor }"  )
                 implementation( "io.ktor:ktor-client-websockets-js:${ Versions.ktor }"  )
                     // See https://github.com/ktorio/ktor/issues/1400
@@ -85,7 +85,7 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 implementation( kotlin( "stdlib-jdk8" ) )
-                implementation( "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${ Versions.kotlinSerialization }" )
+                api( "org.jetbrains.kotlinx:kotlinx-serialization-runtime:${ Versions.kotlinSerialization }" )
                 implementation( "io.ktor:ktor-server-netty:${ Versions.ktor }" )
                 implementation( "io.ktor:ktor-websockets:${ Versions.ktor }" )
                 implementation( "ch.qos.logback:logback-classic:${ Versions.logback }" )

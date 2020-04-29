@@ -6,6 +6,7 @@ repositories {
 
 plugins {
     kotlin( "multiplatform" )
+    kotlin( "plugin.serialization" )
 }
 
 kotlin {
@@ -18,6 +19,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api( kotlin( "stdlib-common" ) )
+                implementation( project( ":websockets" ) )
                 implementation( "org.kodein.di:kodein-di-erased:${ Versions.kodein }"  )
             }
         }

@@ -7,18 +7,20 @@ import io.ktor.client.features.websocket.ws
 import io.ktor.http.HttpMethod
 import io.ktor.util.KtorExperimentalAPI
 import jacobs.websockets.ClientParameters
+import jacobs.websockets.content.ContentClassCollection
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi @KtorExperimentalAPI
-internal class ClientWebSocketsApplication  (
-    timestampFactory: JsTimestampFactory
-) : WebSocketsApplication < ClientParameters > ( timestampFactory ) {
+internal class ClientWebSocketsApplication (
+    private val contentClasses: ContentClassCollection,
+    private val timestampFactory: JsTimestampFactory
+) : WebSocketsApplication < ClientParameters > () {
 
     private lateinit var client: HttpClient
 
-    override fun getPlatformContainerImplementation( timestampFactory: TimestampFactory ): Container < ClientParameters > {
-        return ClientContainer( this, timestampFactory )
+    override fun getPlatformContainerImplementation(): Container < ClientParameters > {
+        return ClientContainer( this, this.contentClasses, this.timestampFactory )
     }
 
     override fun closeAll() {

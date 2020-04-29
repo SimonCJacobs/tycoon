@@ -1,10 +1,9 @@
 package jacobs.websockets.engine
 
-import jacobs.websockets.MessageContent
+import jacobs.websockets.content.MessageContent
 import jacobs.websockets.WebSocket
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.kodein.di.Kodein
-import org.kodein.di.direct
 import org.kodein.di.erased.instance
 
 // TODO: Deal with socket connection breaking!!!
@@ -19,11 +18,11 @@ internal class WebSocketImpl ( kodein: Kodein ) : WebSocket {
         this.closeSocketLambda.invoke( this )
     }
 
-    override suspend fun notify( notificationObject: MessageContent ): MessageContent {
+    override suspend fun notify( notificationObject: MessageContent): MessageContent {
         return this.communicate( Notification( notificationObject ) )
     }
 
-    override suspend fun request( requestObject: MessageContent ): MessageContent {
+    override suspend fun request( requestObject: MessageContent): MessageContent {
         return this.communicate( Request( requestObject ) )
     }
 

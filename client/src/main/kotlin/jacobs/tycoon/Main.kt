@@ -1,7 +1,7 @@
 package jacobs.tycoon
 
-import jacobs.tycoon.application.WebApplicationBootstrapper
+import jacobs.tycoon.application.ApplicationBootstrapper
 
 fun main() {
-    WebApplicationBootstrapper().bootstrap()
+    ApplicationBootstrapper().bootstrap()
 }

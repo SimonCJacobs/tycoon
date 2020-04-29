@@ -1,6 +1,6 @@
 package jacobs.websockets.engine
 
-import jacobs.websockets.MessageContent
+import jacobs.websockets.content.MessageContent
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 
@@ -30,7 +30,7 @@ internal class CommunicationCodec( kodein: Kodein ) {
         )
     }
 
-    private fun getMessageFromIdAndContent( id: MessageIdentifier, content: MessageContent ): Message {
+    private fun getMessageFromIdAndContent( id: MessageIdentifier, content: MessageContent): Message {
         return Message(
             id = id,
             serializedContent = this.jsonSerializer.serializeContent( content )

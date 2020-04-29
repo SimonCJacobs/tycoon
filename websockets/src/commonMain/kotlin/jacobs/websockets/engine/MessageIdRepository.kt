@@ -1,12 +1,12 @@
 package jacobs.websockets.engine
 
-import jacobs.websockets.MessageContent
+import jacobs.websockets.content.MessageContent
 
 internal class MessageIdRepository {
 
-    private val unansweredMessages: MutableMap < MessageIdentifier, ( MessageContent ) -> Unit > = mutableMapOf()
+    private val unansweredMessages: MutableMap < MessageIdentifier, (MessageContent) -> Unit > = mutableMapOf()
 
-    fun logOutgoingMessage( message: Message, responseCallback: ( MessageContent ) -> Unit ) {
+    fun logOutgoingMessage( message: Message, responseCallback: (MessageContent) -> Unit ) {
         this.unansweredMessages.put( message.id, responseCallback )
     }
 
@@ -16,7 +16,7 @@ internal class MessageIdRepository {
         }
     }
 
-    fun getResponseRouteToOrigin( response: Response ): ( MessageContent ) -> Unit {
+    fun getResponseRouteToOrigin( response: Response ): (MessageContent) -> Unit {
         return this.unansweredMessages.keys.first { it.matches( response.id!! ) }
             .let { key -> this.unansweredMessages.getValue( key ) }
     }
