@@ -1,5 +1,6 @@
 package jacobs.tycoon.clientcontroller
 
+import jacobs.tycoon.controller.communication.AddPlayerRequest
 import jacobs.tycoon.controller.communication.SimpleRequest
 import jacobs.tycoon.controller.communication.SimpleRequestWrapper
 import jacobs.tycoon.domain.GameStage
@@ -13,22 +14,22 @@ import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 
 // TODO: Look at adding redraw hook to mithril directly
-@Suppress( "UNCHECKED_CAST" )
-class OutgoingRequestController(kodein: Kodein ) {
+class OutgoingRequestController( kodein: Kodein ) {
 
     private val network by kodein.instance < Network > ()
 
-    fun addPlayer( name: String, playingPiece: PlayingPiece ) {
-        TODO("Not yet implemented")
+    suspend fun addPlayer( name: String, playingPiece: PlayingPiece ): Boolean {
+        return this.network.sendRequest( AddPlayerRequest( name, playingPiece ) )
+            .let { response -> ( response as BooleanContent ).boolean }
     }
 
-    fun getAvailablePiecesAsync(): Deferred < PlayingPieceList > {
-        return this.network.sendRequestAsync(
+    suspend fun getAvailablePieces(): PlayingPieceList {
+        return this.network.sendRequest(
             SimpleRequestWrapper( SimpleRequest.AVAILABLE_PIECES )
-        ) as Deferred < PlayingPieceList >
+        ) as PlayingPieceList
     }
 
-    fun getGameStage(): GameStage {
+    suspend fun getGameStage(): GameStage {
         TODO("Not yet implemented")
     }
 

@@ -12,11 +12,6 @@ import org.kodein.di.erased.instance
 
 class PageWrapper( kodein: Kodein ) : Component {
 
-    /**
-     * Note that Kodein's lazy loading can't be used on components: it seems that doing
-     * so puts the properties on the JavaScript prototype so they are regenerated during
-     * the Mithril DOM cycle
-     */
     private val uiController by kodein.instance < UserInterfaceController > ()
 
     private val entryPage by kodein.instance < EntryPage > ()

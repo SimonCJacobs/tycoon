@@ -33,8 +33,8 @@ class Network ( kodein: Kodein ) {
         }
     }
 
-    fun sendRequestAsync( request: MessageContent ): Deferred < MessageContent > {
-        return doWhenConnectedAsync {
+    suspend fun sendRequest( request: MessageContent ): MessageContent {
+        return doWhenConnected {
             websocket.request( request )
         }
     }
@@ -42,13 +42,6 @@ class Network ( kodein: Kodein ) {
     private suspend fun < T > doWhenConnected( toDoLambda: suspend () -> T ): T {
         this.deferredConnection.await()
         return toDoLambda.invoke()
-    }
-
-    private fun < T > doWhenConnectedAsync( toDoLambda: suspend () -> T ): Deferred < T > {
-        return this.coroutineScope.async {
-            deferredConnection.await()
-            toDoLambda.invoke()
-        }
     }
 
 }

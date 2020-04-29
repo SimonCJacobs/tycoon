@@ -4,13 +4,16 @@ import jacobs.mithril.Tag
 import jacobs.mithril.m
 import jacobs.tycoon.clientcontroller.UserInterfaceController
 import jacobs.tycoon.domain.pieces.PlayingPiece
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
 import org.js.mithril.VNode
 import org.kodein.di.Kodein
+import org.kodein.di.direct
 import org.kodein.di.erased.instance
 
 class EntryPage( kodein: Kodein ) : Page {
 
-    private val uiController by kodein.instance <UserInterfaceController> ()
+    private val uiController by kodein.instance < UserInterfaceController > ()
     private val state : EntryPageState = EntryPageState( uiController.getAvailablePiecesAsync() )
 
     override fun view(): VNode {

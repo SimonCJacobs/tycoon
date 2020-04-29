@@ -5,7 +5,7 @@ import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.domain.pieces.PlayingPieceList
 import kotlinx.coroutines.Deferred
 
-class EntryPageState(
+class EntryPageState (
     availablePiecesDeferred: Deferred < PlayingPieceList >
 ) {
 
@@ -26,5 +26,5 @@ class EntryPageState(
     var isReady = false
     var playerName: String = ""
     lateinit var selectedPiece: PlayingPiece
-    var testText = "Nothing"
+
 }

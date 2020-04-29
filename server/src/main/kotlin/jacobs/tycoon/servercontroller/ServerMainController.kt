@@ -13,11 +13,10 @@ internal class ServerMainController ( kodein: Kodein ) {
     private val game by kodein.instance < Game > ()
     private val state by kodein.instance < GameState > ()
 
-    fun addPlayer( name: String, playingPiece: PlayingPiece ) {
-        this.game.addPlayer( name, playingPiece )
-            .also {
-                this.state.players.addPlayer( it )
-            }
+    fun addPlayer( name: String, playingPiece: PlayingPiece ): Boolean {
+        val newPlayer = this.game.addPlayer( name, playingPiece )
+        this.state.players.addPlayer( newPlayer )
+        return true
     }
 
     fun getAvailablePieces(): PlayingPieceList {

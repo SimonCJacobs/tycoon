@@ -4,17 +4,21 @@ import jacobs.tycoon.clientstate.ClientState
 import jacobs.tycoon.domain.pieces.PlayingPieceList
 import jacobs.tycoon.view.ViewState
 import jacobs.tycoon.view.components.pages.EntryPageState
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 import org.kodein.di.Kodein
+import org.kodein.di.direct
 import org.kodein.di.erased.instance
 
-class UserInterfaceController( kodein: Kodein ) {
+class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.direct.instance() {
 
     private val clientState by kodein.instance < ClientState > ()
     private val outgoingRequestController by kodein.instance < OutgoingRequestController > ()
 
     fun getAvailablePiecesAsync(): Deferred < PlayingPieceList > {
-        return this.outgoingRequestController.getAvailablePiecesAsync()
+        return async { outgoingRequestController.getAvailablePieces() }
     }
 
     fun getViewStage(): ViewState {
@@ -22,8 +26,13 @@ class UserInterfaceController( kodein: Kodein ) {
     }
 
     fun onEntryPageButtonClick( entryPageState: EntryPageState ) {
-        this.outgoingRequestController.addPlayer( entryPageState.playerName, entryPageState.selectedPiece )
-        this.goToPlayingAreaView()
+        entryPageState.isReady = false
+        launch {
+            val addResult = outgoingRequestController.addPlayer( entryPageState.playerName, entryPageState.selectedPiece )
+            if ( false == addResult )
+                throw Error( "Not dealt with this yet!" ) //TODO player validation
+            goToPlayingAreaView()
+        }
     }
 
     private fun goToPlayingAreaView() {
