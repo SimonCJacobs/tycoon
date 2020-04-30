@@ -6,8 +6,10 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlin.test.Test
 
@@ -16,42 +18,44 @@ class AcceptanceTests {
 
     companion object {
         const val ENOUGH_MILLISECONDS_FOR_THE_SERVER_TO_START = 2500L // Hopefully enough :)
+        const val PORT = 8888
     }
 
+    private val sockets = ServerWebSockets()
     private val ownScope = CoroutineScope( Dispatchers.IO )
 
     @Test
     fun `Starting server without setting wait parameter causes execution to halt`() {
-        runBlocking < Unit > {
-            val serverPostStartDeferred = ownScope.async { startServerAsync( 8887 ).await() }
+        runBlocking {
+            val serverPostStartJob = ownScope.async { startServerAsync().join() }
             delay( ENOUGH_MILLISECONDS_FOR_THE_SERVER_TO_START ) // Give time for server to do something
-            assertThat( serverPostStartDeferred.isActive )
-                .describedAs( "Should have not executed code following start" )
+            assertThat( serverPostStartJob.isActive )
+                .describedAs( "Should have not executed code following start, so job should be ongoing" )
                 .isTrue()
-            // Can't stop the server at present when started in this manner (28.4.20)
+            sockets.close()
         }
     }
 
     @Test
     fun `Starting server with wait = false causes execution to continue`() {
-        runBlocking < Unit > {
-            val serverPostStartDeferred = ownScope.async { startServerAsync( 8888, false ).await() }
+        runBlocking {
+            val serverPostStartJob = ownScope.async { startServerAsync( false ).join() }
             delay( ENOUGH_MILLISECONDS_FOR_THE_SERVER_TO_START ) // Give time for server to do something
-            assertThat( serverPostStartDeferred.isActive )
-                .describedAs( "Should have not executed code following start" )
+            assertThat( serverPostStartJob.isActive )
+                .describedAs( "Should have not executed code following start, so job should be finished" )
                 .isFalse()
-            serverPostStartDeferred.await().close() // Can tidy up
+            sockets.close()
         }
     }
 
     /**
      * If the server is instructed to wait, the deferred should never
      */
-    private fun startServerAsync( serverPort: Int, waitParameter: Boolean? = null ): Deferred < WebSocket > {
-        return this.ownScope.async {
-            ServerWebSockets().websocketServer {
+    private fun startServerAsync( waitParameter: Boolean? = null ): Job {
+        return this.ownScope.launch {
+            sockets.startServer {
                 coroutineScope = ownScope
-                port = serverPort
+                port = PORT
                 if ( null != waitParameter ) wait = waitParameter
             }
         }

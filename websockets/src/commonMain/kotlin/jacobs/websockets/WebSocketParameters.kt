@@ -9,10 +9,10 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 abstract class WebSocketParameters < T : WebSocketParameters < T > > {
 
     open lateinit var coroutineScope: CoroutineScope
-    var notificationHandler: (MessageContent) -> Unit = {}
+    var notificationHandler: ( MessageContent ) -> Unit = {}
     var outgoingMessageDelay: Long = 10L
     var path: String = "/"
     var port: Int = 80
-    var requestHandler: (MessageContent) -> MessageContent = { BooleanContent(true) }
+    var requestHandler: ( MessageContent ) -> MessageContent = { BooleanContent( true ) }
 
 }

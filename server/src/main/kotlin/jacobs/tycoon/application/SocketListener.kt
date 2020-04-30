@@ -12,8 +12,9 @@ internal class SocketListener( kodein: Kodein ) {
     private val frontController by kodein.instance < FrontController > ()
 
     suspend fun listenForConnections() {
-        val websockets = ServerWebSockets( CommunicationLibrary().contentClasses )
-        websockets.websocketServer {
+        val websockets = ServerWebSockets()
+        websockets.startServer {
+            contentClasses = CommunicationLibrary().contentClasses
             path = ApplicationSettings.SOCKET_PATH
             port = ApplicationSettings.SOCKET_PORT
             notificationHandler = frontController::dealWithNotification

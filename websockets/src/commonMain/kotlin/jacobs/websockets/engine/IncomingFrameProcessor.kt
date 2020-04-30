@@ -19,6 +19,7 @@ internal class IncomingFrameProcessor( kodein: Kodein ) : CommunicationVisitor {
     private val notificationHandler by kodein.instance < (MessageContent) -> Unit > ( tag = "notification" )
     private val requestHandler by kodein.instance < (MessageContent) -> MessageContent> ( tag = "request" )
 
+    // TODO a close request from the other party will come through here and
     fun processIncomingFrame( frame: Frame ) {
         this.jsonSerializer.frameToMessage( frame )
             .also { dispatchMessage( it ) }

@@ -3,19 +3,16 @@ package jacobs.websockets
 import io.ktor.util.KtorExperimentalAPI
 import jacobs.websockets.content.ContentClassCollection
 import jacobs.websockets.engine.ClientWebSocketsApplication
-import jacobs.websockets.engine.JsTimestampFactory
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi @KtorExperimentalAPI
-class ClientWebSockets( contentClasses: ContentClassCollection? = null ) : WebSockets( contentClasses ) {
+class ClientWebSockets( contentClasses: ContentClassCollection = ContentClassCollection() ) {
 
-    private val application = ClientWebSocketsApplication(
-        super.contentClasses, JsTimestampFactory()
-    )
+    private val application = ClientWebSocketsApplication( contentClasses )
 
     suspend fun websocketClient( closure: ClientParameters.() -> Unit ): WebSocket {
         val parameters = ClientParameters().apply { closure() }
-        return application.getNewWebSocket( parameters )
+        return this.application.getNewWebSocket( parameters )
     }
 
 }

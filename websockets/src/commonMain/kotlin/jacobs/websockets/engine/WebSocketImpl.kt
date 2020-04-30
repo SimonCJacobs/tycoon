@@ -11,11 +11,11 @@ import org.kodein.di.erased.instance
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi
 internal class WebSocketImpl ( kodein: Kodein ) : WebSocket {
 
-    private val closeSocketLambda by kodein.instance < ( WebSocket ) -> Unit >( tag = "closeSocket" )
+    private val closeHandler by kodein.instance < CloseRequestHandler >()
     private val outgoingCommunicationDispatcher by kodein.instance < OutgoingCommunicationDispatcher > ()
 
     override fun close() {
-        this.closeSocketLambda.invoke( this )
+        this.closeHandler.close( this )
     }
 
     override suspend fun notify( notificationObject: MessageContent): MessageContent {

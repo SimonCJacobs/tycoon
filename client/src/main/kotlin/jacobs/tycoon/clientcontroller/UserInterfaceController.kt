@@ -1,5 +1,6 @@
 package jacobs.tycoon.clientcontroller
 
+import jacobs.mithril.Mithril
 import jacobs.tycoon.clientstate.ClientState
 import jacobs.tycoon.domain.pieces.PlayingPieceList
 import jacobs.tycoon.view.ViewState
@@ -32,6 +33,7 @@ class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.direc
             if ( false == addResult )
                 throw Error( "Not dealt with this yet!" ) //TODO player validation
             goToPlayingAreaView()
+            Mithril().redraw()
         }
     }
 

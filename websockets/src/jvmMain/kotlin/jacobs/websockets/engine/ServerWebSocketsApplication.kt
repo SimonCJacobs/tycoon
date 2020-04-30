@@ -1,6 +1,7 @@
 package jacobs.websockets.engine
 
 import io.ktor.application.install
+import io.ktor.http.cio.websocket.Frame
 import io.ktor.routing.routing
 import io.ktor.server.engine.ApplicationEngine
 import io.ktor.server.engine.embeddedServer
@@ -8,50 +9,55 @@ import io.ktor.server.netty.Netty
 import io.ktor.util.KtorExperimentalAPI
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
-import jacobs.websockets.content.ContentClassCollection
 import jacobs.websockets.ServerParameters
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.ReceiveChannel
+import kotlinx.coroutines.channels.SendChannel
 
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi @KtorExperimentalAPI
-internal class ServerWebSocketsApplication(
-    private val contentClasses: ContentClassCollection,
-    private val timestampFactory: JvmTimestampFactory
-) : WebSocketsApplication < ServerParameters > () {
+internal class ServerWebSocketsApplication {
 
-    private val serversByParameters: MutableMap < ServerParameters, ApplicationEngine > = mutableMapOf()
+    private lateinit var container: ServerContainer
+    private lateinit var server: ApplicationEngine
+    private var socketIndex: Int = 0
 
-    override fun getPlatformContainerImplementation(): Container < ServerParameters > {
-        return ServerContainer( this, this.contentClasses, this.timestampFactory )
-    }
-
-    override fun closeAll() {
-        this.serversByParameters.keys.forEach { this.stopEngine( it ) }
-    }
-
-    override suspend fun startEngine( engine: WebSocketEngine, parameters: ServerParameters ) {
-        this.serversByParameters.put(
-            parameters, this.startNewServer( engine, parameters )
-        )
-    }
-
-    override fun stopEngine( parameters: ServerParameters ) {
-        this.serversByParameters.remove( parameters )!!.stop( 50, 50 )
+    fun close() {
+        this.server.environment.stop()
     }
 
     /**
      * Note that this function will suspend indefinitely if parameters.wait = true
      */
-    private suspend fun startNewServer( engine: WebSocketEngine, parameters: ServerParameters ): ApplicationEngine {
-        val server = embeddedServer( Netty, parameters.port ) {
+    suspend fun startServer( parameters: ServerParameters ) {
+        this.initialiseApplication( parameters )
+        this.startKtorServer( parameters )
+    }
+
+    private fun initialiseApplication( parameters: ServerParameters ) {
+        this.container = ServerContainer(
+            closeRequestHandler = CloseRequestHandler { throw Error( "Not implemented" ) },
+            parameters = parameters
+        )
+    }
+
+    private suspend fun startKtorServer( parameters: ServerParameters ) {
+        this.server = embeddedServer( Netty, parameters.port ) {
             install( WebSockets )
             routing {
                 webSocket( parameters.path ) {
-                    engine.startMessageLoop( incoming, outgoing )
+                    makeNewSocketConnection( parameters, incoming, outgoing )
                 }
             }
         }
         server.start( wait = parameters.wait )
-        return server
+    }
+
+    private suspend fun makeNewSocketConnection( parameters: ServerParameters,
+             incoming: ReceiveChannel < Frame >, outgoing: SendChannel < Frame > ) {
+        val context = ServerContext( this.socketIndex++, parameters = parameters )
+        this.container.prepareForNewScope( context )
+        this.container.getEngineInContext( context )
+            .startMessageLoop( incoming, outgoing )
     }
 
 }

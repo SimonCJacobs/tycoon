@@ -20,11 +20,15 @@ internal class WebSocketEngine( kodein: Kodein ) {
 
     private val outgoingFrameQueue: ArrayDeque < Frame > = ArrayDeque()
     private val frameProducer = coroutineScope.produce {
-        while( true ) {
+        while ( true ) {
             if ( outgoingFrameQueue.isNotEmpty() )
                 send( outgoingFrameQueue.removeFirst() )
             delay( messageLoopDelay )
         }
+    }
+
+    fun close() {
+        TODO("Not yet implemented")
     }
 
     fun queueOutgoingFrame( frame: Frame ) {
@@ -32,7 +36,7 @@ internal class WebSocketEngine( kodein: Kodein ) {
     }
 
     suspend fun startMessageLoop( incoming: ReceiveChannel < Frame >, outgoing: SendChannel < Frame > ) {
-        while( true ) {
+        while ( true ) {
             selectUnbiased < Any > {
                 incoming.onReceive { processIncomingFrame( it ) }
                 frameProducer.onReceive { outgoing.send( it ) }

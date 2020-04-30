@@ -7,15 +7,18 @@ import org.kodein.di.bindings.ScopeRegistry
 import org.kodein.di.bindings.StandardScopeRegistry
 
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi
-internal class SocketScope < T : WebSocketParameters < T > > : Scope < T > {
+internal class SocketScope
+    < TParameters : WebSocketParameters < TParameters >, TContext : SocketContext < TParameters > >
+    : Scope < TContext >
+{
 
-    private val registries: MutableMap < T, ScopeRegistry > = mutableMapOf()
+    private val registries: MutableMap < TContext, ScopeRegistry > = mutableMapOf()
 
-    fun deleteRegistry( context: T ) {
+    fun deleteRegistry( context: TContext ) {
         this.registries.remove( context )
     }
 
-    override fun getRegistry( context: T ): ScopeRegistry {
+    override fun getRegistry( context: TContext ): ScopeRegistry {
         if ( this.registries.contains( context ) )
             return this.registries.getValue( context )
         else

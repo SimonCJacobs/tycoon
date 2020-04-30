@@ -7,19 +7,17 @@ import jacobs.websockets.engine.ServerWebSocketsApplication
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi @KtorExperimentalAPI
-class ServerWebSockets ( contentClasses: ContentClassCollection? = null ) : WebSockets( contentClasses ) {
+class ServerWebSockets {
 
-    private val application = ServerWebSocketsApplication(
-        super.contentClasses, JvmTimestampFactory()
-    )
+    private val application = ServerWebSocketsApplication()
 
-    fun closeAll() {
-        this.application.closeAll()
+    fun close() {
+        this.application.close()
     }
 
-    suspend fun websocketServer( closure: ServerParameters.() -> Unit ): WebSocket {
+    suspend fun startServer( closure: ServerParameters.() -> Unit ) {
         val parameters = ServerParameters().apply { closure() }
-        return this.application.getNewWebSocket( parameters )
+        return this.application.startServer( parameters )
     }
 
 }
