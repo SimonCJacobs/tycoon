@@ -15,9 +15,14 @@ application {
 
 dependencies {
     implementation( kotlin( "stdlib-jdk8" ) )
+    implementation( kotlin( "reflect" ) )
     implementation( project( ":shared", "jvmDefault" ) )
     implementation( project( ":websockets" ) )
     implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core:${ Versions.kotlinCoroutines }" )
+    testImplementation( "org.junit.jupiter:junit-jupiter-api:${ Versions.jUnit }" )
+    testRuntimeOnly( "org.junit.jupiter:junit-jupiter-engine:${ Versions.jUnit }" )
+    testImplementation( "org.assertj:assertj-core:${ Versions.assertJ }" )
+    testImplementation( "org.mockito:mockito-core:${ Versions.mockito }" )
 }
 
 tasks {
@@ -33,5 +38,8 @@ tasks {
             )
             jvmTarget = Versions.javaBytecode
         }
+    }
+    withType < Test > {
+        useJUnitPlatform()
     }
 }

@@ -43,6 +43,7 @@ internal abstract class Container < T : WebSocketParameters < T > > {
             bind < MessageIdRepository >() with scoped().singleton { MessageIdRepository() }
             bind < OutgoingCommunicationDispatcher >() with
                 scoped().singleton { OutgoingCommunicationDispatcher( kodein ) }
+            bind < OutgoingFrameProducer >() with scoped().singleton { OutgoingFrameProducer( kodein ) }
             bind < ResponseDirector >() with scoped().singleton { ResponseDirector( kodein ) }
             bind < WebSocket >() with scoped().singleton { WebSocketImpl( kodein ) }
             bind < WebSocketEngine >() with scoped().singleton { WebSocketEngine( kodein ) }
@@ -52,13 +53,15 @@ internal abstract class Container < T : WebSocketParameters < T > > {
     private fun sharedParametersModule(): Kodein.Module {
         return Kodein.Module( "parameters" ) {
             bind < CoroutineScope > () with parameter { coroutineScope }
-            bind < ( MessageContent ) -> Unit > ( tag = "notification" ) with parameter {  notificationHandler }
-            bind  < ( MessageContent ) -> MessageContent > ( tag = "request" ) with parameter { requestHandler }
-            bind < Long >( tag = "outgoing" ) with parameter { outgoingMessageDelay }
+            bind < suspend ( MessageContent ) -> Unit > ( tag = "notification" ) with
+                parameter { notificationHandler }
+            bind  < suspend ( MessageContent ) -> MessageContent > ( tag = "request" ) with
+                parameter { requestHandler }
+            bind < Long > ( tag = "outgoing" ) with parameter { outgoingMessageDelay }
         }
     }
 
-    private inline fun < reified S : Any > Kodein.Builder.parameter( crossinline parameterAccessor: T.() -> S ): Provider < SocketContext < T >, S > {
+    protected inline fun < reified S : Any > Kodein.Builder.parameter( crossinline parameterAccessor: T.() -> S ): Provider < SocketContext < T >, S > {
         return contexted().provider { context.parameters.parameterAccessor() }
     }
 

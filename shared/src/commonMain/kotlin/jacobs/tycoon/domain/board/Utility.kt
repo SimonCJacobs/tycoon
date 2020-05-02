@@ -1,8 +1,11 @@
 package jacobs.tycoon.domain.board
 
-class Utility( name: String, listPrice: Int  ) : Property( name, listPrice ) {
+import kotlinx.serialization.Serializable
 
-    override fun < T > accept( squareVisitor: SquareVisitor<T>): T {
+@Serializable
+class Utility( override val name: String, override val listPrice: Int  ) : Property() {
+
+    override fun < T > accept( squareVisitor: SquareVisitor < T > ): T {
         return squareVisitor.visit( this )
     }
 

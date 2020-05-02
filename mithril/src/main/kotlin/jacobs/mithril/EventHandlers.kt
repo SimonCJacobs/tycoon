@@ -38,7 +38,7 @@ class EventHandlers {
     }
 
     private fun mergeLifecycleMethods( jsObject: Any ) {
-        jsObject.asDynamic().onupdate  = this.onupdate
+        jsObject.asDynamic().onupdate = this.onupdate
     }
 
     private fun mergeAdditionalFunctionalityMethods( jsObject: Any ) {
@@ -48,12 +48,13 @@ class EventHandlers {
     private fun mergeHtmlStandardMethods( jsObject: Any ) {
         jsObject.copyAcrossIfExists( this.onclick, "onclick"  )
         jsObject.copyAcrossIfExists( this.oninput, "oninput" )
-        jsObject.copyAcrossIfExists( this.onkeyup, "ononkeyup" )
+        jsObject.copyAcrossIfExists( this.onkeyup, "onkeyup" )
     }
 
     private fun Any.copyAcrossIfExists( eventHandler: EventHandler?, vararg stringNames: String ) {
         stringNames.forEach {
-            this.asDynamic()[ it ] = eventHandler
+            if ( null !== eventHandler )
+                this.asDynamic()[ it ] = eventHandler
         }
     }
 

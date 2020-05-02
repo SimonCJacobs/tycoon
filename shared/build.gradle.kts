@@ -11,7 +11,11 @@ plugins {
 
 kotlin {
     js {
-        browser()
+        browser {
+            testTask {
+                useMocha()
+            }
+        }
     }
     jvm()
 
@@ -23,14 +27,30 @@ kotlin {
                 implementation( "org.kodein.di:kodein-di-erased:${ Versions.kodein }"  )
             }
         }
-        val jvmMain by getting {
+        val commonTest by getting {
             dependencies {
-                api( kotlin( "stdlib-jdk8" ) )
+                implementation( kotlin( "test-common" ) )
+                implementation( kotlin( "test-annotations-common" ) )
             }
         }
         val jsMain by getting {
             dependencies {
                 api( kotlin( "stdlib-js" ) )
+            }
+        }
+        val jsTest by getting {
+            dependencies {
+                implementation( kotlin( "test-js" ) )
+            }
+        }
+        val jvmMain by getting {
+            dependencies {
+                api( kotlin( "stdlib-jdk8" ) )
+            }
+        }
+        val jvmTest by getting {
+            dependencies {
+                implementation( kotlin( "test-junit" ) )
             }
         }
     }

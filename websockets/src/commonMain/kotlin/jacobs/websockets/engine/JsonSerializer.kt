@@ -2,10 +2,8 @@ package jacobs.websockets.engine
 
 import io.ktor.http.cio.websocket.Frame
 import io.ktor.http.cio.websocket.readText
-import jacobs.websockets.content.BooleanContent
-import jacobs.websockets.content.ContentClassCollection
+import jacobs.websockets.content.SerializationLibrary
 import jacobs.websockets.content.MessageContent
-import jacobs.websockets.content.StringContent
 import jacobs.websockets.content.getWebSocketContentClasses
 import kotlinx.serialization.PolymorphicSerializer
 import kotlinx.serialization.json.Json
@@ -19,17 +17,18 @@ internal class JsonSerializer( kodein: Kodein ) {
 
     private val socketModule = SerializersModule {
         polymorphic( MessageContent::class ) {
-            getWebSocketContentClasses().forEach {
+            getWebSocketContentClasses().forEachContentClass {
                 clazz, serializer -> addSubclass( clazz, serializer )
             }
-            contentClassCollection( kodein ).forEach {
+            serializationLibrary( kodein ).forEachContentClass {
                 clazz, serializer -> addSubclass( clazz, serializer )
             }
         }
+        serializationLibrary( kodein ).forEachSerialModule { include( it ) }
     }
     private val json: Json = Json( configuration = JsonConfiguration.Stable, context = socketModule )
 
-    private fun contentClassCollection( kodein: Kodein ): ContentClassCollection {
+    private fun serializationLibrary( kodein: Kodein ): SerializationLibrary {
         return kodein.direct.instance()
     }
 

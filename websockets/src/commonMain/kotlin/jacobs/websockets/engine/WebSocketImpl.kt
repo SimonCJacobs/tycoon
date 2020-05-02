@@ -18,7 +18,7 @@ internal class WebSocketImpl ( kodein: Kodein ) : WebSocket {
         this.closeHandler.close( this )
     }
 
-    override suspend fun notify( notificationObject: MessageContent): MessageContent {
+    override suspend fun notify( notificationObject: MessageContent ): MessageContent {
         return this.communicate( Notification( notificationObject ) )
     }
 

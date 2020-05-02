@@ -1,7 +1,7 @@
 package jacobs.tycoon
 
-import jacobs.tycoon.application.Application
+import jacobs.tycoon.application.ApplicationBootstrapper
 
 suspend fun main() {
-    Application().startAndWaitForConnections()
+    ApplicationBootstrapper().start()
 }

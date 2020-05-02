@@ -1,6 +1,7 @@
 package jacobs.tycoon.application
 
 import jacobs.tycoon.clientcontroller.Network
+import jacobs.tycoon.clientcontroller.OutgoingRequestController
 import jacobs.tycoon.view.View
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch

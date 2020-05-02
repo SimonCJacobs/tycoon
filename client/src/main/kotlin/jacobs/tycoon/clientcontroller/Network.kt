@@ -1,5 +1,6 @@
 package jacobs.tycoon.clientcontroller
 
+import jacobs.mithril.Mithril
 import jacobs.tycoon.ApplicationSettings
 import jacobs.tycoon.controller.communication.CommunicationLibrary
 import jacobs.websockets.content.MessageContent
@@ -20,7 +21,7 @@ class Network ( kodein: Kodein ) {
     private lateinit var websocket: WebSocket
 
     fun connect() {
-        val websockets = ClientWebSockets( CommunicationLibrary().contentClasses )
+        val websockets = ClientWebSockets( CommunicationLibrary().serializationLibrary )
         this.deferredConnection = this.coroutineScope.async {
             websocket = websockets
                 .websocketClient {

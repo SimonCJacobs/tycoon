@@ -14,32 +14,19 @@ import org.kodein.di.erased.instance
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi
 internal class WebSocketEngine( kodein: Kodein ) {
 
-    private val coroutineScope by kodein.instance < CoroutineScope >()
     private val incomingFrameProcessor by kodein.instance < IncomingFrameProcessor > ()
     private val messageLoopDelay by kodein.instance < Long > ( tag = "outgoing" )
-
-    private val outgoingFrameQueue: ArrayDeque < Frame > = ArrayDeque()
-    private val frameProducer = coroutineScope.produce {
-        while ( true ) {
-            if ( outgoingFrameQueue.isNotEmpty() )
-                send( outgoingFrameQueue.removeFirst() )
-            delay( messageLoopDelay )
-        }
-    }
+    private val outgoingFrameProducer by kodein.instance < OutgoingFrameProducer > ()
 
     fun close() {
         TODO("Not yet implemented")
-    }
-
-    fun queueOutgoingFrame( frame: Frame ) {
-        this.outgoingFrameQueue.addLast( frame )
     }
 
     suspend fun startMessageLoop( incoming: ReceiveChannel < Frame >, outgoing: SendChannel < Frame > ) {
         while ( true ) {
             selectUnbiased < Any > {
                 incoming.onReceive { processIncomingFrame( it ) }
-                frameProducer.onReceive { outgoing.send( it ) }
+                outgoingFrameProducer.producer.onReceive { outgoing.send( it ) }
             }
             delay( this.messageLoopDelay )
         }

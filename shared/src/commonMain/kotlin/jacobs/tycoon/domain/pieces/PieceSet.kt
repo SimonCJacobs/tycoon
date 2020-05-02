@@ -1,7 +1,9 @@
 package jacobs.tycoon.domain.pieces
 
 import jacobs.tycoon.domain.players.GamePlayers
+import kotlinx.serialization.Serializable
 
+@Serializable
 abstract class PieceSet {
 
     protected abstract val pieces: List < PlayingPiece >

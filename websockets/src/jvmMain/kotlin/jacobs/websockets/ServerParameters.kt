@@ -1,6 +1,6 @@
 package jacobs.websockets
 
-import jacobs.websockets.content.ContentClassCollection
+import jacobs.websockets.content.SerializationLibrary
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -9,7 +9,8 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 class ServerParameters() : WebSocketParameters < ServerParameters >() {
 
     override var coroutineScope = CoroutineScope( Dispatchers.IO )
-    var contentClasses: ContentClassCollection = ContentClassCollection()
+    var newConnectionHandler: ( Int ) -> Unit = { }
+    var serializationLibrary: SerializationLibrary = SerializationLibrary()
     var wait: Boolean = true
 
 }

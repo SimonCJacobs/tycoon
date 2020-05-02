@@ -3,7 +3,7 @@ package jacobs.jsutilities
 import kotlin.test.Test
 import kotlin.test.asserter
 
-class JsUtilitiesTest {
+class CreateInstanceTest {
 
     @Test
     fun instantiateClassWithoutParameters() {

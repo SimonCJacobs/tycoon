@@ -4,7 +4,6 @@ import jacobs.tycoon.domain.logs.ActionLog
 import jacobs.tycoon.domain.logs.PlayerJoined
 import jacobs.tycoon.domain.pieces.PieceSet
 import jacobs.tycoon.domain.pieces.PlayingPiece
-import jacobs.tycoon.domain.pieces.PlayingPieceList
 import jacobs.tycoon.domain.players.GamePlayers
 import jacobs.tycoon.domain.players.Player
 import org.kodein.di.Kodein
@@ -21,8 +20,8 @@ class Game( kodein: Kodein ) {
             }
     }
 
-    fun getAvailablePieces( pieceSet: PieceSet, players: GamePlayers ): PlayingPieceList {
-        return PlayingPieceList( pieceSet.getAvailablePieces( players ) )
+    fun getAvailablePieces( pieceSet: PieceSet, players: GamePlayers ): List < PlayingPiece > {
+        return pieceSet.getAvailablePieces( players )
     }
 
 }

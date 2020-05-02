@@ -14,8 +14,8 @@ internal class OutgoingCommunicationDispatcher ( kodein: Kodein ) {
     private val communicationCodec by kodein.instance < CommunicationCodec > ()
     private val jsonSerializer by kodein.instance < JsonSerializer > ()
     private val messageIdRepository by kodein.instance < MessageIdRepository > ()
+    private val outgoingFrameProducer by kodein.instance < OutgoingFrameProducer > ()
     private val responseDirector by kodein.instance < ResponseDirector > ()
-    private val webSocketEngine by kodein.instance < WebSocketEngine > ()
 
     init {
         this.responseDirector.setOutgoingResponsePath { response -> dispatchResponse( response ) }
@@ -41,7 +41,7 @@ internal class OutgoingCommunicationDispatcher ( kodein: Kodein ) {
     }
 
     private fun passMessageToEngine( message: Message ) {
-        this.webSocketEngine.queueOutgoingFrame(
+        this.outgoingFrameProducer.queueOutgoingFrame(
             this.jsonSerializer.messageToFrame( message )
         )
     }

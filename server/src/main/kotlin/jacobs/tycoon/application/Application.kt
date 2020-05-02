@@ -1,27 +1,19 @@
 package jacobs.tycoon.application
 
-import jacobs.tycoon.domain.domainModule
-import jacobs.tycoon.servercontroller.serverControllerModule
-import jacobs.tycoon.state.stateModule
+import jacobs.tycoon.state.StateInitialiser
 import org.kodein.di.Kodein
-import org.kodein.di.direct
 import org.kodein.di.erased.instance
 
-internal class Application {
+class Application ( kodein: Kodein ) {
 
-    suspend fun startAndWaitForConnections() {
-        this.setupApplication()
-            .direct.instance < SocketListener > ()
-            .listenForConnections()
-    }
+    private val socketServer by kodein.instance < SocketServer > ()
+    private val stateInitialiser by kodein.instance < StateInitialiser >()
+    private val updateEngine by kodein.instance < UpdateEngine > ()
 
-    private fun setupApplication(): Kodein {
-        return Kodein {
-            import( applicationModule() )
-            import( domainModule )
-            import( serverControllerModule() )
-            import( stateModule )
-        }
+    suspend fun run() {
+        this.stateInitialiser.initialiseStandardGame()
+        this.socketServer.startServer()
+        this.updateEngine.startUpdating()
     }
 
 }

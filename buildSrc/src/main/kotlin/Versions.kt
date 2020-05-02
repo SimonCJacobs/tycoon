@@ -9,4 +9,5 @@ object Versions {
     const val ktor = "1.3.1"
     const val logback = "1.2.3"
     const val mithril = "2.0.4"
+    const val mockito = "3.3.3"
 }

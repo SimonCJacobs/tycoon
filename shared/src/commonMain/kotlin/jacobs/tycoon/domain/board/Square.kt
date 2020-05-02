@@ -1,7 +1,12 @@
 package jacobs.tycoon.domain.board
 
-abstract class Square ( val name: String ) {
+import kotlinx.serialization.Serializable
 
-    abstract fun < T > accept( squareVisitor: SquareVisitor<T>): T
+@Serializable
+abstract class Square {
+
+    abstract val name: String
+
+    abstract fun < T > accept( squareVisitor: SquareVisitor < T > ): T
 
 }

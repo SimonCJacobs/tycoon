@@ -36,7 +36,7 @@ internal sealed class SocketCommunication {
         return this::class.getIdentifier()
     }
 
-    abstract fun accept( visitor: CommunicationVisitor )
+    abstract suspend fun accept( visitor: CommunicationVisitor )
 
 }
 
@@ -51,7 +51,7 @@ internal class Notification(
     override var id: MessageIdentifier? = null
 ) : PrimarySocketCommunication() {
 
-    override fun accept( visitor: CommunicationVisitor ) {
+    override suspend fun accept( visitor: CommunicationVisitor ) {
         visitor.visit( this )
     }
 }
@@ -61,7 +61,7 @@ internal class Request(
     override var id: MessageIdentifier? = null
 ) : PrimarySocketCommunication() {
 
-    override fun accept( visitor: CommunicationVisitor ) {
+    override suspend fun accept( visitor: CommunicationVisitor ) {
         visitor.visit( this )
     }
 }
@@ -73,7 +73,7 @@ internal class Response(
 
     override var id: MessageIdentifier? = oldId.cloneForNewCommunicationType( this.getIdentifier() )
 
-    override fun accept( visitor: CommunicationVisitor ) {
+    override suspend fun accept( visitor: CommunicationVisitor ) {
         visitor.visit( this )
     }
 }

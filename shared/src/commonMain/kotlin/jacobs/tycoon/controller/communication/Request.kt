@@ -7,5 +7,5 @@ import jacobs.websockets.content.MessageContent
  * and registered in the CommunicationLibrary
  */
 interface Request : MessageContent {
-    fun < T > accept( visitor: RequestVisitor < T > ): T
+    suspend fun < T > accept( visitor: RequestVisitor < T > ): T
 }

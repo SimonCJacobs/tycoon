@@ -3,7 +3,9 @@ package jacobs.websockets.engine
 import io.ktor.http.cio.websocket.Frame
 import jacobs.websockets.content.BooleanContent
 import jacobs.websockets.content.MessageContent
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.launch
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 
@@ -13,11 +15,12 @@ import org.kodein.di.erased.instance
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi
 internal class IncomingFrameProcessor( kodein: Kodein ) : CommunicationVisitor {
 
+    private val coroutineScope by kodein.instance < CoroutineScope >()
     private val communicationCodec by kodein.instance < CommunicationCodec > ()
     private val responseDirector by kodein.instance < ResponseDirector > ()
     private val jsonSerializer by kodein.instance < JsonSerializer > ()
-    private val notificationHandler by kodein.instance < (MessageContent) -> Unit > ( tag = "notification" )
-    private val requestHandler by kodein.instance < (MessageContent) -> MessageContent> ( tag = "request" )
+    private val notificationHandler by kodein.instance < suspend (MessageContent) -> Unit > ( tag = "notification" )
+    private val requestHandler by kodein.instance < suspend (MessageContent) -> MessageContent> ( tag = "request" )
 
     // TODO a close request from the other party will come through here and
     fun processIncomingFrame( frame: Frame ) {
@@ -26,27 +29,27 @@ internal class IncomingFrameProcessor( kodein: Kodein ) : CommunicationVisitor {
     }
 
     private fun dispatchMessage( message: Message ) {
-        this.communicationCodec.getCommunicationFromIncomingMessage( message )
-            .accept( this )
+        val communication = this.communicationCodec.getCommunicationFromIncomingMessage( message )
+        this.coroutineScope.launch { communication.accept( this@IncomingFrameProcessor ) }
     }
 
         // Visitor methods processing incoming SocketCommunication instances
 
-    override fun visit( notification: Notification ) {
+    override suspend fun visit( notification: Notification ) {
         this.notificationHandler.invoke( notification.content )
         this.responseDirector.dispatchOutgoingResponse(
             notification.getResponseWithNewContent( this.getConfirmationContent() )
         )
     }
 
-    override fun visit( request: Request ) {
+    override suspend fun visit( request: Request ) {
         val newContent = this.requestHandler.invoke( request.content )
         this.responseDirector.dispatchOutgoingResponse(
             request.getResponseWithNewContent( newContent )
         )
     }
 
-    override fun visit( response: Response ) {
+    override suspend fun visit( response: Response ) {
         this.responseDirector.dispatchIncomingResponse( response )
     }
 

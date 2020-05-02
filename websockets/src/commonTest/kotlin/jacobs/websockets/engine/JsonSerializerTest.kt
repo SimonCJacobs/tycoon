@@ -1,7 +1,7 @@
 package jacobs.websockets.engine
 
 import jacobs.websockets.content.BooleanContent
-import jacobs.websockets.content.ContentClassCollection
+import jacobs.websockets.content.SerializationLibrary
 import jacobs.websockets.content.MessageContent
 import kotlinx.serialization.Serializable
 import org.kodein.di.Kodein
@@ -17,12 +17,12 @@ class JsonSerializerTest {
     private lateinit var jsonSerializer: JsonSerializer
 
     private fun useSimpleInstance() {
-        this.useWithContentClassCollection( ContentClassCollection() )
+        this.useWithContentClassCollection( SerializationLibrary() )
     }
 
-    private fun useWithContentClassCollection( content: ContentClassCollection ) {
+    private fun useWithContentClassCollection( content: SerializationLibrary ) {
         val kodein = Kodein {
-            bind < ContentClassCollection > () with singleton { content }
+            bind < SerializationLibrary > () with singleton { content }
             bind < JsonSerializer > () with singleton { JsonSerializer( kodein ) }
         }
         this.jsonSerializer = kodein.direct.instance()
@@ -43,7 +43,7 @@ class JsonSerializerTest {
 
     @Test
     fun serializesAndDeserializesUserDefinedClass() {
-        val content = ContentClassCollection.build {
+        val content = SerializationLibrary.build {
             SimpleRequestWrapper::class serializedBy SimpleRequestWrapper.serializer()
         }
         this.useWithContentClassCollection( content )

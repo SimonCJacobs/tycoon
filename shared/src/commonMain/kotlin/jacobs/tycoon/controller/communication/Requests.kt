@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 class AddPlayerRequest (
     val name: String, val piece: PlayingPiece
 ) : Request {
-    override fun < T > accept( visitor: RequestVisitor < T > ): T {
+    override suspend fun < T > accept( visitor: RequestVisitor < T > ): T {
         return visitor.visit( this )
     }
 }
@@ -16,7 +16,7 @@ class AddPlayerRequest (
 class SimpleRequestWrapper(
     val identifier: SimpleRequest
 ) : Request {
-    override fun < T > accept( visitor: RequestVisitor < T > ): T {
+    override suspend fun < T > accept( visitor: RequestVisitor < T > ): T {
         return visitor.visit( this )
     }
 }

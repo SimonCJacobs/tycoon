@@ -1,13 +1,12 @@
 package jacobs.tycoon.clientcontroller
 
-import jacobs.mithril.Mithril
 import jacobs.tycoon.clientstate.ClientState
-import jacobs.tycoon.domain.pieces.PlayingPieceList
 import jacobs.tycoon.view.ViewState
-import jacobs.tycoon.view.components.pages.EntryPageState
+import jacobs.tycoon.clientstate.EntryPageState
+import jacobs.tycoon.domain.Game
+import jacobs.tycoon.domain.pieces.PlayingPiece
+import jacobs.tycoon.state.GameState
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import org.kodein.di.Kodein
 import org.kodein.di.direct
@@ -16,29 +15,54 @@ import org.kodein.di.erased.instance
 class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.direct.instance() {
 
     private val clientState by kodein.instance < ClientState > ()
+    private val entryPageState by kodein.instance < EntryPageState > ()
+    private val game by kodein.instance < Game > ()
+    private val gameState by kodein.instance < GameState > ()
     private val outgoingRequestController by kodein.instance < OutgoingRequestController > ()
 
-    fun getAvailablePiecesAsync(): Deferred < PlayingPieceList > {
-        return async { outgoingRequestController.getAvailablePieces() }
+    fun getAvailablePieces(): List < PlayingPiece > {
+        return game.getAvailablePieces( gameState.pieceSet, gameState.players )
+    }
+
+    fun getSelectedPiece( availablePieces: List < PlayingPiece > ): PlayingPiece {
+        if ( null == entryPageState.selectedPiece )
+            return availablePieces.random()
+        else
+            return entryPageState.selectedPiece!!
     }
 
     fun getViewStage(): ViewState {
         return this.clientState.viewState
     }
 
-    fun onEntryPageButtonClick( entryPageState: EntryPageState ) {
-        entryPageState.isReady = false
+    private fun goToPlayingAreaView() {
+        this.clientState.viewState = ViewState.PLAYING_AREA
+    }
+
+    private fun isAddPlayerValidOnClientSide(): Boolean {
+        // TODO ("Not yet implemented")
+        return true
+    }
+
+    fun isAppWaitingForServer(): Boolean {
+        return this.clientState.isWaitingForServer
+    }
+
+    fun onEntryPageButtonClick() {
+        if ( false == this.isAddPlayerValidOnClientSide() )
+            TODO( "Not implemented new player client-side validation yet, or dealing with bad entry" )
         launch {
-            val addResult = outgoingRequestController.addPlayer( entryPageState.playerName, entryPageState.selectedPiece )
+            val addResult = outgoingRequestController.addPlayer(
+                entryPageState.playerName, entryPageState.selectedPiece!!
+            )
             if ( false == addResult )
                 throw Error( "Not dealt with this yet!" ) //TODO player validation
             goToPlayingAreaView()
-            Mithril().redraw()
         }
     }
 
-    private fun goToPlayingAreaView() {
-        this.clientState.viewState = ViewState.PLAYING_AREA
+    private fun setWaitingForServer( newState: Boolean = true ) {
+        this.clientState.isWaitingForServer = newState
     }
 
 }

@@ -8,22 +8,23 @@ import io.ktor.http.HttpMethod
 import io.ktor.util.KtorExperimentalAPI
 import jacobs.websockets.ClientParameters
 import jacobs.websockets.WebSocket
-import jacobs.websockets.content.ContentClassCollection
+import jacobs.websockets.content.SerializationLibrary
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.launch
 
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi @KtorExperimentalAPI
 internal class ClientWebSocketsApplication (
-    private val contentClasses: ContentClassCollection
+    private val serializationLibrary: SerializationLibrary
 ) {
     private val client = HttpClient ( Js ) { install( WebSockets ) }
-    private val container = ClientContainer( this.getCloseHandler(), this.contentClasses )
+    private val container = ClientContainer( this.getCloseHandler(), this.serializationLibrary )
     private val detailsBySocket: MutableMap < WebSocket, SocketDetails > = mutableMapOf()
 
     private fun getCloseHandler(): CloseRequestHandler {
         return CloseRequestHandler { socket -> this.closeSocket( socket ) }
     }
 
+    @Suppress( "MemberVisibilityCanBePrivate" )
     fun closeSocket( websocket: WebSocket ) {
         this.detailsBySocket.remove( websocket )!!
             .let {

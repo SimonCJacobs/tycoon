@@ -3,24 +3,28 @@ package jacobs.tycoon.view.components.pages
 import jacobs.mithril.Tag
 import jacobs.mithril.m
 import jacobs.tycoon.clientcontroller.UserInterfaceController
+import jacobs.tycoon.clientstate.EntryPageState
 import jacobs.tycoon.domain.pieces.PlayingPiece
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.async
 import org.js.mithril.VNode
+import org.js.mithril.selectedIndex
 import org.kodein.di.Kodein
-import org.kodein.di.direct
 import org.kodein.di.erased.instance
+import org.w3c.dom.HTMLInputElement
 
 class EntryPage( kodein: Kodein ) : Page {
 
+    private val state by kodein.instance < EntryPageState > ()
     private val uiController by kodein.instance < UserInterfaceController > ()
-    private val state : EntryPageState = EntryPageState( uiController.getAvailablePiecesAsync() )
 
     override fun view(): VNode {
-        return if ( ! state.isReady )
-            m( Tag.h1 ){ content( "Waiting for server" ) }
+        return if ( this.uiController.isAppWaitingForServer() )
+            this.displayWaitingScreen()
         else
             this.getPlayerEntryForm()
+    }
+
+    private fun displayWaitingScreen(): VNode {
+        return m( Tag.h1 ){ content( "Waiting for server" ) }
     }
 
     private fun getPlayerEntryForm() : VNode {
@@ -53,7 +57,8 @@ class EntryPage( kodein: Kodein ) : Page {
                         value = state.playerName
                     }
                     eventHandlers {
-                        onInputExt = { state.playerName = it.target.asDynamic().value as String }
+                        onInputExt = {
+                            console.log( "entered name" );state.playerName = ( it.target as HTMLInputElement ).value }
                     }
                 }
             )
@@ -72,17 +77,26 @@ class EntryPage( kodein: Kodein ) : Page {
     }
 
     private fun getPieceDropdown(): VNode {
+        state.pieceOptionList = this.uiController.getAvailablePieces()
+        state.selectedPiece = this.uiController.getSelectedPiece( state.pieceOptionList )
         return m( Tag.select ) {
             eventHandlers {
-                onInputExt = {
-                    e -> ( e.target.asDynamic().selectedIndex as Int )
-                        .let { state.selectedPiece = state.availablePieces[ it ] }
-                    }
+                onInputExt = selectedIndex { state.selectedPiece = state.pieceOptionList[ it ]
+                console.log( "selected piece is now ${ state.selectedPiece }")}
             }
             children(
-                state.availablePieces
-                    .map { getNamedPieceOptionElement( it ) }
+                state.pieceOptionList.map { getSinglePieceOptionElement( it, state.selectedPiece!! ) }
             )
+        }
+    }
+
+    private fun getSinglePieceOptionElement( thisPiece: PlayingPiece, selectedPiece: PlayingPiece ): VNode {
+        return m( Tag.option ) {
+            attributes {
+                value = thisPiece.name
+                selected = if ( thisPiece == selectedPiece ) "selected" else ""
+            }
+            content( thisPiece.name )
         }
     }
 
@@ -92,19 +106,9 @@ class EntryPage( kodein: Kodein ) : Page {
                 type = "button"
             }
             eventHandlers {
-                onclick = { uiController.onEntryPageButtonClick( state ) }
+                onclick = { console.log( "clicked" ); uiController.onEntryPageButtonClick() }
             }
             content( "Play the game already!" )
-        }
-    }
-
-    private fun getNamedPieceOptionElement( piece: PlayingPiece ): VNode {
-        return m( Tag.option ) {
-            attributes {
-                value = piece.name
-                selected = if ( piece == state.selectedPiece ) "selected" else ""
-            }
-            content( piece.name )
         }
     }
 

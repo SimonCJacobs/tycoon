@@ -1,7 +1,7 @@
 package jacobs.websockets.engine
 
 internal interface CommunicationVisitor {
-    fun visit( notification: Notification )
-    fun visit( response: Response)
-    fun visit( request: Request )
+    suspend fun visit( notification: Notification )
+    suspend fun visit( response: Response)
+    suspend fun visit( request: Request )
 }

@@ -9,11 +9,12 @@ internal class FrontController( kodein: Kodein ) {
 
     private val centralMainController by kodein.instance < ServerMainController > ()
 
-    fun dealWithNotification( requestObject: MessageContent) {
-
+    @Suppress( "RedundantSuspendModifier", "UNUSED_PARAMETER" )
+    suspend fun dealWithNotification( requestObject: MessageContent) {
+        // None at present (1.5.20)
     }
 
-    fun dealWithRequest( requestMessage: MessageContent): MessageContent {
+    suspend fun dealWithRequest( requestMessage: MessageContent): MessageContent {
         val request = requestMessage as Request
         val requestDispatcher = RequestDispatcher( request, centralMainController )
         return requestDispatcher.dispatch()

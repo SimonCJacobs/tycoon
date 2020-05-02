@@ -1,8 +1,11 @@
 package jacobs.tycoon.domain.board
 
-class ActionSquare ( name: String ) : Square( name ) {
+import kotlinx.serialization.Serializable
 
-    override fun < T > accept( squareVisitor: SquareVisitor<T>): T {
+@Serializable
+class ActionSquare( override val name: String ) : Square() {
+
+    override fun < T > accept( squareVisitor: SquareVisitor < T > ): T {
         return squareVisitor.visit( this )
     }
 

@@ -1,14 +1,14 @@
 package jacobs.tycoon.domain.board
 
 import jacobs.tycoon.domain.players.Player
+import kotlinx.serialization.Serializable
 
-abstract class Property (
-    name: String,
-    val listPrice: Int,
-    var owner: Player? = null
-) : Square( name ) {
+@Serializable
+abstract class Property : Square() {
 
+    abstract val listPrice: Int
     var mortgaged: Boolean = false
+    var owner: Player? = null
 
     fun hasOwner(): Boolean {
         return null != this.owner

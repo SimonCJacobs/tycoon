@@ -1,7 +1,12 @@
 package jacobs.tycoon.domain.pieces
 
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+
+@Serializable
 class ClassicPieces : PieceSet() {
 
+    @Transient
     override val pieces: List < PlayingPiece > = listOf(
         PlayingPiece( "Battleship" ),
         PlayingPiece( "Boot" ),
