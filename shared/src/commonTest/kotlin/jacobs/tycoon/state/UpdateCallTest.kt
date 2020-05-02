@@ -13,26 +13,26 @@ class UpdateCallTest {
 
     @Test
     fun serializesBoardCall() {
-        val boardCall = BoardCall( LondonBoard() ).apply { functionName = "foo" }
+        val boardCall = SetBoard( LondonBoard() )
         asserter.assertEquals( "Same player",
-            boardCall.run { singleArg()().squareList[ 0 ].name },
-            ( serializeAndDeserialize( boardCall ) as BoardCall ).run { singleArg()().squareList[ 0 ].name }
+            boardCall,
+            serializeAndDeserialize( boardCall )
         )
     }
 
     @Test
     fun serializesPlayerCall() {
-        val playerCall = PlayerCall( Player( "John", PlayingPiece( name = "Iron" ) ) ).apply { functionName = "foo" }
+        val playerCall = AddPlayer( Player( "John", PlayingPiece( name = "Iron" ) ) )
         asserter.assertEquals( "Same player",
-            playerCall.run { singleArg()().name },
-            ( serializeAndDeserialize( playerCall ) as PlayerCall ).run { singleArg()().name }
+            playerCall,
+            serializeAndDeserialize( playerCall )
         )
     }
 
-    private fun serializeAndDeserialize( updateCall: UpdateCall ): UpdateCall {
+    private fun serializeAndDeserialize(gameUpdate: GameUpdate ): GameUpdate {
         val json = Json( JsonConfiguration.Stable, context = boardSerializerModule() )
-        val serializedObject = json.stringify( UpdateCall.serializer(), updateCall )
-        return json.parse( UpdateCall.serializer(), serializedObject )
+        val serializedObject = json.stringify( GameUpdate.serializer(), gameUpdate )
+        return json.parse( GameUpdate.serializer(), serializedObject )
     }
 
 }

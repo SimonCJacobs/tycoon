@@ -1,25 +1,23 @@
 package jacobs.tycoon.application
 
-import jacobs.tycoon.state.StateUpdate
-import jacobs.tycoon.state.StateUpdateLogWrapper
+import jacobs.tycoon.state.GameHistory
 import kotlinx.coroutines.delay
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 
 class UpdateEngine ( kodein: Kodein ) {
 
+    private val gameHistory by kodein.instance < GameHistory > ()
     private val socketServer by kodein.instance < SocketServer > ()
-    private val stateUpdater by kodein.instance < StateUpdateLogWrapper > ()
     private val updateDelayMs by kodein.instance < Long > ( tag = "updateDelay" )
 
-    private val updateHistory: StateUpdate = StateUpdate.empty()
+    private val updatePushRecord: MutableMap < Int, Int > = mutableMapOf()
 
     init {
         socketServer.setNewConnectionLambda { this.updateNewConnection( it ) }
     }
 
     suspend fun startUpdating() {
-        this.doAnyFirstTimeUpdates()
         while ( true ) {
             this.doAnyOngoingUpdates()
             delay( updateDelayMs )
@@ -27,27 +25,24 @@ class UpdateEngine ( kodein: Kodein ) {
     }
 
     @Suppress( "MemberVisibilityCanBePrivate" )
-    fun updateNewConnection(index: Int ) {
-        socketServer.notifySocketOfIndex( index, this.updateHistory )
-    }
-
-    private fun doAnyFirstTimeUpdates() {
-        if ( false == this.updateHistory.isEmpty() ) {
-            this.pushUpdateToAll( this.updateHistory )
-        }
+    fun updateNewConnection( index: Int ) {
+        this.updatePushRecord.put( index, 0 )
     }
 
     private fun doAnyOngoingUpdates() {
-        if ( false == this.stateUpdater.areThereUpdatesToPush() )
-            return
-        val currentUpdates = this.stateUpdater.getStateUpdate()
-        updateHistory.combine( currentUpdates )
-        this.pushUpdateToAll( currentUpdates )
-        println( "done an ongoing update")
+        val updateCount = this.gameHistory.getUpdateCount()
+        this.updatePushRecord.forEach {
+            if ( it.value < updateCount )
+                updateSocketInIndexRange( it.key, it.value, updateCount )
+        }
     }
 
-    private fun pushUpdateToAll( update: StateUpdate ) {
-        socketServer.notifyAllSockets( update )
+    private fun updateSocketInIndexRange( socketIndex: Int, firstIndexToUpdate: Int, lastIndexToUpdate: Int ) {
+        this.socketServer.notifySocketAtIndex(
+            socketIndex,
+            this.gameHistory.getUpdatesBetween( firstIndexToUpdate, lastIndexToUpdate )
+        )
+        this.updatePushRecord [ socketIndex ] = lastIndexToUpdate
     }
 
 }

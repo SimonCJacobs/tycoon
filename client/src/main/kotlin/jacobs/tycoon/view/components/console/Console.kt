@@ -1,10 +1,9 @@
 package jacobs.tycoon.view.components.console
 
-import jacobs.tycoon.domain.logs.ActionLog
-import jacobs.tycoon.domain.logs.LogProcessor
 import jacobs.jsutilities.jsObject
 import jacobs.mithril.m
 import jacobs.mithril.Tag
+import jacobs.tycoon.state.GameHistory
 import org.js.mithril.Component
 import org.js.mithril.VNode
 import org.kodein.di.Kodein
@@ -12,8 +11,10 @@ import org.kodein.di.erased.instance
 
 class Console( kodein: Kodein ) : Component {
 
-    private val log by kodein.instance < ActionLog > ()
-    private val processor by kodein.instance < LogProcessor < String > >()
+    private val gameHistory by kodein.instance < GameHistory > ()
+    private val processor by kodein.instance < UpdateWriter >()
+
+    private val existingLogs: MutableList < String > = mutableListOf()
 
     override fun view(): VNode {
         return m( Tag.aside ) {
@@ -22,24 +23,39 @@ class Console( kodein: Kodein ) : Component {
                     border = "1px solid black"
                 }
             }
-            if ( log.isEmpty() )
-                content( "Waiting to start..." )
-            else
-                child( getLogListAsOne() )
+            child( getLogList() )
         }
     }
 
-    private fun getLogListAsOne() : VNode {
+    private fun getLogList(): VNode {
         return m( Tag.ol ) {
-            children( getLogsListed() )
+            children( getExistingLogs(), getAnyNewLogs() )
         }
     }
 
-    private fun getLogsListed(): List < VNode > {
-        return this.log.process( this.processor )
-            .map{
-                m( Tag.li ) { content( it ) }
-            }
+    private fun getExistingLogs(): List < VNode > {
+        return this.existingLogs.map { getLogFromText( it ) }
+    }
+
+    private fun getAnyNewLogs(): List < VNode > {
+            // Cautious about accessing due to possible multi-threading issues
+        val totalUpdateCount = this.gameHistory.getUpdateCount()
+        if ( this.existingLogs.size == totalUpdateCount )
+            return emptyList()
+        else
+            return this.getNewLogsUpToIndex( totalUpdateCount )
+    }
+
+    private fun getNewLogsUpToIndex( totalUpdateCount: Int ): List < VNode > {
+        val newLogs = this.gameHistory.processLogsBetween(
+            this.processor, this.existingLogs.size, totalUpdateCount
+        )
+        this.existingLogs.addAll( newLogs )
+        return newLogs.map { getLogFromText( it ) }
+    }
+
+    private fun getLogFromText( text: String ): VNode {
+        return m( Tag.li ) { content( text )}
     }
 
 }

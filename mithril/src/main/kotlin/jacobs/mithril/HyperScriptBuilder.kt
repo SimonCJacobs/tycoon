@@ -48,12 +48,16 @@ class HyperScriptBuilder(
             this.builder.child = child
         }
 
-        fun children( children: Collection <VNode> ) {
+        fun children( children: Collection < VNode > ) {
             this.builder.children = children.toTypedArray()
         }
 
-        fun children( vararg children: VNode) {
+        fun children( vararg children: VNode ) {
             this.builder.children = children
+        }
+
+        fun children( vararg childCollections: Collection < VNode > ) {
+            this.builder.children = childCollections.toList().flatten().toTypedArray()
         }
 
         fun content( stringContents: String ) {

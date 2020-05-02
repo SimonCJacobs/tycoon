@@ -5,6 +5,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 abstract class StandardBoard : Board() {
 
+    companion object {
+        const val STATION_PRICE = 200
+        const val UTILITY_PRICE = 200
+    }
+
     protected fun buildSquareList( nameList: List < String > ): List < Square > {
         return nameList.mapIndexed { index, eachName ->
             this.getNamelessSquareMapList()[ index ]( eachName ) }
@@ -20,7 +25,7 @@ abstract class StandardBoard : Board() {
             { name -> Street(name, 60) },
             { name -> ActionSquare(name) },
 
-            { name -> Station( name, LondonBoard.STATION_PRICE) },
+            { name -> Station( name, STATION_PRICE) },
 
             { name -> Street(name, 60) },
             { name -> ActionSquare(name) },
@@ -30,29 +35,29 @@ abstract class StandardBoard : Board() {
             { name -> ActionSquare(name) },
 
             { name -> Street(name, 60) },
-            { name -> Utility(name, LondonBoard.UTILITY_PRICE) },
+            { name -> Utility(name, UTILITY_PRICE) },
             { name -> Street(name, 60) },
             { name -> Street(name, 60) },
 
-            { name -> Station(name, LondonBoard.STATION_PRICE) },
-
-            { name -> Street(name, 60) },
-            { name -> ActionSquare(name) },
-            { name -> Street(name, 60) },
-            { name -> Street(name, 60) },
-
-            { name -> ActionSquare(name) },
+            { name -> Station(name, STATION_PRICE) },
 
             { name -> Street(name, 60) },
             { name -> ActionSquare(name) },
             { name -> Street(name, 60) },
             { name -> Street(name, 60) },
 
-            { name -> Station(name, LondonBoard.STATION_PRICE) },
+            { name -> ActionSquare(name) },
+
+            { name -> Street(name, 60) },
+            { name -> ActionSquare(name) },
+            { name -> Street(name, 60) },
+            { name -> Street(name, 60) },
+
+            { name -> Station(name, STATION_PRICE) },
 
             { name -> Street(name, 60) },
             { name -> Street(name, 60) },
-            { name -> Utility(name, LondonBoard.UTILITY_PRICE) },
+            { name -> Utility(name, UTILITY_PRICE) },
             { name -> Street(name, 60) },
 
             { name -> ActionSquare(name) },
@@ -62,7 +67,7 @@ abstract class StandardBoard : Board() {
             { name -> ActionSquare(name) },
             { name -> Street(name, 60) },
 
-            { name -> Station(name, LondonBoard.STATION_PRICE) },
+            { name -> Station(name, STATION_PRICE) },
 
             { name -> ActionSquare(name) },
             { name -> Street(name, 60) },

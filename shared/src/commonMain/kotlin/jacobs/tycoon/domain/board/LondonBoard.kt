@@ -7,6 +7,9 @@ import kotlinx.serialization.Transient
 class LondonBoard : StandardBoard() {
 
     @Transient
+    override val location: String = "London"
+
+    @Transient
     override val squareList: List < Square > = this.buildSquareList( this.nameListProvider() )
 
     private fun nameListProvider(): List < String > {
@@ -29,12 +32,5 @@ class LondonBoard : StandardBoard() {
             "Chance", "Park Lane", "Super Tax", "Mayfair"
         )
     }
-
-
-    companion object {
-        const val STATION_PRICE = 200
-        const val UTILITY_PRICE = 200
-    }
-
 
 }

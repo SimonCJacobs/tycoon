@@ -34,7 +34,7 @@ internal class SocketServer ( kodein: Kodein ) {
         }
     }
 
-    fun notifySocketOfIndex( index: Int, notification: MessageContent  ) {
+    fun notifySocketAtIndex(index: Int, notification: MessageContent  ) {
         coroutineScope.launch { websockets.notifyByIndex( index, notification ) }
     }
 

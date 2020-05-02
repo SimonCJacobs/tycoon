@@ -1,6 +1,6 @@
 package jacobs.tycoon.state
 
-import jacobs.tycoon.domain.GameStage
+import jacobs.tycoon.domain.GamePhase
 import jacobs.tycoon.domain.board.Board
 import jacobs.tycoon.domain.pieces.PieceSet
 import jacobs.tycoon.domain.players.Player
@@ -14,5 +14,5 @@ interface GameStateUpdater {
     @JsName( "addPlayer" ) suspend fun addPlayer( player: Player )
     @JsName( "setBoard" ) suspend fun setBoard( board: Board )
     @JsName( "setPieces" ) suspend fun setPieces( pieces: PieceSet )
-    @JsName( "updateStage" ) suspend fun updateStage( newGameStage: GameStage )
+    @JsName( "updateStage" ) suspend fun updateStage( newGamePhase: GamePhase )
 }

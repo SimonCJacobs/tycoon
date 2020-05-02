@@ -7,6 +7,9 @@ import kotlinx.serialization.Transient
 class ClassicPieces : PieceSet() {
 
     @Transient
+    override val name = "Classic"
+
+    @Transient
     override val pieces: List < PlayingPiece > = listOf(
         PlayingPiece( "Battleship" ),
         PlayingPiece( "Boot" ),

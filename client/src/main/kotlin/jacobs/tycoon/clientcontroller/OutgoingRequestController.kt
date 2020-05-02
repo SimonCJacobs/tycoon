@@ -2,7 +2,6 @@ package jacobs.tycoon.clientcontroller
 
 import jacobs.tycoon.controller.communication.AddPlayerRequest
 import jacobs.tycoon.domain.pieces.PlayingPiece
-import jacobs.tycoon.state.PlayerCall
 import jacobs.websockets.content.BooleanContent
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance

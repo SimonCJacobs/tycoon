@@ -1,10 +1,10 @@
 package jacobs.tycoon.view
 
-import jacobs.tycoon.domain.logs.LogProcessor
+import jacobs.tycoon.state.UpdateProcessor
 import jacobs.tycoon.view.components.board.BoardComponent
 import jacobs.tycoon.view.components.board.SquareComponentFactory
 import jacobs.tycoon.view.components.console.Console
-import jacobs.tycoon.view.components.console.LogWriter
+import jacobs.tycoon.view.components.console.UpdateWriter
 import jacobs.tycoon.view.components.pages.EntryPage
 import jacobs.tycoon.view.components.pages.MainPage
 import org.kodein.di.Kodein
@@ -19,5 +19,5 @@ val viewModule = Kodein.Module( "view" ) {
     bind < BoardComponent >() with singleton { BoardComponent( kodein ) }
     bind < SquareComponentFactory >() with singleton { SquareComponentFactory() }
     bind < Console >() with singleton { Console( kodein ) }
-    bind < LogProcessor < String > >() with singleton { LogWriter() }
+    bind < UpdateWriter >() with singleton { UpdateWriter() }
 }

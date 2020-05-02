@@ -57,8 +57,7 @@ class EntryPage( kodein: Kodein ) : Page {
                         value = state.playerName
                     }
                     eventHandlers {
-                        onInputExt = {
-                            console.log( "entered name" );state.playerName = ( it.target as HTMLInputElement ).value }
+                        onInputExt = { state.playerName = ( it.target as HTMLInputElement ).value }
                     }
                 }
             )
@@ -81,8 +80,7 @@ class EntryPage( kodein: Kodein ) : Page {
         state.selectedPiece = this.uiController.getSelectedPiece( state.pieceOptionList )
         return m( Tag.select ) {
             eventHandlers {
-                onInputExt = selectedIndex { state.selectedPiece = state.pieceOptionList[ it ]
-                console.log( "selected piece is now ${ state.selectedPiece }")}
+                onInputExt = selectedIndex { state.selectedPiece = state.pieceOptionList[ it ] }
             }
             children(
                 state.pieceOptionList.map { getSinglePieceOptionElement( it, state.selectedPiece!! ) }
@@ -106,7 +104,7 @@ class EntryPage( kodein: Kodein ) : Page {
                 type = "button"
             }
             eventHandlers {
-                onclick = { console.log( "clicked" ); uiController.onEntryPageButtonClick() }
+                onclick = { uiController.onEntryPageButtonClick() }
             }
             content( "Play the game already!" )
         }

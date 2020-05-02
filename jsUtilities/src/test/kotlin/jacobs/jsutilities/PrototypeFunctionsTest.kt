@@ -3,6 +3,7 @@ package jacobs.jsutilities
 import kotlin.test.Test
 import kotlin.test.asserter
 
+@Suppress( "unused" )
 class PrototypeFunctionsTest {
 
     @Test
@@ -11,7 +12,7 @@ class PrototypeFunctionsTest {
         val aClass = AClass( 10 )
         asserter.assertEquals( "Correct name", "multiply", firstPrototypeFn.name )
         asserter.assertEquals(
-            "Can execute underlying function", 120, firstPrototypeFn.apply( aClass, arrayOf( 3, 4 ) )
+            "Can execute underlying function", 120, firstPrototypeFn.apply( aClass, arrayOf( 3, 4 ) ) as Any
         )
     }
 
@@ -32,7 +33,7 @@ class PrototypeFunctionsTest {
         val aSuspendClass = ASuspendClass( 10 )
         asserter.assertEquals( "Correct name", "multiplyBy5", firstPrototypeFn.name )
         asserter.assertEquals(
-            "Can execute underlying function", 600, firstPrototypeFn.apply( aSuspendClass, arrayOf( 3, 4 ) )
+            "Can execute underlying function", 600, firstPrototypeFn.apply( aSuspendClass, arrayOf( 3, 4 ) ) as Any
         )
     }
 

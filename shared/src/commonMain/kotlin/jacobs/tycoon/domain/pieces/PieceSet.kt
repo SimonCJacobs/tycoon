@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 abstract class PieceSet {
 
+    abstract val name: String
     protected abstract val pieces: List < PlayingPiece >
 
     fun getAvailablePieces( players: GamePlayers ): List < PlayingPiece > {

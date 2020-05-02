@@ -1,6 +1,8 @@
 package jacobs.tycoon.state
 
-import jacobs.tycoon.domain.GameStage
+import jacobs.tycoon.domain.GamePhase
+import jacobs.tycoon.domain.InPlay
+import jacobs.tycoon.domain.SignUp
 import jacobs.tycoon.domain.board.LondonBoard
 import jacobs.tycoon.domain.pieces.ClassicPieces
 import kotlinx.coroutines.runBlocking
@@ -18,6 +20,7 @@ class StateUpdateLogWrapperTest {
     private fun getInstance( actualUpdater: ActualGameStateUpdater ): StateUpdateLogWrapper {
         val kodein = Kodein {
             bind < ActualGameStateUpdater > () with instance( actualUpdater )
+            bind < GameHistory > () with singleton { GameHistory() }
             bind < StateUpdateLogWrapper > () with singleton { StateUpdateLogWrapper( kodein ) }
         }
         return kodein.direct.instance()
@@ -56,18 +59,14 @@ class StateUpdateLogWrapperTest {
         runBlocking {
             val dummyUpdater = mock( ActualGameStateUpdater::class.java )
             val instance = getInstance( dummyUpdater )
-            instance.updateStage( GameStage.IN_PLAY )
-            instance.updateStage( GameStage.PLAYER_SIGN_UP )
+            instance.updateStage( InPlay() )
+            instance.updateStage( SignUp() )
             inOrder( dummyUpdater ).apply{
-                verify( dummyUpdater ).updateStage( GameStage.IN_PLAY )
-                verify( dummyUpdater ).updateStage( GameStage.PLAYER_SIGN_UP )
+                verify( dummyUpdater ).updateStage( InPlay() )
+                verify( dummyUpdater ).updateStage( SignUp() )
             }
         }
 
-    }
-
-    private fun gameStageUpdateCall( stage: GameStage ): UpdateCall {
-        return GameStateCall( stage ).apply { functionName = "updateStage" }
     }
 
 }
