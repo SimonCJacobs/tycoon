@@ -10,6 +10,10 @@ class GamePlayers {
         this.players.add( player )
     }
 
+    fun count(): Int {
+        return this.players.size
+    }
+
     fun getPiecesInUse(): Set < PlayingPiece > {
         return this.players.map { it.piece }
             .toSet()

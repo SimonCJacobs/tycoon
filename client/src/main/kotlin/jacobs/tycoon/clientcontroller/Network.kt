@@ -1,7 +1,5 @@
 package jacobs.tycoon.clientcontroller
 
-import jacobs.mithril.Mithril
-import jacobs.tycoon.ApplicationSettings
 import jacobs.tycoon.controller.communication.CommunicationLibrary
 import jacobs.websockets.content.MessageContent
 import jacobs.websockets.WebSocket
@@ -16,6 +14,8 @@ class Network ( kodein: Kodein ) {
 
     private val coroutineScope by kodein.instance < CoroutineScope > ()
     private val incomingController by kodein.instance < IncomingController > ()
+    private val socketHostname by kodein.instance < String > ( tag = "socketHostname" )
+    private val socketPort by kodein.instance < Int > ( tag = "socketPort" )
 
     private lateinit var deferredConnection: Deferred < Unit >
     private lateinit var websocket: WebSocket
@@ -26,10 +26,10 @@ class Network ( kodein: Kodein ) {
             websocket = websockets
                 .websocketClient {
                     coroutineScope = this@Network.coroutineScope
-                    hostname = ApplicationSettings.SOCKET_HOST
+                    hostname = socketHostname
                     notificationHandler = { incomingController.handleNotification( it ) }
                     requestHandler = { incomingController.handleRequest( it ) }
-                    port = ApplicationSettings.SOCKET_PORT
+                    port = socketPort
                 }
         }
     }

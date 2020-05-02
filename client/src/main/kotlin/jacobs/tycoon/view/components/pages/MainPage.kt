@@ -17,7 +17,24 @@ class MainPage ( kodein: Kodein ) : Page {
 
     override fun view() : VNode {
         return m( Tag.div ) {
-            children( m( board ), m( gameConsole ) )
+            children(
+                m( board ),
+                if ( uiController.isSignUpPhase() ) getStartButton() else null,
+                m( gameConsole )
+            )
+        }
+    }
+
+    private fun getStartButton(): VNode {
+        return m( Tag.button ) {
+            attributes {
+                button
+                if ( false == uiController.canGameStart() ) disabled
+            }
+            eventHandlers {
+                onclick = { uiController.startGame() }
+            }
+            content( "Let's get this show on the road :)" )
         }
     }
 

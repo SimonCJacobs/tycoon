@@ -4,6 +4,7 @@ import jacobs.tycoon.clientstate.ClientState
 import jacobs.tycoon.view.ViewState
 import jacobs.tycoon.clientstate.EntryPageState
 import jacobs.tycoon.domain.Game
+import jacobs.tycoon.domain.SignUp
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.state.GameState
 import kotlinx.coroutines.CoroutineScope
@@ -20,8 +21,16 @@ class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.direc
     private val gameState by kodein.instance < GameState > ()
     private val outgoingRequestController by kodein.instance < OutgoingRequestController > ()
 
+    fun canGameStart(): Boolean {
+        return this.game.canGameStart( gameState )
+    }
+
     fun getAvailablePieces(): List < PlayingPiece > {
         return game.getAvailablePieces( gameState.pieceSet, gameState.players )
+    }
+
+    fun getPlayerCount(): Int {
+        return this.gameState.players.count()
     }
 
     fun getSelectedPiece( availablePieces: List < PlayingPiece > ): PlayingPiece {
@@ -35,17 +44,12 @@ class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.direc
         return this.clientState.viewState
     }
 
-    private fun goToPlayingAreaView() {
-        this.clientState.viewState = ViewState.PLAYING_AREA
-    }
-
-    private fun isAddPlayerValidOnClientSide(): Boolean {
-        // TODO ("Not yet implemented")
-        return true
-    }
-
     fun isAppWaitingForServer(): Boolean {
         return this.clientState.isWaitingForServer
+    }
+
+    fun isSignUpPhase(): Boolean {
+        return this.gameState.phase == SignUp()
     }
 
     fun onEntryPageButtonClick() {
@@ -61,8 +65,21 @@ class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.direc
         }
     }
 
-    private fun setWaitingForServer( newState: Boolean = true ) {
-        this.clientState.isWaitingForServer = newState
+    fun startGame() {
+        launch {
+            if ( canGameStart() )
+                outgoingRequestController.startGame()
+            // TODO deal with client or server saying no!!!
+        }
+    }
+
+    private fun goToPlayingAreaView() {
+        this.clientState.viewState = ViewState.PLAYING_AREA
+    }
+
+    private fun isAddPlayerValidOnClientSide(): Boolean {
+        // TODO ("Not yet implemented")
+        return true
     }
 
 }

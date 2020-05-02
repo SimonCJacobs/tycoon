@@ -2,6 +2,7 @@ package jacobs.tycoon.application
 
 import jacobs.tycoon.domain.domainModule
 import jacobs.tycoon.servercontroller.serverControllerModule
+import jacobs.tycoon.settings.settingsModule
 import jacobs.tycoon.state.serverStateModule
 import jacobs.tycoon.state.sharedStateModule
 import org.kodein.di.Kodein
@@ -22,6 +23,7 @@ internal class ApplicationBootstrapper {
             import( domainModule )
             import( serverControllerModule() )
             import( serverStateModule() )
+            import( settingsModule() )
             import( sharedStateModule() )
         }
     }

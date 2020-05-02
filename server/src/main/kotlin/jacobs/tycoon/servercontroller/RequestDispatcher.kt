@@ -18,8 +18,8 @@ internal class RequestDispatcher(
     }
 
     override suspend fun visit( simpleRequestWrapper: SimpleRequestWrapper ): MessageContent {
-        when ( simpleRequestWrapper.identifier ) {
-            else -> throw Error( "None simple requests now" )
+        return when ( simpleRequestWrapper.identifier ) {
+            SimpleRequest.START_GAME -> this.serverMainController.startGame().let { BooleanContent( it ) }
         }
     }
 

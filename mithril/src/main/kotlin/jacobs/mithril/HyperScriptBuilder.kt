@@ -52,8 +52,8 @@ class HyperScriptBuilder(
             this.builder.children = children.toTypedArray()
         }
 
-        fun children( vararg children: VNode ) {
-            this.builder.children = children
+        fun children( vararg children: VNode? ) {
+            this.builder.children = children.filterNotNull().toTypedArray()
         }
 
         fun children( vararg childCollections: Collection < VNode > ) {

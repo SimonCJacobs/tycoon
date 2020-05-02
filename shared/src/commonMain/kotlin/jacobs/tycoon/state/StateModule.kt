@@ -9,6 +9,6 @@ fun sharedStateModule(): Kodein.Module {
     return Kodein.Module ( name = "sharedState" ) {
         bind < ActualGameStateUpdater >() with singleton { ActualGameStateUpdater( kodein ) }
         bind < GameHistory >() with singleton { GameHistory() }
-        bind < GameState >() with singleton { GameState() }
+        bind < GameState >() with singleton { GameState( kodein ) }
     }
 }

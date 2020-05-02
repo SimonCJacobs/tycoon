@@ -3,6 +3,7 @@ package jacobs.tycoon.application
 import jacobs.tycoon.clientstate.clientStateModule
 import jacobs.tycoon.clientcontroller.clientControllerModule
 import jacobs.tycoon.domain.domainModule
+import jacobs.tycoon.settings.settingsModule
 import jacobs.tycoon.state.sharedStateModule
 import jacobs.tycoon.view.viewModule
 import org.kodein.di.Kodein
@@ -22,6 +23,7 @@ class ApplicationBootstrapper {
             import( clientStateModule )
             import( clientControllerModule() )
             import( domainModule )
+            import( settingsModule() )
             import( sharedStateModule() )
             import( viewModule )
         }
