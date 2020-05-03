@@ -1,31 +1,35 @@
 package jacobs.tycoon.state
 
+import jacobs.tycoon.domain.actions.GameActionCollection
+import jacobs.tycoon.domain.actions.GameAction
+import jacobs.tycoon.services.ActionProcessor
+
 class GameHistory {
 
-    private val gameUpdates: MutableList < GameUpdate > = mutableListOf()
+    private val gameActions: MutableList <GameAction> = mutableListOf()
 
     /**
      * Obtain a list of updates to the game state between [startIndex] (inclusive) and [endIndex] (exclusive).
      */
-    fun getUpdatesBetween( startIndex: Int, endIndex: Int ): GameUpdateCollection {
-        return GameUpdateCollection.fromList(
-            this.gameUpdates.subList( startIndex, endIndex )
+    fun getUpdatesBetween( startIndex: Int, endIndex: Int ): GameActionCollection {
+        return GameActionCollection.fromList(
+            this.gameActions.subList( startIndex, endIndex )
         )
     }
 
     fun getUpdateCount(): Int {
-        return gameUpdates.size
+        return gameActions.size
     }
 
-    fun logUpdate( gameUpdate: GameUpdate ) {
-        this.gameUpdates.add( gameUpdate )
+    fun logUpdate(gameAction: GameAction) {
+        this.gameActions.add( gameAction )
     }
 
     /**
      * Process updates to the game state between [startIndex] (inclusive) and [endIndex] (exclusive).
      */
-    fun < T > processLogsBetween(processor: UpdateProcessor < T >, startIndex: Int, endIndex: Int ): List < T > {
-        return this.gameUpdates.subList( startIndex, endIndex )
+    fun < T > processLogsBetween(processor: ActionProcessor<T>, startIndex: Int, endIndex: Int ): List < T > {
+        return this.gameActions.subList( startIndex, endIndex )
             .map( processor::process )
     }
 

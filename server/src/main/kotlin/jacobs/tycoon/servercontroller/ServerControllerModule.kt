@@ -7,6 +7,5 @@ import org.kodein.di.erased.singleton
 internal fun serverControllerModule(): Kodein.Module {
     return Kodein.Module( "serverController" ) {
         bind < FrontController > () with singleton { FrontController( kodein ) }
-        bind < ServerMainController > () with singleton { ServerMainController( kodein ) }
     }
 }

@@ -3,39 +3,40 @@ package jacobs.tycoon.clientcontroller
 import jacobs.jsutilities.JsFunction
 import jacobs.jsutilities.prototypeFunctions
 import jacobs.tycoon.clientstate.ClientState
-import jacobs.tycoon.state.ActualGameStateUpdater
+import jacobs.tycoon.domain.ActualGameController
+import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.state.GameHistory
-import jacobs.tycoon.state.GameUpdateCollection
-import jacobs.tycoon.state.GameUpdate
+import jacobs.tycoon.domain.actions.GameActionCollection
+import jacobs.tycoon.domain.actions.GameAction
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 
 class StateSynchroniser ( kodein: Kodein ) {
 
-    private val actualGameStateUpdater by kodein.instance < ActualGameStateUpdater > ()
+    private val actualGameStateUpdater by kodein.instance < GameController > ( tag = "actual" )
     private val clientState by kodein.instance < ClientState >()
     private val gameHistory by kodein.instance < GameHistory >()
 
     private val updateMethods: Map < String, JsFunction > =
-        ActualGameStateUpdater::class.prototypeFunctions().associateBy { it.name }
+        ActualGameController::class.prototypeFunctions().associateBy { it.name }
 
-    fun applyUpdates( stateUpdate: GameUpdateCollection ) {
-        stateUpdate.getUpdates().forEach {
+    fun applyUpdates(stateAction: GameActionCollection) {
+        stateAction.getActions().forEach {
             applySingleUpdate( it )
         }
         this.clientState.isWaitingForServer = false
     }
 
-    private fun applySingleUpdate( gameUpdate: GameUpdate ) {
-        getMethod( gameUpdate )
-            .apply( actualGameStateUpdater, gameUpdate.args() )
-        this.gameHistory.logUpdate( gameUpdate )
+    private fun applySingleUpdate(gameAction: GameAction) {
+        getMethod( gameAction )
+            .apply( actualGameStateUpdater, gameAction.args() )
+        this.gameHistory.logUpdate( gameAction )
     }
 
-    private fun getMethod(gameUpdate: GameUpdate): JsFunction {
-        if ( false == updateMethods.containsKey( gameUpdate.methodName ) )
-            throw Error( "Unknown update method ${ gameUpdate.methodName }" )
-        return updateMethods.getValue( gameUpdate.methodName )
+    private fun getMethod(gameAction: GameAction): JsFunction {
+        if ( false == updateMethods.containsKey( gameAction.methodName ) )
+            throw Error( "Unknown update method ${ gameAction.methodName }" )
+        return updateMethods.getValue( gameAction.methodName )
     }
 
 }

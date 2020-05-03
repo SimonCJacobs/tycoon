@@ -1,14 +1,14 @@
-package jacobs.tycoon.state
+package jacobs.tycoon.domain.actions
 
-import jacobs.tycoon.domain.GamePhase
 import jacobs.tycoon.domain.board.Board
 import jacobs.tycoon.domain.pieces.PieceSet
+import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.domain.players.Player
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
 @Serializable
-sealed class GameUpdate {
+sealed class GameAction {
     abstract val methodName: String
     abstract fun args(): Array < Any >
 
@@ -22,18 +22,17 @@ sealed class GameUpdate {
     override fun hashCode(): Int {
         return this.methodName.hashCode()
     }
-
 }
 
 @Serializable
-sealed class NoArgUpdate : GameUpdate() {
+sealed class NoArgAction : GameAction() {
     override fun args(): Array < Any > {
         return emptyArray()
     }
 }
 
 @Serializable
-sealed class OneArgUpdate < T0 : Any > : GameUpdate() {
+sealed class OneArgAction < T0 : Any > : GameAction() {
     override fun args(): Array < Any > {
         return arrayOf( singleArg() )
     }
@@ -41,33 +40,37 @@ sealed class OneArgUpdate < T0 : Any > : GameUpdate() {
 }
 
 @Serializable
-sealed class TwoArgUpdate < T0 : Any, T1 : Any >: GameUpdate() {
+sealed class TwoArgAction < T0 : Any, T1 : Any >: GameAction() {
     override fun args(): Array < Any > {
-        return emptyArray()
+        return argPair().run { arrayOf( first, second ) }
     }
     abstract fun argPair(): Pair < T0, T1 >
 }
 
 @Serializable
-class AddPlayer ( private val player: Player ) : OneArgUpdate < Player >() {
+class AddPlayer ( private val playerName: String, private val playingPiece: PlayingPiece ) : TwoArgAction < String, PlayingPiece >() {
     @Transient override val methodName = "addPlayer"
-    override fun singleArg(): Player { return player }
+    override fun argPair(): Pair < String, PlayingPiece > { return playerName to playingPiece }
 }
 
 @Serializable
-class SetBoard ( private val board: Board ) : OneArgUpdate < Board >() {
+object CompleteSignUp : NoArgAction () {
+    @Transient override val methodName = "completeSignUp"
+}
+
+@Serializable
+object NewGame : NoArgAction () {
+    @Transient override val methodName = "newGame"
+}
+
+@Serializable
+class SetBoard ( private val board: Board ) : OneArgAction < Board >() {
     @Transient override val methodName = "setBoard"
     override fun singleArg(): Board { return board }
 }
 
 @Serializable
-class SetPieces ( private val pieceSet: PieceSet ) : OneArgUpdate < PieceSet >() {
+class SetPieces ( private val pieceSet: PieceSet ) : OneArgAction < PieceSet >() {
     @Transient override val methodName = "setPieces"
     override fun singleArg(): PieceSet { return pieceSet }
-}
-
-@Serializable
-class UpdateStage ( private val gameState: GamePhase ) : OneArgUpdate < GamePhase >() {
-    @Transient override val methodName = "updateStage"
-    override fun singleArg(): GamePhase { return gameState }
 }

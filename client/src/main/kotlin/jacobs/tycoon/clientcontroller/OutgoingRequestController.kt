@@ -18,7 +18,7 @@ class OutgoingRequestController( kodein: Kodein ) {
     }
 
     suspend fun startGame(): Boolean {
-        return this.sendSimpleYesNoRequest( SimpleRequest.START_GAME )
+        return this.sendSimpleYesNoRequest( SimpleRequest.COMPLETE_SIGN_UP )
     }
 
     private suspend fun sendSimpleYesNoRequest( requestType: SimpleRequest ): Boolean {

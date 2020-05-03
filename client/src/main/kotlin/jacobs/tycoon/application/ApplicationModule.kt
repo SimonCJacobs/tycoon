@@ -8,8 +8,10 @@ import org.kodein.di.erased.singleton
 import org.w3c.dom.Element
 import kotlin.browser.document
 
-val applicationModule = Kodein.Module( "application" ) {
-    bind < Application >() with singleton { Application( kodein ) }
-    bind < CoroutineScope >() with singleton { MainScope() }
-    bind < Element >( tag = "main" ) with singleton { document.getElementById( "main" )!! }
+fun applicationModule(): Kodein.Module {
+    return Kodein.Module( "application" ) {
+        bind < Application >() with singleton { Application( kodein ) }
+        bind < CoroutineScope >() with singleton { MainScope() }
+        bind < Element >( tag = "main" ) with singleton { document.getElementById( "main" )!! }
+    }
 }

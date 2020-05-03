@@ -31,7 +31,8 @@ class EntryPage( kodein: Kodein ) : Page {
         return m( Tag.div ) {
             children(
                 getPlayerEntryFields(),
-                getSubmitButton()
+                getSubmitButton(),
+                getAnyMessage()
             )
         }
     }
@@ -108,6 +109,14 @@ class EntryPage( kodein: Kodein ) : Page {
             }
             content( "Play the game already!" )
         }
+    }
+
+    private fun getAnyMessage(): VNode? {
+        if ( state.showNoGameEntry )
+            return m( Tag.h4 ) {
+                content( "Sorry. You can't join the game now" )
+            }
+        return null
     }
 
 }

@@ -3,6 +3,7 @@ package jacobs.tycoon.view.components.console
 import jacobs.jsutilities.jsObject
 import jacobs.mithril.m
 import jacobs.mithril.Tag
+import jacobs.tycoon.services.ActionWriter
 import jacobs.tycoon.state.GameHistory
 import org.js.mithril.Component
 import org.js.mithril.VNode
@@ -12,7 +13,7 @@ import org.kodein.di.erased.instance
 class Console( kodein: Kodein ) : Component {
 
     private val gameHistory by kodein.instance < GameHistory > ()
-    private val processor by kodein.instance < UpdateWriter >()
+    private val processor by kodein.instance < ActionWriter > ()
 
     private val existingLogs: MutableList < String > = mutableListOf()
 

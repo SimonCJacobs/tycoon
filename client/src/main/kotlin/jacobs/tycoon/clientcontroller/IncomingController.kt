@@ -1,7 +1,7 @@
 package jacobs.tycoon.clientcontroller
 
 import jacobs.mithril.Mithril
-import jacobs.tycoon.state.GameUpdateCollection
+import jacobs.tycoon.domain.actions.GameActionCollection
 import jacobs.websockets.content.MessageContent
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
@@ -13,7 +13,7 @@ class IncomingController ( kodein: Kodein ) {
 
     fun handleNotification( messageContent: MessageContent ) {
             // State updates are only notification at time of writing (1.5.20)
-        val updates = messageContent as GameUpdateCollection
+        val updates = messageContent as GameActionCollection
         stateSynchroniser.applyUpdates( updates )
         mithril.redraw()
     }

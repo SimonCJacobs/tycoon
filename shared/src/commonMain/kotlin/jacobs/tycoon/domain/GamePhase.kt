@@ -22,11 +22,11 @@ sealed class GamePhase {
 }
 
 @Serializable
-class SignUp : GamePhase() {
+object SignUp : GamePhase() {
     @Transient override val name = "sign-up"
 }
 
 @Serializable
-class InPlay : GamePhase() {
-    @Transient override val name = "normal play"
+object RollForThrowingOrder : GamePhase() {
+    @Transient override val name = "roll for throwing order"
 }

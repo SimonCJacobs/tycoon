@@ -3,8 +3,6 @@ package jacobs.tycoon.clientcontroller
 import jacobs.tycoon.clientstate.ClientState
 import jacobs.tycoon.view.ViewState
 import jacobs.tycoon.clientstate.EntryPageState
-import jacobs.tycoon.domain.Game
-import jacobs.tycoon.domain.SignUp
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.state.GameState
 import kotlinx.coroutines.CoroutineScope
@@ -17,20 +15,19 @@ class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.direc
 
     private val clientState by kodein.instance < ClientState > ()
     private val entryPageState by kodein.instance < EntryPageState > ()
-    private val game by kodein.instance < Game > ()
     private val gameState by kodein.instance < GameState > ()
     private val outgoingRequestController by kodein.instance < OutgoingRequestController > ()
 
     fun canGameStart(): Boolean {
-        return this.game.canGameStart( gameState )
+        return this.gameState.game.canGameStart()
     }
 
     fun getAvailablePieces(): List < PlayingPiece > {
-        return game.getAvailablePieces( gameState.pieceSet, gameState.players )
+        return this.gameState.game.getAvailablePieces( gameState.game.pieceSet, gameState.game.players )
     }
 
     fun getPlayerCount(): Int {
-        return this.gameState.players.count()
+        return this.gameState.game.players.count()
     }
 
     fun getSelectedPiece( availablePieces: List < PlayingPiece > ): PlayingPiece {
@@ -49,20 +46,14 @@ class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.direc
     }
 
     fun isSignUpPhase(): Boolean {
-        return this.gameState.phase == SignUp()
+        return this.gameState.game.isSignUpPhase()
     }
 
     fun onEntryPageButtonClick() {
-        if ( false == this.isAddPlayerValidOnClientSide() )
-            TODO( "Not implemented new player client-side validation yet, or dealing with bad entry" )
-        launch {
-            val addResult = outgoingRequestController.addPlayer(
-                entryPageState.playerName, entryPageState.selectedPiece!!
-            )
-            if ( false == addResult )
-                throw Error( "Not dealt with this yet!" ) //TODO player validation
-            goToPlayingAreaView()
-        }
+        if ( this.gameState.game.canNewPlayerJoin() )
+            this.runServerAddPlayerProcess()
+        else
+            this.entryPageState.showNoGameEntry = true
     }
 
     fun startGame() {
@@ -77,9 +68,16 @@ class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.direc
         this.clientState.viewState = ViewState.PLAYING_AREA
     }
 
-    private fun isAddPlayerValidOnClientSide(): Boolean {
-        // TODO ("Not yet implemented")
-        return true
+    private fun runServerAddPlayerProcess() {
+        launch {
+            val addResult = outgoingRequestController.addPlayer(
+                entryPageState.playerName, entryPageState.selectedPiece!!
+            )
+            if ( false == addResult )
+                entryPageState.showNoGameEntry = true
+            else
+                goToPlayingAreaView()
+        }
     }
 
 }
