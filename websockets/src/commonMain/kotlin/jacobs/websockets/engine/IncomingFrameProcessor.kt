@@ -17,10 +17,9 @@ internal class IncomingFrameProcessor( kodein: Kodein ) : CommunicationVisitor {
 
     private val coroutineScope by kodein.instance < CoroutineScope >()
     private val communicationCodec by kodein.instance < CommunicationCodec > ()
+    private val communicationHandler by kodein.instance < CommunicationHandler > ()
     private val responseDirector by kodein.instance < ResponseDirector > ()
     private val jsonSerializer by kodein.instance < JsonSerializer > ()
-    private val notificationHandler by kodein.instance < suspend (MessageContent) -> Unit > ( tag = "notification" )
-    private val requestHandler by kodein.instance < suspend (MessageContent) -> MessageContent> ( tag = "request" )
 
     // TODO a close request from the other party will come through here and
     fun processIncomingFrame( frame: Frame ) {
@@ -36,14 +35,14 @@ internal class IncomingFrameProcessor( kodein: Kodein ) : CommunicationVisitor {
         // Visitor methods processing incoming SocketCommunication instances
 
     override suspend fun visit( notification: Notification ) {
-        this.notificationHandler.invoke( notification.content )
+        this.communicationHandler.notify( notification.content )
         this.responseDirector.dispatchOutgoingResponse(
             notification.getResponseWithNewContent( this.getConfirmationContent() )
         )
     }
 
     override suspend fun visit( request: Request ) {
-        val newContent = this.requestHandler.invoke( request.content )
+        val newContent = this.communicationHandler.request( request.content )
         this.responseDirector.dispatchOutgoingResponse(
             request.getResponseWithNewContent( newContent )
         )

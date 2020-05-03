@@ -6,10 +6,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi
-class ServerParameters() : WebSocketParameters < ServerParameters >() {
+class ServerParameters : WebSocketParameters < ServerParameters >() {
 
     override var coroutineScope = CoroutineScope( Dispatchers.IO )
-    var newConnectionHandler: ( Int ) -> Unit = { }
+    var newConnectionHandler: NewConnectionHandler? = null
     var serializationLibrary: SerializationLibrary = SerializationLibrary()
     var wait: Boolean = true
 

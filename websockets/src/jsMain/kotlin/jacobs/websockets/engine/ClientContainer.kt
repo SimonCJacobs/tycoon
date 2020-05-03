@@ -26,15 +26,15 @@ internal class ClientContainer(
         }
     }
 
-    override fun kodeinInContext( kodein: Kodein, context: SocketContext < ClientParameters > ): Kodein {
+    override fun kodeinInContext( kodein: Kodein, context: SocketContext ): Kodein {
         return kodein.on( context )
     }
 
-    override fun Kodein.Builder.contexted(): Kodein.BindBuilder.WithContext < SocketContext < ClientParameters > > {
+    override fun Kodein.Builder.contexted(): Kodein.BindBuilder.WithContext < SocketContext > {
         return kodeinContexted()
     }
 
-    override fun Kodein.Builder.scoped(): Kodein.BindBuilder.WithScope < SocketContext < ClientParameters > > {
+    override fun Kodein.Builder.scoped(): Kodein.BindBuilder.WithScope < SocketContext > {
         return kodeinScoped( super.socketScope )
     }
 

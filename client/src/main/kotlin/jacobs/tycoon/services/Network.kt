@@ -1,5 +1,6 @@
-package jacobs.tycoon.clientcontroller
+package jacobs.tycoon.services
 
+import jacobs.tycoon.clientcontroller.IncomingController
 import jacobs.tycoon.controller.communication.CommunicationLibrary
 import jacobs.websockets.content.MessageContent
 import jacobs.websockets.WebSocket

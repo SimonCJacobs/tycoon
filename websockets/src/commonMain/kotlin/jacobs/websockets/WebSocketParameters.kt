@@ -1,7 +1,5 @@
 package jacobs.websockets
 
-import jacobs.websockets.content.BooleanContent
-import jacobs.websockets.content.MessageContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 
@@ -9,10 +7,16 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 abstract class WebSocketParameters < T : WebSocketParameters < T > > {
 
     open lateinit var coroutineScope: CoroutineScope
-    var notificationHandler: suspend ( MessageContent ) -> Unit = {}
+    var notificationHandler: NotificationHandler? = null
     var outgoingMessageDelay: Long = 10L
     var path: String = "/"
     var port: Int = 80
-    var requestHandler: suspend ( MessageContent ) -> MessageContent = { BooleanContent( true ) }
+    var requestHandler: RequestHandler? = null
+
+    /**
+     * Provide a request handler that provides the index of the requesting socket. This will be
+     * executed in preference to any [requestHandler] registered
+     */
+    var requestHandlerWithIndex: RequestHandlerWithIndex? = null
 
 }

@@ -7,6 +7,7 @@ import jacobs.tycoon.domain.players.Player
 import jacobs.tycoon.domain.actions.AddPlayer
 import jacobs.tycoon.domain.actions.GameAction
 import jacobs.tycoon.domain.actions.SetBoard
+import jacobs.tycoon.domain.players.Position
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlin.test.Test
@@ -16,8 +17,8 @@ class UpdateCallTest {
 
     @Test
     fun serializesBoardCall() {
-        val boardCall = SetBoard(LondonBoard())
-        asserter.assertEquals( "Same player",
+        val boardCall = SetBoard( LondonBoard() )
+        asserter.assertEquals( "Same board",
             boardCall,
             serializeAndDeserialize( boardCall )
         )
@@ -25,7 +26,7 @@ class UpdateCallTest {
 
     @Test
     fun serializesPlayerCall() {
-        val playerCall = AddPlayer( "John", PlayingPiece( name = "Iron" ) )
+        val playerCall = AddPlayer( "John", PlayingPiece( name = "Iron" ), Position( 55 ) )
         asserter.assertEquals( "Same player",
             playerCall,
             serializeAndDeserialize( playerCall )

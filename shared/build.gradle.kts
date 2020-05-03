@@ -24,6 +24,7 @@ kotlin {
             dependencies {
                 api( kotlin( "stdlib-common" ) )
                 implementation( project( ":websockets" ) )
+                implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:${ Versions.kotlinCoroutines }" )
                 implementation( "org.kodein.di:kodein-di-erased:${ Versions.kodein }"  )
             }
         }
@@ -36,6 +37,7 @@ kotlin {
         val jsMain by getting {
             dependencies {
                 api( kotlin( "stdlib-js" ) )
+                implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${ Versions.kotlinCoroutines }" )
             }
         }
         val jsTest by getting {
@@ -46,6 +48,7 @@ kotlin {
         val jvmMain by getting {
             dependencies {
                 api( kotlin( "stdlib-jdk8" ) )
+                implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core:${ Versions.kotlinCoroutines }" )
             }
         }
         val jvmTest by getting {

@@ -1,6 +1,8 @@
 package jacobs.tycoon.application
 
+import jacobs.tycoon.controller.communication.ClientWelcomeMessage
 import jacobs.tycoon.state.GameHistory
+import jacobs.websockets.SocketId
 import kotlinx.coroutines.delay
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
@@ -11,7 +13,7 @@ class UpdateEngine ( kodein: Kodein ) {
     private val socketServer by kodein.instance < SocketServer > ()
     private val updateDelayMs by kodein.instance < Long > ( tag = "updateDelay" )
 
-    private val updatePushRecord: MutableMap < Int, Int > = mutableMapOf()
+    private val updatePushRecord: MutableMap < SocketId, Int > = mutableMapOf()
 
     init {
         socketServer.setNewConnectionLambda { this.updateNewConnection( it ) }
@@ -25,8 +27,9 @@ class UpdateEngine ( kodein: Kodein ) {
     }
 
     @Suppress( "MemberVisibilityCanBePrivate" )
-    fun updateNewConnection( index: Int ) {
-        this.updatePushRecord.put( index, 0 )
+    fun updateNewConnection( socket: SocketId ) {
+        this.sendWelcomeMessage( socket )
+        this.updatePushRecord.put( socket, 0 )
     }
 
     private fun doAnyOngoingUpdates() {
@@ -37,12 +40,17 @@ class UpdateEngine ( kodein: Kodein ) {
         }
     }
 
-    private fun updateSocketInIndexRange( socketIndex: Int, firstIndexToUpdate: Int, lastIndexToUpdate: Int ) {
+    private fun sendWelcomeMessage( socket: SocketId ) {
+        val welcomeMessage = ClientWelcomeMessage( "Welcome to the game :)", socket )
+        this.socketServer.notifySocketAtIndex( socket, welcomeMessage )
+    }
+
+    private fun updateSocketInIndexRange( socket: SocketId, firstIndexToUpdate: Int, lastIndexToUpdate: Int ) {
         this.socketServer.notifySocketAtIndex(
-            socketIndex,
+            socket,
             this.gameHistory.getUpdatesBetween( firstIndexToUpdate, lastIndexToUpdate )
         )
-        this.updatePushRecord [ socketIndex ] = lastIndexToUpdate
+        this.updatePushRecord [ socket ] = lastIndexToUpdate
     }
 
 }

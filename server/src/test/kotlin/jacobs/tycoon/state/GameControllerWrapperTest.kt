@@ -7,6 +7,9 @@ import jacobs.tycoon.domain.board.LondonBoard
 import jacobs.tycoon.domain.pieces.ClassicPieces
 import jacobs.tycoon.domain.pieces.PieceSet
 import jacobs.tycoon.domain.pieces.PlayingPiece
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.junit.jupiter.api.Test
 import org.kodein.di.Kodein
@@ -18,10 +21,12 @@ import org.mockito.Mockito.inOrder
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when` as mockitoWhen
 
+@Suppress( "DeferredResultUnused" )
 class GameControllerWrapperTest {
 
-    private fun getTestInstance(actualController: GameController ): GameControllerWrapper {
+    private fun getTestInstance( actualController: GameController ): GameControllerWrapper {
         val kodein = Kodein {
+            bind < CoroutineScope > () with instance( CoroutineScope( Dispatchers.Default ) )
             bind < GameController > ( tag = "actual" ) with instance( actualController )
             bind < GameControllerWrapper > () with singleton { GameControllerWrapper( kodein ) }
             bind < GameHistory > () with singleton { GameHistory() }
@@ -34,12 +39,12 @@ class GameControllerWrapperTest {
         runBlocking {
             val dummyController = mock( GameController::class.java )
             val londonBoard = LondonBoard()
-            mockitoWhen( dummyController.setBoard( londonBoard ) ).thenReturn( true )
+            mockitoWhen( dummyController.setBoardAsync( londonBoard ) )
+                .thenReturn( CompletableDeferred( true ) )
             val instance = getTestInstance( dummyController )
-            instance.setBoard( londonBoard )
-            inOrder( dummyController ).apply{
-                verify( dummyController ).setBoard( londonBoard )
-            }
+            instance.setBoardAsync( londonBoard ).await()
+            inOrder( dummyController ).verify( dummyController )
+                .setBoardAsync( londonBoard )
         }
 
     }
@@ -49,37 +54,15 @@ class GameControllerWrapperTest {
         runBlocking {
             val dummyController = mock( GameController::class.java )
             val pieceSet = ClassicPieces()
-            mockitoWhen( dummyController.setPieces( pieceSet ) ).thenReturn( true )
+            mockitoWhen( dummyController.setPiecesAsync( pieceSet ) )
+                .thenReturn( CompletableDeferred( true ) )
             val instance = getTestInstance( dummyController )
-            instance.setPieces( pieceSet )
-            inOrder( dummyController ).apply{
-                verify( dummyController ).setPieces( pieceSet )
-            }
+            instance.setPiecesAsync( pieceSet ).await()
+            inOrder( dummyController )
+                .verify( dummyController )
+                .setPiecesAsync( pieceSet )
         }
 
-    }
-
-}
-
-class X : GameController {
-    override suspend fun addPlayer(playerName: String, playingPiece: PlayingPiece): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun completeSignUp(): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun newGame(): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun setBoard(board: Board): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun setPieces(pieces: PieceSet): Boolean {
-        TODO("Not yet implemented")
     }
 
 }

@@ -7,6 +7,7 @@ import io.ktor.client.features.websocket.ws
 import io.ktor.http.HttpMethod
 import io.ktor.util.KtorExperimentalAPI
 import jacobs.websockets.ClientParameters
+import jacobs.websockets.SocketId
 import jacobs.websockets.WebSocket
 import jacobs.websockets.content.SerializationLibrary
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -34,7 +35,7 @@ internal class ClientWebSocketsApplication (
     }
 
     suspend fun getNewWebSocket( parameters: ClientParameters ): WebSocket {
-        val context = ClientContext( parameters )
+        val context = SocketContext( parameters, SocketId( -1 ) ) // TODO clearly not done yet for multiple sockets!
         val engine = this.container.getEngineInContext( context )
         val socket = this.container.getWebSocketInContext( context )
         this.container.prepareForNewScope( context )
@@ -58,12 +59,12 @@ internal class ClientWebSocketsApplication (
         }
     }
 
-    private fun retainSocketHandle( socket: WebSocket, context: ClientContext, engine: WebSocketEngine ) {
+    private fun retainSocketHandle( socket: WebSocket, context: SocketContext, engine: WebSocketEngine ) {
         this.detailsBySocket.put( socket, SocketDetails( context, engine ) )
     }
 
     data class SocketDetails(
-        val context: ClientContext,
+        val context: SocketContext,
         val engine: WebSocketEngine
     )
 

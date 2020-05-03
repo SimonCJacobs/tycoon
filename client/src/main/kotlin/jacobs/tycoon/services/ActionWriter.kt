@@ -15,7 +15,8 @@ class ActionWriter( kodein: Kodein ) : ActionProcessor < String > {
 
     override fun process( gameAction: GameAction ): String {
         return when( gameAction ){
-            is AddPlayer -> "Player ${ gameAction.argPair().first } has joined using piece ${ gameAction.argPair().second.name }"
+            is AddPlayer -> "Player ${ gameAction.argTriple().first } has joined using piece " +
+                gameAction.argTriple().second.name
             is CompleteSignUp -> "The game sign-up stage is complete. Let's roll the dice to see the order of play :)"
             is NewGame -> "A new game of $gameName has begun!"
             is SetBoard -> "Using board with locations in ${ gameAction.singleArg().location }"

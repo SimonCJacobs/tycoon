@@ -16,7 +16,6 @@ dependencies {
     implementation( project( ":websockets" )  )
     implementation( "org.kodein.di:kodein-di-erased:${ Versions.kodein }"  )
     implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${ Versions.kotlinCoroutines }" )
-
 }
 
 kotlin {

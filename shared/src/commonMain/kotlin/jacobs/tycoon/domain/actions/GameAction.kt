@@ -3,7 +3,7 @@ package jacobs.tycoon.domain.actions
 import jacobs.tycoon.domain.board.Board
 import jacobs.tycoon.domain.pieces.PieceSet
 import jacobs.tycoon.domain.pieces.PlayingPiece
-import jacobs.tycoon.domain.players.Player
+import jacobs.tycoon.domain.players.Position
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
@@ -48,29 +48,40 @@ sealed class TwoArgAction < T0 : Any, T1 : Any >: GameAction() {
 }
 
 @Serializable
-class AddPlayer ( private val playerName: String, private val playingPiece: PlayingPiece ) : TwoArgAction < String, PlayingPiece >() {
-    @Transient override val methodName = "addPlayer"
-    override fun argPair(): Pair < String, PlayingPiece > { return playerName to playingPiece }
+sealed class ThreeArgAction < T0 : Any, T1 : Any, T2 : Any >: GameAction() {
+    override fun args(): Array < Any > {
+        return argTriple().run { arrayOf( first, second, third ) }
+    }
+    abstract fun argTriple(): Triple < T0, T1, T2 >
+}
+
+@Serializable
+class AddPlayer ( private val playerName: String, private val playingPiece: PlayingPiece, private val position: Position )
+        : ThreeArgAction < String, PlayingPiece, Position >() {
+    @Transient override val methodName = "addPlayerAsync"
+    override fun argTriple(): Triple < String, PlayingPiece, Position > {
+        return Triple( playerName, playingPiece, position )
+    }
 }
 
 @Serializable
 object CompleteSignUp : NoArgAction () {
-    @Transient override val methodName = "completeSignUp"
+    @Transient override val methodName = "completeSignUpAsync"
 }
 
 @Serializable
 object NewGame : NoArgAction () {
-    @Transient override val methodName = "newGame"
+    @Transient override val methodName = "newGameAsync"
 }
 
 @Serializable
 class SetBoard ( private val board: Board ) : OneArgAction < Board >() {
-    @Transient override val methodName = "setBoard"
+    @Transient override val methodName = "setBoardAsync"
     override fun singleArg(): Board { return board }
 }
 
 @Serializable
 class SetPieces ( private val pieceSet: PieceSet ) : OneArgAction < PieceSet >() {
-    @Transient override val methodName = "setPieces"
+    @Transient override val methodName = "setPiecesAsync"
     override fun singleArg(): PieceSet { return pieceSet }
 }

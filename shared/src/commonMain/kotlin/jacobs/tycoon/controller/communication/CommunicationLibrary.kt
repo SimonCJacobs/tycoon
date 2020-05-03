@@ -11,6 +11,7 @@ class CommunicationLibrary {
     val serializationLibrary = SerializationLibrary.build {
 
         AddPlayerRequest::class serializedBy AddPlayerRequest.serializer()
+        ClientWelcomeMessage::class serializedBy ClientWelcomeMessage.serializer()
         SimpleRequestWrapper::class serializedBy SimpleRequestWrapper.serializer()
         GameActionCollection::class serializedBy GameActionCollection.serializer()
 

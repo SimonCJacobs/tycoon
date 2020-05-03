@@ -20,6 +20,11 @@ fun < T : Any > KClass < T >.createInstance( vararg constructorParameters: Any )
     return instantiateJsClass( this.js, constructorParameters )
 }
 
+/**
+ * Note that this hacky reflection approach cannot handle suspend functions in the target class because it is not
+ * clear how to replicate the Kotlin coroutine code that suspend functions have in the compiled JavaScript (you end
+ * up with errors much like https://github.com/Kotlin/kotlinx.coroutines/issues/1145)
+ */
 @Suppress( "UNUSED_VARIABLE" )
 fun < T : Any > KClass < T >.prototypeFunctions(): List < JsFunction > {
     val thisArgJs = this.js

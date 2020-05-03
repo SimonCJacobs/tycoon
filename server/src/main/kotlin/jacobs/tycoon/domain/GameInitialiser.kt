@@ -10,9 +10,9 @@ class GameInitialiser ( kodein: Kodein ) {
     private val gameControllerWrapper by kodein.instance < GameController > ( tag = "wrapper" )
 
     suspend fun initialiseStandardGame() {
-        this.gameControllerWrapper.newGame()
-        this.gameControllerWrapper.setBoard( LondonBoard() )
-        this.gameControllerWrapper.setPieces( ClassicPieces() )
+        this.gameControllerWrapper.newGameAsync().await()
+        this.gameControllerWrapper.setBoardAsync( LondonBoard() ).await()
+        this.gameControllerWrapper.setPiecesAsync( ClassicPieces() ).await()
     }
 
 }

@@ -18,8 +18,8 @@ class ServerWebSockets {
         this.application.notifyAll( notificationObject )
     }
 
-    suspend fun notifyByIndex( index: Int, notificationObject: MessageContent ) {
-        this.application.notifyByIndex( index, notificationObject )
+    suspend fun notifySocket( socket: SocketId, notificationObject: MessageContent ) {
+        this.application.notifySocket( socket, notificationObject )
     }
 
     suspend fun startServer( closure: ServerParameters.() -> Unit ) {

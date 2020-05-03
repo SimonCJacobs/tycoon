@@ -1,24 +1,21 @@
 package jacobs.websockets.engine
 
-import jacobs.websockets.WebSocketParameters
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.kodein.di.bindings.Scope
 import org.kodein.di.bindings.ScopeRegistry
 import org.kodein.di.bindings.StandardScopeRegistry
 
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi
-internal class SocketScope
-    < TParameters : WebSocketParameters < TParameters >, TContext : SocketContext < TParameters > >
-    : Scope < TContext >
+internal class SocketScope : Scope < SocketContext >
 {
 
-    private val registries: MutableMap < TContext, ScopeRegistry > = mutableMapOf()
+    private val registries: MutableMap < SocketContext, ScopeRegistry > = mutableMapOf()
 
-    fun deleteRegistry( context: TContext ) {
+    fun deleteRegistry( context: SocketContext ) {
         this.registries.remove( context )
     }
 
-    override fun getRegistry( context: TContext ): ScopeRegistry {
+    override fun getRegistry( context: SocketContext ): ScopeRegistry {
         if ( this.registries.contains( context ) )
             return this.registries.getValue( context )
         else

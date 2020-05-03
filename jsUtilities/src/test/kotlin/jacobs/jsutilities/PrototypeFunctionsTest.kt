@@ -27,28 +27,10 @@ class PrototypeFunctionsTest {
         )
     }
 
-    @Test
-    fun prototypeFunctionsAllowAccessToSuspendFunctionsThroughReflection() {
-        val firstPrototypeFn = ASuspendClass::class.prototypeFunctions()[ 0 ]
-        val aSuspendClass = ASuspendClass( 10 )
-        asserter.assertEquals( "Correct name", "multiplyBy5", firstPrototypeFn.name )
-        asserter.assertEquals(
-            "Can execute underlying function", 600, firstPrototypeFn.apply( aSuspendClass, arrayOf( 3, 4 ) ) as Any
-        )
-    }
-
     class AClass( private val c: Int ) {
         @JsName( "multiply" )
         fun multiply( a: Int, b: Int ): Int {
             return a * b * c
-        }
-    }
-
-    class ASuspendClass( private val c: Int ) {
-        @Suppress( "RedundantSuspendModifier" )
-        @JsName( "multiplyBy5" )
-        suspend fun multiplyBy5( a: Int, b: Int ): Int {
-            return a * b * c * 5
         }
     }
 

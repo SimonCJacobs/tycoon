@@ -20,20 +20,20 @@ internal class ServerContainer(
     override fun platformSpecificModule(): Kodein.Module {
         return Kodein.Module( "serverSpecific" ) {
             bind < CloseRequestHandler >() with instance( closeRequestHandler )
-            bind < SerializationLibrary >() with instance( parameters.serializationLibrary ) // TODO try to solve strange bug here which prevents use of context
+            bind < SerializationLibrary >() with instance( parameters.serializationLibrary )
             bind < TimestampFactory >() with instance( JvmTimestampFactory() )
         }
     }
 
-    override fun kodeinInContext( kodein: Kodein, context: SocketContext < ServerParameters > ): Kodein {
+    override fun kodeinInContext( kodein: Kodein, context: SocketContext ): Kodein {
         return kodein.on( context )
     }
 
-    override fun Kodein.Builder.contexted(): Kodein.BindBuilder.WithContext < SocketContext < ServerParameters > > {
+    override fun Kodein.Builder.contexted(): Kodein.BindBuilder.WithContext < SocketContext > {
         return kodeinContexted()
     }
 
-    override fun Kodein.Builder.scoped(): Kodein.BindBuilder.WithScope < SocketContext < ServerParameters > > {
+    override fun Kodein.Builder.scoped(): Kodein.BindBuilder.WithScope < SocketContext > {
         return kodeinScoped( super.socketScope )
     }
 

@@ -2,7 +2,7 @@ package jacobs.tycoon.view.components.pages
 
 import jacobs.mithril.Tag
 import jacobs.mithril.m
-import jacobs.tycoon.clientcontroller.UserInterfaceController
+import jacobs.tycoon.clientcontroller.EntryPageController
 import jacobs.tycoon.clientstate.EntryPageState
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import org.js.mithril.VNode
@@ -13,11 +13,11 @@ import org.w3c.dom.HTMLInputElement
 
 class EntryPage( kodein: Kodein ) : Page {
 
-    private val state by kodein.instance < EntryPageState > ()
-    private val uiController by kodein.instance < UserInterfaceController > ()
+    private val pageState by kodein.instance < EntryPageState > ()
+    private val uiController by kodein.instance < EntryPageController > ()
 
     override fun view(): VNode {
-        return if ( this.uiController.isAppWaitingForServer() )
+        return if ( this.uiController.isClientWaitingForServer() )
             this.displayWaitingScreen()
         else
             this.getPlayerEntryForm()
@@ -55,10 +55,10 @@ class EntryPage( kodein: Kodein ) : Page {
                 m( Tag.input ) {
                     attributes {
                         type = text
-                        value = state.playerName
+                        value = pageState.playerNameInProgress
                     }
                     eventHandlers {
-                        onInputExt = { state.playerName = ( it.target as HTMLInputElement ).value }
+                        onInputExt = { pageState.playerNameInProgress = ( it.target as HTMLInputElement ).value }
                     }
                 }
             )
@@ -77,14 +77,14 @@ class EntryPage( kodein: Kodein ) : Page {
     }
 
     private fun getPieceDropdown(): VNode {
-        state.pieceOptionList = this.uiController.getAvailablePieces()
-        state.selectedPiece = this.uiController.getSelectedPiece( state.pieceOptionList )
+        pageState.pieceOptionList = this.uiController.getAvailablePieces()
+        pageState.selectedPiece = this.uiController.getSelectedPiece( pageState.pieceOptionList )
         return m( Tag.select ) {
             eventHandlers {
-                onInputExt = selectedIndex { state.selectedPiece = state.pieceOptionList[ it ] }
+                onInputExt = selectedIndex { pageState.selectedPiece = pageState.pieceOptionList[ it ] }
             }
             children(
-                state.pieceOptionList.map { getSinglePieceOptionElement( it, state.selectedPiece!! ) }
+                pageState.pieceOptionList.map { getSinglePieceOptionElement( it, pageState.selectedPiece!! ) }
             )
         }
     }
@@ -112,7 +112,7 @@ class EntryPage( kodein: Kodein ) : Page {
     }
 
     private fun getAnyMessage(): VNode? {
-        if ( state.showNoGameEntry )
+        if ( pageState.showNoGameEntry )
             return m( Tag.h4 ) {
                 content( "Sorry. You can't join the game now" )
             }

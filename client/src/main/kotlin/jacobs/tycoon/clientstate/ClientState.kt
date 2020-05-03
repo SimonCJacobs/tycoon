@@ -1,8 +1,8 @@
 package jacobs.tycoon.clientstate
 
-import jacobs.tycoon.view.ViewState
+import jacobs.websockets.SocketId
 
 class ClientState {
     var isWaitingForServer = true
-    var viewState: ViewState = ViewState.SIGN_UP
+    lateinit var socket: SocketId
 }

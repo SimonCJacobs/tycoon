@@ -7,5 +7,6 @@ import org.kodein.di.erased.singleton
 fun servicesModule(): Kodein.Module {
     return Kodein.Module( "clientServices" ) {
         bind < ActionWriter >() with singleton { ActionWriter( kodein ) }
+        bind < Network > () with singleton { Network( kodein ) }
     }
 }

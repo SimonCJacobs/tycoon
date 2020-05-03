@@ -10,6 +10,7 @@ import io.ktor.util.KtorExperimentalAPI
 import io.ktor.websocket.WebSockets
 import io.ktor.websocket.webSocket
 import jacobs.websockets.ServerParameters
+import jacobs.websockets.SocketId
 import jacobs.websockets.WebSocket
 import jacobs.websockets.content.MessageContent
 import kotlinx.coroutines.CoroutineScope
@@ -27,18 +28,18 @@ internal class ServerWebSocketsApplication {
     private lateinit var server: ApplicationEngine
 
     private val mutex = Mutex()
-    private val sockets: MutableList < WebSocket > = mutableListOf()
+    private val socketMap: MutableMap < SocketId, WebSocket > = mutableMapOf()
 
     fun close() {
         this.server.environment.stop()
     }
 
-    suspend fun notifyByIndex( index: Int, notificationObject: MessageContent ) {
-        this.sockets[ index ].notify( notificationObject )
+    suspend fun notifySocket( socket: SocketId, notificationObject: MessageContent ) {
+        this.socketMap.getValue( socket ).notify( notificationObject )
     }
 
     fun notifyAll( notificationObject: MessageContent ) {
-        this.sockets.forEach {
+        this.socketMap.values.forEach {
             eachSocket -> coroutineScope.launch { eachSocket.notify( notificationObject ) }
         }
     }
@@ -73,15 +74,15 @@ internal class ServerWebSocketsApplication {
 
     private suspend fun makeNewSocketConnection( parameters: ServerParameters,
              incoming: ReceiveChannel < Frame >, outgoing: SendChannel < Frame > ) {
-        val context = ServerContext( parameters )
-        this.container.prepareForNewScope( context )
         mutex.lock() // We want to be sure we get the right socket index in the list
-        this.sockets.add(
+        val context = SocketContext( parameters, SocketId( this.socketMap.size ) )
+        this.container.prepareForNewScope( context )
+        this.socketMap.put(
+            context.socket,
             this.container.getWebSocketInContext( context )
         )
-        val socketIndex = this.sockets.size - 1
         mutex.unlock()
-        parameters.newConnectionHandler.invoke( socketIndex )
+        parameters.newConnectionHandler?.invoke( context.socket )
         this.container.getEngineInContext( context )
             .startMessageLoop( incoming, outgoing )
     }
