@@ -6,6 +6,7 @@ import jacobs.tycoon.view.components.pages.EntryPage
 import jacobs.tycoon.view.components.pages.MainPage
 import jacobs.tycoon.view.components.pages.NoEntryPage
 import jacobs.tycoon.view.components.pages.Page
+import jacobs.tycoon.view.components.pages.SplashPage
 import org.js.mithril.Component
 import org.js.mithril.VNode
 import org.kodein.di.Kodein
@@ -17,7 +18,8 @@ class PageWrapper( kodein: Kodein ) : Component {
 
     private val entryPage by kodein.instance < EntryPage > ()
     private val mainPage by kodein.instance < MainPage > ()
-    private val noEntryPage by kodein.instance <NoEntryPage> ()
+    private val noEntryPage by kodein.instance < NoEntryPage > ()
+    private val splashPage by kodein.instance < SplashPage > ()
 
     override fun view(): VNode {
         return m( this.getCurrentPage() )
@@ -25,7 +27,7 @@ class PageWrapper( kodein: Kodein ) : Component {
 
     private fun getCurrentPage(): Page {
         return when {
-            this.uiController.hasGameBeenInitialised() == false -> this.entryPage
+            this.uiController.hasGameBeenInitialised() == false -> this.splashPage
             this.uiController.ownPlayerIsInTheGame() == false && this.uiController.isSignUpPhase()
                 -> this.entryPage
             this.uiController.ownPlayerIsInTheGame() == false && false == this.uiController.isSignUpPhase()

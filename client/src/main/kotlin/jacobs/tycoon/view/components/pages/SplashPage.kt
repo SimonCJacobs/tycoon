@@ -1,0 +1,22 @@
+package jacobs.tycoon.view.components.pages
+
+import jacobs.mithril.Tag
+import jacobs.mithril.m
+import org.js.mithril.VNode
+
+class SplashPage : Page {
+
+    override fun view(): VNode {
+        return m( Tag.div ) {
+            children(
+                m( Tag.h1 ) {
+                    content( "Welcome" )
+                },
+                m( Tag.h4 ) {
+                    content( "Please wait..." )
+                }
+            )
+        }
+    }
+
+}
