@@ -15,8 +15,6 @@ class Console( kodein: Kodein ) : Component {
     private val gameHistory by kodein.instance < GameHistory > ()
     private val processor by kodein.instance < ActionWriter > ()
 
-    private val existingLogs: MutableList < String > = mutableListOf()
-
     override fun view(): VNode {
         return m( Tag.aside ) {
             attributes {
@@ -33,29 +31,17 @@ class Console( kodein: Kodein ) : Component {
             attributes {
                 reversed = true
             }
-            children( getExistingLogs(), getAnyNewLogs() )
+            children( getLogsReversed() )
         }
     }
 
-    private fun getExistingLogs(): List < VNode > {
-        return this.existingLogs.map { getLogFromText( it ) }
+    private fun getLogsReversed(): List < VNode > {
+        return this.getTextLogs().map { getLogFromText( it ) }
+            .reversed()
     }
 
-    private fun getAnyNewLogs(): List < VNode > {
-            // Cautious about accessing due to possible multi-threading issues
-        val totalUpdateCount = this.gameHistory.getUpdateCount()
-        if ( this.existingLogs.size == totalUpdateCount )
-            return emptyList()
-        else
-            return this.getNewLogsUpToIndex( totalUpdateCount )
-    }
-
-    private fun getNewLogsUpToIndex( totalUpdateCount: Int ): List < VNode > {
-        val newLogs = this.gameHistory.processLogsBackwardsBetween(
-            this.processor, totalUpdateCount, this.existingLogs.size
-        )
-        this.existingLogs.addAll( newLogs )
-        return newLogs.map { getLogFromText( it ) }
+    private fun getTextLogs(): List < String > {
+        return this.gameHistory.processAllLogs( this.processor )
     }
 
     private fun getLogFromText( text: String ): VNode {

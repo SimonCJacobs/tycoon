@@ -1,14 +1,12 @@
 package jacobs.tycoon.clientcontroller
 
 import jacobs.tycoon.clientstate.ClientState
-import jacobs.tycoon.controller.communication.OpenActionRequest
-import jacobs.tycoon.controller.communication.PositionalActionRequest
+import jacobs.tycoon.controller.communication.ActionRequest
 import jacobs.tycoon.controller.communication.Request
 import jacobs.tycoon.domain.actions.AddPlayer
 import jacobs.tycoon.domain.actions.CompleteSignUp
-import jacobs.tycoon.domain.actions.OpenGameAction
-import jacobs.tycoon.domain.actions.PositionalGameAction
-import jacobs.tycoon.domain.actions.RollTheDice
+import jacobs.tycoon.domain.actions.GameAction
+import jacobs.tycoon.domain.actions.RollForOrder
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.services.Network
 import jacobs.websockets.content.BooleanContent
@@ -21,23 +19,19 @@ class OutgoingRequestController( kodein: Kodein ) {
     private val network by kodein.instance <Network> ()
 
     suspend fun addPlayer( playerName: String, playingPiece: PlayingPiece ): Boolean {
-        return this.sendPositionalActionRequest( AddPlayer( playerName, playingPiece ) )
+        return this.sendActionRequest( AddPlayer( playerName, playingPiece ) )
     }
 
     suspend fun completeGameSignUp(): Boolean {
-        return this.sendOpenActionRequest( CompleteSignUp() )
+        return this.sendActionRequest( CompleteSignUp() )
     }
 
     suspend fun rollTheDice(): Boolean {
-        return this.sendPositionalActionRequest( RollTheDice() )
+        return this.sendActionRequest( RollForOrder() )
     }
 
-    private suspend fun sendOpenActionRequest( openAction: OpenGameAction ): Boolean {
-        return this.sendYesNoRequest( OpenActionRequest( openAction ) )
-    }
-
-    private suspend fun sendPositionalActionRequest( positionalAction: PositionalGameAction ): Boolean {
-        return this.sendYesNoRequest( PositionalActionRequest( positionalAction ) )
+    private suspend fun sendActionRequest( action: GameAction ): Boolean {
+        return this.sendYesNoRequest( ActionRequest( action ) )
     }
 
     private suspend fun sendYesNoRequest( request: Request ): Boolean {

@@ -1,15 +1,22 @@
 package jacobs.tycoon.domain.dice
 
-interface DiceRoll {
+import kotlinx.serialization.Serializable
 
-    val first: Int
-    val second: Int
-    val result: Int
+@Serializable
+abstract class DiceRoll : Comparable < DiceRoll > {
 
-    fun isDouble(): Boolean
+    abstract val first: Int
+    abstract val second: Int
+    abstract val result: Int
+
+    abstract fun isDouble(): Boolean
 
     companion object {
-        val UNROLLED: DiceRoll = NullDiceRoll()
+        val NULL: DiceRoll = NullDiceRoll()
+    }
+
+    override fun compareTo( other: DiceRoll ): Int {
+        return this.result - other.result
     }
 
 }

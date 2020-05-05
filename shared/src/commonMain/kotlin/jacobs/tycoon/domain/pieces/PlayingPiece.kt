@@ -6,6 +6,10 @@ import kotlinx.serialization.Serializable
 class PlayingPiece(
     val name: String
 ) {
+    companion object {
+        val NULL = PlayingPiece( "" )
+    }
+
     override fun equals( other: Any? ): Boolean {
         if ( other is PlayingPiece )
             return this.name == other.name

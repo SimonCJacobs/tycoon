@@ -6,11 +6,11 @@ class Dice {
         const val NUMBER_OF_SIDES = 6
     }
 
-    var lastRoll: DiceRoll = DiceRoll.UNROLLED
+    var lastRoll: DiceRoll = DiceRoll.NULL
         private set
 
-    fun roll( knownDiceRoll: DiceRoll? = null ): DiceRoll {
-        this.lastRoll = knownDiceRoll ?: this.rollForReal()
+    fun roll( diceRoll: DiceRoll? = null ): DiceRoll {
+        this.lastRoll = diceRoll ?: this.rollForReal()
         return this.lastRoll
     }
 

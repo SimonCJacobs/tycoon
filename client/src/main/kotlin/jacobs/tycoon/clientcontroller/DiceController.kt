@@ -1,6 +1,6 @@
 package jacobs.tycoon.clientcontroller
 
-import jacobs.tycoon.domain.phases.RollForThrowingOrder
+import jacobs.tycoon.domain.phases.RollingForOrder
 import jacobs.tycoon.state.GameState
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
@@ -21,7 +21,7 @@ class DiceController( kodein: Kodein ) : UserInterfaceController( kodein ) {
         if ( this.gameState.game().isSignUpPhase() )
             return false
         val phase = this.gameState.game().phase
-        if ( phase is RollForThrowingOrder && false == phase.hasRollingStarted() )
+        if ( phase is RollingForOrder && false == phase.hasRollingStarted() )
             return false
         return true
     }

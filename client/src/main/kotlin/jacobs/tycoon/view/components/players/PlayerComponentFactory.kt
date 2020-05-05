@@ -25,8 +25,8 @@ class PlayerComponentFactory( kodein: Kodein ) {
             return PassiveSinglePlayerComponent( gameState, controllerProvider( player ), player )
     }
 
-    fun getSinglePlayerComponentsExcluding( playerToExclude: Player ): List < SinglePlayerComponent > {
-        return this.gameState.game().players.allExcept( playerToExclude )
+    fun getOrderedSinglePlayerComponentsExcluding( playerToExclude: Player ): List < SinglePlayerComponent > {
+        return this.gameState.game().players.playersToLeftExcluding( playerToExclude )
             .map { getSinglePlayerComponent( it ) }
     }
 

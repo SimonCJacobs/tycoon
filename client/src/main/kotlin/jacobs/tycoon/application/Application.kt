@@ -1,5 +1,6 @@
 package jacobs.tycoon.application
 
+import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.services.Network
 import jacobs.tycoon.view.View
 import kotlinx.coroutines.CoroutineScope
@@ -41,11 +42,15 @@ import org.kodein.di.erased.instance
 class Application ( kodein: Kodein ) {
 
     private val coroutineScope by kodein.instance < CoroutineScope > ()
+    private val gameController by kodein.instance < GameController > ()
     private val network by kodein.instance <Network> ()
     private val view by kodein.instance < View > ()
 
     fun start() {
-        this.coroutineScope.launch { network.connect() }
+        this.coroutineScope.launch {
+            gameController.startGame()
+            network.connect()
+        }
         this.view.initialise()
     }
 

@@ -4,5 +4,4 @@ import jacobs.tycoon.domain.board.Street
 
 class StreetComponent( private val street: Street )
     : PropertyComponent( street.name ) {
-
 }

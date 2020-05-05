@@ -21,7 +21,7 @@ class MultiplePlayersComponent(
                 }
             }
             children(
-                playerComponentFactory.getSinglePlayerComponentsExcluding( playerToExclude )
+                playerComponentFactory.getOrderedSinglePlayerComponentsExcluding( playerToExclude )
                     .map { m( it ) }
             )
         }

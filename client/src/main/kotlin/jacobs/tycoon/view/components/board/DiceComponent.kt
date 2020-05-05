@@ -19,10 +19,10 @@ class DiceComponent( kodein: Kodein ) : Component {
     }
 
     private fun getContent(): List < VNode >? {
-        if ( false == this.diceController.shouldDiceBeShown() )
-            return null
-        else
+        if ( this.diceController.shouldDiceBeShown() )
             return this.getDiceNodes()
+        else
+            return null
     }
 
     private fun getDiceNodes(): List < VNode > {

@@ -18,4 +18,5 @@ class GameActionCollection private constructor() : MessageContent {
     fun getActions(): List < GameAction > {
         return this.gameActions.toList()
     }
+
 }

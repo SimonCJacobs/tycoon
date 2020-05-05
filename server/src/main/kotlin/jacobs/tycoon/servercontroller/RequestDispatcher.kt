@@ -1,7 +1,6 @@
 package jacobs.tycoon.servercontroller
 
-import jacobs.tycoon.controller.communication.OpenActionRequest
-import jacobs.tycoon.controller.communication.PositionalActionRequest
+import jacobs.tycoon.controller.communication.ActionRequest
 import jacobs.tycoon.controller.communication.Request
 import jacobs.tycoon.controller.communication.RequestVisitor
 import jacobs.tycoon.controller.communication.toPosition
@@ -20,16 +19,11 @@ internal class RequestDispatcher(
         return this.request.accept( this )
     }
 
-    override suspend fun visit(openActionRequest: OpenActionRequest ): MessageContent {
-        return this.gameExecutor.execute( openActionRequest.action )
-            .let { BooleanContent( it.successful ) }
-    }
-
-    override suspend fun visit( positionalActionRequest: PositionalActionRequest ): MessageContent {
-        return positionalActionRequest.positionalAction.run {
-            position = socketId.toPosition()
+    override suspend fun visit( actionRequest: ActionRequest ): MessageContent {
+        return actionRequest.action.run {
+            this.setPositionOfActor( position = socketId.toPosition() )
             gameExecutor.execute( this )
-                .let { BooleanContent( it.successful ) }
+            BooleanContent( this.successful )
         }
     }
 

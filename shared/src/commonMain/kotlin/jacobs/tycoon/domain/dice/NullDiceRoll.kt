@@ -3,7 +3,7 @@ package jacobs.tycoon.domain.dice
 import kotlinx.serialization.Serializable
 
 @Serializable
-class NullDiceRoll: DiceRoll {
+class NullDiceRoll: DiceRoll() {
 
     override val first: Int
         get() = throwNotToBeUsedError()

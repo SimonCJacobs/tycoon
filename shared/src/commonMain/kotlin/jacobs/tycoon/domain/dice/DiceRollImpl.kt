@@ -4,7 +4,7 @@ import kotlinx.serialization.Serializable
 import kotlin.random.Random
 
 @Serializable
-class DiceRollImpl( private val numberOfSides: Int ) : DiceRoll {
+class DiceRollImpl( private val numberOfSides: Int ) : DiceRoll() {
 
     override val first: Int = this.rollOneDie()
     override val second: Int = this.rollOneDie()

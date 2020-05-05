@@ -1,10 +1,11 @@
 package jacobs.tycoon.domain
 
+import jacobs.tycoon.domain.actions.results.RollForOrderResult
 import jacobs.tycoon.domain.dice.Dice
 import jacobs.tycoon.domain.dice.DiceRoll
-import jacobs.tycoon.domain.phases.DiceRollPhase
 import jacobs.tycoon.domain.phases.GamePhase
-import jacobs.tycoon.domain.phases.RollForThrowingOrder
+import jacobs.tycoon.domain.phases.RollingForMove
+import jacobs.tycoon.domain.phases.RollingForOrder
 import jacobs.tycoon.domain.phases.SignUp
 import jacobs.tycoon.domain.phases.SinglePlayerPhase
 import jacobs.tycoon.domain.pieces.PieceSet
@@ -48,12 +49,12 @@ class Game(
     fun completeSignUp(): Boolean {
         if ( false == this.isSignUpPhase() )
             return false
-        this.phase = RollForThrowingOrder.firstRoll( this )
+        this.phase = RollingForOrder.firstRoll( this )
         return true
     }
 
-    fun continueRollingForThrowingOrder( rollForThrowingOrder: RollForThrowingOrder): Boolean {
-        this.phase = rollForThrowingOrder
+    fun continueRollingForThrowingOrderPhase(rollingForOrder: RollingForOrder ): Boolean {
+        this.phase = rollingForOrder
         return true
     }
 
@@ -73,20 +74,20 @@ class Game(
             return phase.isTurnOfPlayer( testPlayer )
     }
 
-    suspend fun rollTheDice( position: Position, knownDiceRoll: DiceRoll? = null ): DiceRoll? {
-        var returnValue: DiceRoll? = null
+    suspend fun rollTheDiceForThrowingOrder( position: Position, maybeDiceRoll: DiceRoll? = null )
+            : RollForOrderResult {
+        var result = RollForOrderResult.NULL
         mutex.lock()
         val currentPhase = this.phase
-        if ( currentPhase is DiceRollPhase && currentPhase.isTurnOfPlayer( position.getPlayer( this ) ) ) {
-            currentPhase.actOnRoll( this, this.dice.roll( knownDiceRoll ) )
-            returnValue = this.dice.lastRoll
+        if ( currentPhase is RollingForOrder && currentPhase.isTurnOfPlayer( position.getPlayer( this ) ) ) {
+            result = currentPhase.actOnRoll( this, this.dice.roll( maybeDiceRoll ) )
         }
         mutex.unlock()
-        return returnValue
+        return result
     }
 
-    fun startGameProperGivenDiceRolls( diceRolls: Map < Player, DiceRoll> ): Boolean {
-        TODO()
+    fun setWinnerOfRollForThrowingOrder( winner: Player ) {
+        this.phase = RollingForMove( winner )
     }
 
 }

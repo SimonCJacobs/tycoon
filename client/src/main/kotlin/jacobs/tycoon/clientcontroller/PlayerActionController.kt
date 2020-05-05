@@ -15,7 +15,6 @@ class PlayerActionController(
     private val outgoingRequestController by kodein.instance < OutgoingRequestController > ()
 
     fun isItOwnTurn(): Boolean {
-        console.log( "My name is ${ player.name } and is it my turn? ${ gameState.game().isTurnOfPlayer( this.player ) }")
         return gameState.game().isTurnOfPlayer( this.player )
     }
 
