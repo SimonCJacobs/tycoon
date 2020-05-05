@@ -30,6 +30,9 @@ class Console( kodein: Kodein ) : Component {
 
     private fun getLogList(): VNode {
         return m( Tag.ol ) {
+            attributes {
+                reversed = true
+            }
             children( getExistingLogs(), getAnyNewLogs() )
         }
     }
@@ -48,8 +51,8 @@ class Console( kodein: Kodein ) : Component {
     }
 
     private fun getNewLogsUpToIndex( totalUpdateCount: Int ): List < VNode > {
-        val newLogs = this.gameHistory.processLogsBetween(
-            this.processor, this.existingLogs.size, totalUpdateCount
+        val newLogs = this.gameHistory.processLogsBackwardsBetween(
+            this.processor, totalUpdateCount, this.existingLogs.size
         )
         this.existingLogs.addAll( newLogs )
         return newLogs.map { getLogFromText( it ) }

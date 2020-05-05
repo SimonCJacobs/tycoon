@@ -30,7 +30,22 @@ class GameHistory {
      */
     fun < T : Any > processLogsBetween( processor: ActionProcessor < T >, startIndex: Int, endIndex: Int ): List < T > {
         return this.gameActions.subList( startIndex, endIndex )
-            .mapNotNull( processor::process )
+            .let { processSubList( processor, it ) }
+    }
+
+    /**
+     * Process updates to the game state backwards between [startIndex] (exclusive) and [endIndex] (inclusive)--
+     * so [startIndex] must be greater than [endIndex]
+     */
+    fun < T : Any > processLogsBackwardsBetween( processor: ActionProcessor < T >, startIndex: Int,
+                                                 endIndex: Int ): List < T > {
+        return this.gameActions.subList( endIndex, startIndex ).reversed()
+            .let { processSubList( processor, it ) }
+    }
+
+    private fun < T : Any > processSubList( processor: ActionProcessor < T >, subList: List < GameAction > ): List < T > {
+        return subList.mapNotNull( processor::process )
+
     }
 
 }
