@@ -10,11 +10,12 @@ import org.kodein.di.erased.instance
 /**
  * TODO list:
  *
- * * Cookie to reestablish connection
- * * Message to ensure cookies enabled
+ * * Cookie to reestablish connection (by tab?)
+ * * Message to ensure cookies enabled (or whatever using)
  * * Warning when not connected
  * * Client attempt to reestablish connection
  * * Add backdoor to alter game state
+ * * encrypted communication
  * *
  * * GAME
  * * Trading options

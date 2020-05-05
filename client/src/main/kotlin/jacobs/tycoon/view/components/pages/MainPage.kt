@@ -1,10 +1,12 @@
 package jacobs.tycoon.view.components.pages
 
+import jacobs.jsutilities.jsObject
 import jacobs.mithril.Tag
 import org.js.mithril.VNode
 import jacobs.mithril.m
 import jacobs.tycoon.clientcontroller.MainPageController
 import jacobs.tycoon.view.components.board.BoardComponent
+import jacobs.tycoon.view.components.board.DiceComponent
 import jacobs.tycoon.view.components.console.Console
 import jacobs.tycoon.view.components.players.PlayerComponentFactory
 import org.js.mithril.Component
@@ -14,6 +16,7 @@ import org.kodein.di.erased.instance
 class MainPage ( kodein: Kodein ) : Page {
 
     private val boardComponent by kodein.instance < BoardComponent > ()
+    private val diceComponent by kodein.instance < DiceComponent > ()
     private val gameConsole by kodein.instance < Console > ()
     private val mainPageController by kodein.instance < MainPageController > ()
     private val playerComponentFactory by kodein.instance < PlayerComponentFactory > ()
@@ -39,7 +42,7 @@ class MainPage ( kodein: Kodein ) : Page {
                 m( otherPlayersComponent ),
                 m( boardComponent ),
                 if ( mainPageController.isSignUpPhase() ) getStartButton() else null,
-                m( ownPlayerComponent ),
+                getActionPanel(),
                 m( gameConsole )
             )
         }
@@ -48,13 +51,28 @@ class MainPage ( kodein: Kodein ) : Page {
     private fun getStartButton(): VNode {
         return m( Tag.button ) {
             attributes {
-                button
+                type = button
                 if ( false == mainPageController.canGameStart() ) disabled
             }
             eventHandlers {
                 onclick = { mainPageController.startGame() }
             }
             content( "Let's get this show on the road :)" )
+        }
+    }
+
+    private fun getActionPanel(): VNode {
+        return m( Tag.div ) {
+            attributes {
+                style = jsObject {
+                    display = "flex"
+                    justifyContent = "space-between"
+                }
+            }
+            children(
+                m( ownPlayerComponent ),
+                m( diceComponent )
+            )
         }
     }
 

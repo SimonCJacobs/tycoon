@@ -1,7 +1,7 @@
 package jacobs.tycoon.servercontroller
 
 import jacobs.tycoon.controller.communication.Request
-import jacobs.tycoon.domain.GameController
+import jacobs.tycoon.domain.GameExecutor
 import jacobs.websockets.SocketId
 import jacobs.websockets.content.MessageContent
 import org.kodein.di.Kodein
@@ -9,7 +9,7 @@ import org.kodein.di.erased.instance
 
 internal class FrontController( kodein: Kodein ) {
 
-    private val gameController by kodein.instance < GameController > ( tag = "wrapper" )
+    private val gameController by kodein.instance < GameExecutor > ( tag = "wrapper" )
 
     @Suppress( "RedundantSuspendModifier", "UNUSED_PARAMETER" )
     suspend fun dealWithNotification( requestObject: MessageContent ) {

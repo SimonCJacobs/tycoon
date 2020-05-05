@@ -6,7 +6,7 @@ import org.kodein.di.erased.singleton
 
 fun serverDomainModule(): Kodein.Module {
     return Kodein.Module ( name = "serverState" ) {
-        bind < GameController > ( tag = "wrapper" ) with singleton { GameControllerWrapper( kodein ) }
+        bind < GameExecutor > ( tag = "wrapper" ) with singleton { GameExecutorWrapper( kodein ) }
         bind < GameInitialiser > () with singleton { GameInitialiser( kodein ) }
     }
 }

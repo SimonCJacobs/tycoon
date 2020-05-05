@@ -1,87 +1,73 @@
 package jacobs.tycoon.domain.actions
 
 import jacobs.tycoon.domain.board.Board
+import jacobs.tycoon.domain.dice.DiceRoll
 import jacobs.tycoon.domain.pieces.PieceSet
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.domain.players.Position
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 @Serializable
 sealed class GameAction {
-    abstract val methodName: String
-    abstract fun args(): Array < Any >
+    var executed = false
+    var successful = false
+
+    protected abstract fun args(): Array < Any >
 
     override fun equals( other: Any? ): Boolean {
-        if ( other == null )
-            return false
-        else
-            return this::class == other::class
+        return other != null &&
+            this::class == other::class &&
+            this.args().size == ( other as GameAction ).args().size &&
+            this.args().indices.all { this.args()[ it ] == other.args()[ it ] }
     }
 
     override fun hashCode(): Int {
-        return this.methodName.hashCode()
+        return this::class.hashCode() + this.args().fold( 0 ) { total, arg -> total + arg.hashCode() }
     }
 }
 
+/**
+ * An action that requires knowledge of the requesting player's position at the game table
+ */
 @Serializable
-sealed class NoArgAction : GameAction() {
-    override fun args(): Array < Any > {
-        return emptyArray()
-    }
+sealed class PositionalGameAction : GameAction() {
+    var position: Position = Position.UNINITALISED
+}
+
+/**
+ * The complement to PositionalAction. Position not required, so open to anyone to ask
+ */
+@Serializable
+sealed class OpenGameAction : GameAction()
+
+@Serializable
+sealed class NoArgAction : OpenGameAction() {
+    override fun args(): Array < Any > = emptyArray()
 }
 
 @Serializable
-sealed class OneArgAction < T0 : Any > : GameAction() {
-    override fun args(): Array < Any > {
-        return arrayOf( singleArg() )
-    }
-    abstract fun singleArg(): T0
+data class AddPlayer ( val playerName: String, val playingPiece: PlayingPiece ) : PositionalGameAction() {
+    override fun args() = arrayOf( playerName, playingPiece, position )
 }
 
 @Serializable
-sealed class TwoArgAction < T0 : Any, T1 : Any >: GameAction() {
-    override fun args(): Array < Any > {
-        return argPair().run { arrayOf( first, second ) }
-    }
-    abstract fun argPair(): Pair < T0, T1 >
+class CompleteSignUp : NoArgAction ()
+
+@Serializable
+class NewGame : NoArgAction ()
+
+@Serializable
+class RollTheDice : PositionalGameAction () {
+    override fun args(): Array < Any > = arrayOf( position )
+    var diceRoll: DiceRoll = DiceRoll.UNROLLED
 }
 
 @Serializable
-sealed class ThreeArgAction < T0 : Any, T1 : Any, T2 : Any >: GameAction() {
-    override fun args(): Array < Any > {
-        return argTriple().run { arrayOf( first, second, third ) }
-    }
-    abstract fun argTriple(): Triple < T0, T1, T2 >
+data class SetBoard ( val board: Board ) : OpenGameAction() {
+    override fun args(): Array < Any > = arrayOf( board )
 }
 
 @Serializable
-class AddPlayer ( private val playerName: String, private val playingPiece: PlayingPiece, private val position: Position )
-        : ThreeArgAction < String, PlayingPiece, Position >() {
-    @Transient override val methodName = "addPlayerAsync"
-    override fun argTriple(): Triple < String, PlayingPiece, Position > {
-        return Triple( playerName, playingPiece, position )
-    }
-}
-
-@Serializable
-object CompleteSignUp : NoArgAction () {
-    @Transient override val methodName = "completeSignUpAsync"
-}
-
-@Serializable
-object NewGame : NoArgAction () {
-    @Transient override val methodName = "newGameAsync"
-}
-
-@Serializable
-class SetBoard ( private val board: Board ) : OneArgAction < Board >() {
-    @Transient override val methodName = "setBoardAsync"
-    override fun singleArg(): Board { return board }
-}
-
-@Serializable
-class SetPieces ( private val pieceSet: PieceSet ) : OneArgAction < PieceSet >() {
-    @Transient override val methodName = "setPiecesAsync"
-    override fun singleArg(): PieceSet { return pieceSet }
+data class SetPieces ( val pieceSet: PieceSet ) : OpenGameAction() {
+    override fun args(): Array < Any > = arrayOf( pieceSet )
 }

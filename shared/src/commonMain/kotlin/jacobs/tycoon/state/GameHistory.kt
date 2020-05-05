@@ -21,16 +21,16 @@ class GameHistory {
         return gameActions.size
     }
 
-    fun logUpdate(gameAction: GameAction) {
+    fun logAction( gameAction: GameAction ) {
         this.gameActions.add( gameAction )
     }
 
     /**
      * Process updates to the game state between [startIndex] (inclusive) and [endIndex] (exclusive).
      */
-    fun < T > processLogsBetween( processor: ActionProcessor < T >, startIndex: Int, endIndex: Int ): List < T > {
+    fun < T : Any > processLogsBetween( processor: ActionProcessor < T >, startIndex: Int, endIndex: Int ): List < T > {
         return this.gameActions.subList( startIndex, endIndex )
-            .map( processor::process )
+            .mapNotNull( processor::process )
     }
 
 }

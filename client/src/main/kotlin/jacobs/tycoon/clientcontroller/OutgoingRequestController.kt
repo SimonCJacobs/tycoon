@@ -1,10 +1,14 @@
 package jacobs.tycoon.clientcontroller
 
 import jacobs.tycoon.clientstate.ClientState
-import jacobs.tycoon.controller.communication.AddPlayerRequest
+import jacobs.tycoon.controller.communication.OpenActionRequest
+import jacobs.tycoon.controller.communication.PositionalActionRequest
 import jacobs.tycoon.controller.communication.Request
-import jacobs.tycoon.controller.communication.SimpleRequest
-import jacobs.tycoon.controller.communication.SimpleRequestWrapper
+import jacobs.tycoon.domain.actions.AddPlayer
+import jacobs.tycoon.domain.actions.CompleteSignUp
+import jacobs.tycoon.domain.actions.OpenGameAction
+import jacobs.tycoon.domain.actions.PositionalGameAction
+import jacobs.tycoon.domain.actions.RollTheDice
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.services.Network
 import jacobs.websockets.content.BooleanContent
@@ -16,20 +20,32 @@ class OutgoingRequestController( kodein: Kodein ) {
     private val clientState by kodein.instance < ClientState > ()
     private val network by kodein.instance <Network> ()
 
-    suspend fun addPlayer( name: String, playingPiece: PlayingPiece ): Boolean {
-        return this.sendYesNoRequest( AddPlayerRequest( name, playingPiece ) )
+    suspend fun addPlayer( playerName: String, playingPiece: PlayingPiece ): Boolean {
+        return this.sendPositionalActionRequest( AddPlayer( playerName, playingPiece ) )
     }
 
-    suspend fun startGame(): Boolean {
-        return this.sendSimpleYesNoRequest( SimpleRequest.COMPLETE_SIGN_UP )
+    suspend fun completeGameSignUp(): Boolean {
+        return this.sendOpenActionRequest( CompleteSignUp() )
     }
 
-    private suspend fun sendSimpleYesNoRequest( requestType: SimpleRequest ): Boolean {
-        return this.sendYesNoRequest( SimpleRequestWrapper( requestType ) )
+    suspend fun rollTheDice(): Boolean {
+        return this.sendPositionalActionRequest( RollTheDice() )
+    }
+
+    private suspend fun sendOpenActionRequest( openAction: OpenGameAction ): Boolean {
+        return this.sendYesNoRequest( OpenActionRequest( openAction ) )
+    }
+
+    private suspend fun sendPositionalActionRequest( positionalAction: PositionalGameAction ): Boolean {
+        return this.sendYesNoRequest( PositionalActionRequest( positionalAction ) )
     }
 
     private suspend fun sendYesNoRequest( request: Request ): Boolean {
         this.clientState.isWaitingForServer = true
+        return this.sendRequestOnNetwork( request )
+    }
+
+    private suspend fun sendRequestOnNetwork( request: Request ): Boolean {
         return this.network.sendRequest( request )
             .let { response -> ( response as BooleanContent ).boolean }
     }

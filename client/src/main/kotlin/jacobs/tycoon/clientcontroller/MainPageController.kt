@@ -25,7 +25,7 @@ class MainPageController( kodein: Kodein ): UserInterfaceController( kodein ) {
     fun startGame() {
         launch {
             if ( canGameStart() )
-                outgoingRequestController.startGame()
+                outgoingRequestController.completeGameSignUp()
             // TODO deal with client or server saying no!!!
         }
     }

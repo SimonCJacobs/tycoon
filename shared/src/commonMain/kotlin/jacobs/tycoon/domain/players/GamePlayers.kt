@@ -14,8 +14,19 @@ class GamePlayers {
         return this.players.values.filter { it != excludedPlayer }
     }
 
+    private fun allExcept( excludedPlayers: Collection < Player > ): List < Player > {
+        return this.players.values.filter { false == excludedPlayers.contains( it ) }
+    }
+
     fun count(): Int {
         return this.players.size
+    }
+
+    /**
+     * See method [next] regarding comments on iteration order
+     */
+    fun first(): Player {
+        return this.players.values.first()
     }
 
     fun getByName( playerName: String ): Player {
@@ -37,6 +48,16 @@ class GamePlayers {
 
     fun isThereAPlayerOfName( name: String ): Boolean {
         return this.players.contains( name )
+    }
+
+    /**
+     * Note documentation explains entry iteration order of a Map created by mutableMapOf()
+     * preserves the entry iteration order
+     * https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/mutable-map-of.html
+     */
+    fun next( previousPlayer: Player ): Player {
+        val previousPlayerIndex = this.players.values.indexOf( previousPlayer )
+        return this.players.values.elementAt(  previousPlayerIndex + 1 )
     }
 
 }

@@ -18,6 +18,10 @@ class UpdateCallTest {
     @Test
     fun serializesBoardCall() {
         val boardCall = SetBoard( LondonBoard() )
+            .apply {
+                executed = true
+                successful = true
+            }
         asserter.assertEquals( "Same board",
             boardCall,
             serializeAndDeserialize( boardCall )
@@ -26,7 +30,12 @@ class UpdateCallTest {
 
     @Test
     fun serializesPlayerCall() {
-        val playerCall = AddPlayer( "John", PlayingPiece( name = "Iron" ), Position( 55 ) )
+        val playerCall = AddPlayer( "John", PlayingPiece( name = "Iron" ) )
+            .apply {
+                executed = true
+                position = Position( 44 )
+                successful = true
+            }
         asserter.assertEquals( "Same player",
             playerCall,
             serializeAndDeserialize( playerCall )

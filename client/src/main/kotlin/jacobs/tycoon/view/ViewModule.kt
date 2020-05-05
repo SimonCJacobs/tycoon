@@ -1,6 +1,7 @@
 package jacobs.tycoon.view
 
 import jacobs.tycoon.view.components.board.BoardComponent
+import jacobs.tycoon.view.components.board.DiceComponent
 import jacobs.tycoon.view.components.board.SquareComponentFactory
 import jacobs.tycoon.view.components.console.Console
 import jacobs.tycoon.view.components.pages.EntryPage
@@ -14,7 +15,8 @@ import org.kodein.di.erased.singleton
 
 val viewModule = Kodein.Module( "view" ) {
     bind < BoardComponent >() with singleton { BoardComponent( kodein ) }
-    bind <Console>() with singleton { Console(kodein) }
+    bind <Console>() with singleton { Console( kodein ) }
+    bind < DiceComponent >() with singleton { DiceComponent( kodein ) }
     bind < EntryPage >() with singleton { EntryPage( kodein ) }
     bind < MainPage >() with singleton { MainPage( kodein ) }
     bind < NoEntryPage >() with singleton { NoEntryPage() }

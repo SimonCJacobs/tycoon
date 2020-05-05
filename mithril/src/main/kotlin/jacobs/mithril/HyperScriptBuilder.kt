@@ -44,12 +44,12 @@ class HyperScriptBuilder(
             this.builder.attributes = jsObject( attributeClosure )
         }
 
-        fun child( child: VNode) {
+        fun child( child: VNode? ) {
             this.builder.child = child
         }
 
-        fun children( children: Collection < VNode > ) {
-            this.builder.children = children.toTypedArray()
+        fun children( children: Collection < VNode >? ) {
+            this.builder.children = children?.toTypedArray()
         }
 
         fun children( vararg children: VNode? ) {

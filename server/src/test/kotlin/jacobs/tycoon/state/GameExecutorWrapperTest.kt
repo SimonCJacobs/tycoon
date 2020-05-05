@@ -1,12 +1,11 @@
 package jacobs.tycoon.state
 
-import jacobs.tycoon.domain.GameController
-import jacobs.tycoon.domain.GameControllerWrapper
-import jacobs.tycoon.domain.board.Board
+import jacobs.tycoon.domain.GameExecutor
+import jacobs.tycoon.domain.GameExecutorWrapper
+import jacobs.tycoon.domain.actions.SetBoard
+import jacobs.tycoon.domain.actions.SetPieces
 import jacobs.tycoon.domain.board.LondonBoard
 import jacobs.tycoon.domain.pieces.ClassicPieces
-import jacobs.tycoon.domain.pieces.PieceSet
-import jacobs.tycoon.domain.pieces.PlayingPiece
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -22,13 +21,13 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when` as mockitoWhen
 
 @Suppress( "DeferredResultUnused" )
-class GameControllerWrapperTest {
+class GameExecutorWrapperTest {
 
-    private fun getTestInstance( actualController: GameController ): GameControllerWrapper {
+    private fun getTestInstance(actualExecutor: GameExecutor ): GameExecutorWrapper {
         val kodein = Kodein {
             bind < CoroutineScope > () with instance( CoroutineScope( Dispatchers.Default ) )
-            bind < GameController > ( tag = "actual" ) with instance( actualController )
-            bind < GameControllerWrapper > () with singleton { GameControllerWrapper( kodein ) }
+            bind < GameExecutor > ( tag = "actual" ) with instance( actualExecutor )
+            bind < GameExecutorWrapper > () with singleton { GameExecutorWrapper( kodein ) }
             bind < GameHistory > () with singleton { GameHistory() }
         }
         return kodein.direct.instance()
@@ -37,14 +36,17 @@ class GameControllerWrapperTest {
     @Test
     fun `Executes underlying update call when setting Board`() {
         runBlocking {
-            val dummyController = mock( GameController::class.java )
-            val londonBoard = LondonBoard()
-            mockitoWhen( dummyController.setBoardAsync( londonBoard ) )
-                .thenReturn( CompletableDeferred( true ) )
+            val dummyController = mock( GameExecutor::class.java )
+            val londonBoardAction = SetBoard( LondonBoard() )
+            mockitoWhen( dummyController.execute( londonBoardAction ) )
+                .then {
+                    londonBoardAction.executed = true
+                    londonBoardAction
+                }
             val instance = getTestInstance( dummyController )
-            instance.setBoardAsync( londonBoard ).await()
+            instance.execute( londonBoardAction )
             inOrder( dummyController ).verify( dummyController )
-                .setBoardAsync( londonBoard )
+                .execute( londonBoardAction )
         }
 
     }
@@ -52,15 +54,18 @@ class GameControllerWrapperTest {
     @Test
     fun `Executes underlying update call when setting pieces`() {
         runBlocking {
-            val dummyController = mock( GameController::class.java )
-            val pieceSet = ClassicPieces()
-            mockitoWhen( dummyController.setPiecesAsync( pieceSet ) )
-                .thenReturn( CompletableDeferred( true ) )
+            val dummyController = mock( GameExecutor::class.java )
+            val pieceSetAction = SetPieces( ClassicPieces() )
+            mockitoWhen( dummyController.execute( pieceSetAction ) )
+                .then {
+                    pieceSetAction.executed = true
+                    pieceSetAction
+                }
             val instance = getTestInstance( dummyController )
-            instance.setPiecesAsync( pieceSet ).await()
+            instance.execute( pieceSetAction )
             inOrder( dummyController )
                 .verify( dummyController )
-                .setPiecesAsync( pieceSet )
+                .execute( pieceSetAction )
         }
 
     }

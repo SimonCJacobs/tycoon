@@ -1,7 +1,5 @@
 package jacobs.tycoon.clientcontroller
 
-import jacobs.tycoon.clientstate.ClientState
-import jacobs.tycoon.view.ViewState
 import jacobs.tycoon.clientstate.EntryPageState
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.state.GameState
