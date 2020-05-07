@@ -16,7 +16,7 @@ class SetBoard ( val board: Board ) : GameAction() {
     }
 
     override suspend fun execute( gameState: GameState ) {
-        gameState.board = board
+        gameState.game().board = board
         this.executedSuccessfully()
     }
 

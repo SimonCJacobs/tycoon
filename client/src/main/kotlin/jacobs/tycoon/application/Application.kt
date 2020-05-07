@@ -17,6 +17,7 @@ import org.kodein.di.erased.instance
  * * Client attempt to reestablish connection
  * * Add backdoor to alter game state
  * * encrypted communication
+ * malformeed requeest handling
  * *
  * * GAME
  * * Trading options
@@ -43,15 +44,15 @@ class Application ( kodein: Kodein ) {
 
     private val coroutineScope by kodein.instance < CoroutineScope > ()
     private val gameController by kodein.instance < GameController > ()
-    private val network by kodein.instance <Network> ()
+    private val network by kodein.instance < Network > ()
     private val view by kodein.instance < View > ()
 
     fun start() {
         this.coroutineScope.launch {
             gameController.startGame()
             network.connect()
+            view.initialise()
         }
-        this.view.initialise()
     }
 
 }

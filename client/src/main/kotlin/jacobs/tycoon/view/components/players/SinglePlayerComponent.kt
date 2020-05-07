@@ -6,19 +6,25 @@ import jacobs.mithril.m
 import jacobs.tycoon.clientcontroller.PlayerActionController
 import jacobs.tycoon.domain.players.Player
 import jacobs.tycoon.state.GameState
+import jacobs.tycoon.view.components.pieces.PieceDisplayStrategy
 import org.js.mithril.VNode
 
 abstract class SinglePlayerComponent : Component {
 
     protected abstract val gameState: GameState
+    protected abstract val pieceDisplayStrategy: PieceDisplayStrategy
     protected abstract val playerActionController: PlayerActionController
     protected abstract val player: Player
 
     override fun view(): VNode {
         return m( Tag.div ) {
             children(
-                m( Tag.h4 ) { content( player.name ) },
-                m( Tag.h6 ) { content( player.piece.name ) },
+                m( Tag.h4 ) {
+                    content( player.name )
+                },
+                m( Tag.h6 ) {
+                    child( m( pieceDisplayStrategy.getPieceDisplayComponent( player.piece ) ) )
+                },
                 diceRollDisplay()
             )
         }

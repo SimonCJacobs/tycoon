@@ -6,10 +6,12 @@ import jacobs.mithril.m
 import jacobs.tycoon.clientcontroller.PlayerActionController
 import jacobs.tycoon.domain.players.Player
 import jacobs.tycoon.state.GameState
+import jacobs.tycoon.view.components.pieces.PieceDisplayStrategy
 import org.js.mithril.VNode
 
 class ActiveSinglePlayerComponent(
     override val gameState: GameState,
+    override val pieceDisplayStrategy: PieceDisplayStrategy,
     override val playerActionController: PlayerActionController,
     override val player: Player
 ) : SinglePlayerComponent() {

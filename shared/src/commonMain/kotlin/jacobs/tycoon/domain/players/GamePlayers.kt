@@ -28,11 +28,11 @@ class GamePlayers {
             .toSet()
     }
 
-    fun getPlayerAtPosition( position: Position ): Player {
+    fun getPlayerAtPosition( position: SeatingPosition ): Player {
         return this.players.values.first { it.position == position }
     }
 
-    fun hasPlayerInPosition( position: Position ): Boolean {
+    fun hasPlayerInPosition( position: SeatingPosition ): Boolean {
         return this.players.values.any { it.position == position }
     }
 

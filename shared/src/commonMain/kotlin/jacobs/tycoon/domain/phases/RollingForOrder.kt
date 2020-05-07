@@ -1,8 +1,9 @@
 package jacobs.tycoon.domain.phases
 
 import jacobs.tycoon.domain.Game
+import jacobs.tycoon.domain.actions.results.RollForMoveResult
 import jacobs.tycoon.domain.actions.results.RollForOrderResult
-import jacobs.tycoon.domain.actions.results.RollForOrderResultType
+import jacobs.tycoon.domain.actions.results.RollForOrderOutcome
 import jacobs.tycoon.domain.dice.DiceRoll
 import jacobs.tycoon.domain.players.Player
 
@@ -10,7 +11,7 @@ class RollingForOrder private constructor(
     override val activePlayer: Player,
     private val rollResults: MutableMap < Player, DiceRoll? >,
     private val isRollOff: Boolean = false
-) : SinglePlayerPhase() {
+) : DiceRolling < RollForOrderResult > () {
 
     companion object {
         fun firstRoll( game: Game ): RollingForOrder {
@@ -28,13 +29,17 @@ class RollingForOrder private constructor(
 
     // PUBLIC API
 
-    fun actOnRoll( game: Game, diceRoll: DiceRoll ): RollForOrderResult {
+    override fun actOnRoll( game: Game, diceRoll: DiceRoll ): RollForOrderResult {
         this.rollResults.put( this.activePlayer, diceRoll )
         return this.continuePhaseFollowingRoll( game, diceRoll )
     }
 
     fun hasRollingStarted(): Boolean {
         return this.isRollOff || this.rollResults.values.filterNotNull().isNotEmpty()
+    }
+
+    override fun nullResult(): RollForOrderResult {
+        return RollForOrderResult.NULL
     }
 
     // PRIVATE API
@@ -49,13 +54,13 @@ class RollingForOrder private constructor(
 
     private fun continueRolling( game: Game, diceRoll: DiceRoll ): RollForOrderResult {
         game.continueRollingForThrowingOrderPhase( this.nextRollPhase() )
-        return RollForOrderResult( diceRoll, RollForOrderResultType.ROLLING )
+        return RollForOrderResult( diceRoll, RollForOrderOutcome.ROLLING )
     }
 
     private fun completePhase( game: Game, diceRoll: DiceRoll ): RollForOrderResult {
         val winner = this.getWinner()
         game.setWinnerOfRollForThrowingOrder( winner )
-        return RollForOrderResult( diceRoll, RollForOrderResultType.COMPLETE, winner )
+        return RollForOrderResult( diceRoll, RollForOrderOutcome.COMPLETE, winner )
     }
 
     private fun startARollOff( game: Game, diceRoll: DiceRoll ): RollForOrderResult {
@@ -63,14 +68,14 @@ class RollingForOrder private constructor(
         game.continueRollingForThrowingOrderPhase( rollOffPhase )
         return RollForOrderResult(
             diceRoll = diceRoll,
-            nextPhase = RollForOrderResultType.ROLL_OFF,
+            nextPhase = RollForOrderOutcome.ROLL_OFF,
             playersTiedFirst = rollOffPhase.rollResults.keys
         )
     }
 
     private fun getPlayersWithMaximumRoll(): Set < Player > {
-        return this.rollResults.values.filterNotNull().max()
-            .let { maxValue -> this.rollResults.filterValues { it == maxValue }.keys }
+        return this.rollResults.values.filterNotNull().map { it.result }.max()
+            .let { maxValue -> this.rollResults.filterValues { it?.result == maxValue }.keys }
     }
 
     private fun getWinner(): Player {

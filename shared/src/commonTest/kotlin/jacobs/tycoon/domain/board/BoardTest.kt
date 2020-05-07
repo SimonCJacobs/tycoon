@@ -2,6 +2,7 @@ package jacobs.tycoon.domain.board
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
+import kotlinx.serialization.modules.plus
 import kotlin.test.Test
 import kotlin.test.asserter
 
@@ -10,7 +11,7 @@ class BoardTest {
     @Test
     fun londonBoardIsSerializable() {
         val londonBoard = LondonBoard()
-        val json = Json( JsonConfiguration.Stable )
+        val json = Json( JsonConfiguration.Stable, context = squareSerializerModule() )
         val serializedBoard = json.stringify( LondonBoard.serializer(), londonBoard )
         val deserializedBoard = json.parse( LondonBoard.serializer(), serializedBoard )
         assertBoardsTheSame( londonBoard, deserializedBoard )
@@ -19,7 +20,10 @@ class BoardTest {
     @Test
     fun londonBoardIsSerializableInScopeOfBoard() {
         val londonBoard = LondonBoard()
-        val json = Json( JsonConfiguration.Stable, context = boardSerializerModule() )
+        val json = Json(
+            JsonConfiguration.Stable,
+            context = boardSerializerModule() + squareSerializerModule()
+        )
         val serializedBoard = json.stringify( Board.serializer(), londonBoard )
         val deserializedBoard = json.parse( Board.serializer(), serializedBoard )
         assertBoardsTheSame( londonBoard, deserializedBoard )

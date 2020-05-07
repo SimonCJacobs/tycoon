@@ -5,8 +5,6 @@ import jacobs.tycoon.domain.board.Board
 
 class GameState {
 
-    lateinit var board: Board
-
     private var maybeGame: Game? = null
 
     fun game(): Game {

@@ -4,18 +4,18 @@ import jacobs.tycoon.domain.Game
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Position(
+data class SeatingPosition (
     private val index: Int
-) : Comparable < Position > {
+) : Comparable < SeatingPosition > {
     companion object {
-        val UNINITIALISED = Position( -1 )
+        val UNINITIALISED = SeatingPosition( -1 )
     }
 
     fun getPlayer( game: Game ): Player {
         return game.players.getPlayerAtPosition( this )
     }
 
-    override fun compareTo( other: Position ): Int {
+    override fun compareTo( other: SeatingPosition ): Int {
         return this.index - other.index
     }
 }

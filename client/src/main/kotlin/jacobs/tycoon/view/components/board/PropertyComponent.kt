@@ -1,6 +1,5 @@
 package jacobs.tycoon.view.components.board
 
-abstract class PropertyComponent ( name: String )
-    : SquareComponent( name ) {
+import jacobs.tycoon.domain.board.Square
 
-}
+abstract class PropertyComponent < TSquare : Square > : SquareComponent < TSquare > ()

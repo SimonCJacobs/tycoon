@@ -21,21 +21,21 @@ abstract class StandardBoard : Board() {
     private fun getNamelessSquareMapList(): List < ( String ) -> Square > {
         return listOf(
 
-            { name -> ActionSquare( name ) },
+            { name -> GoSquare( name ) },
 
             { name -> Street( name, 60 ) },
-            { name -> ActionSquare( name ) },
+            { name -> CardSquare( name ) },
             { name -> Street( name, 60 ) },
-            { name -> ActionSquare( name ) },
+            { name -> TaxSquare( name ) },
 
             { name -> Station( name, STATION_PRICE ) },
 
             { name -> Street( name, 100 ) },
-            { name -> ActionSquare( name ) },
+            { name -> CardSquare( name ) },
             { name -> Street( name, 100 ) },
             { name -> Street( name, 120 ) },
 
-            { name -> ActionSquare( name) },
+            { _ -> JustVisitingJailSquare() },
 
             { name -> Street( name, 140 ) },
             { name -> Utility( name, UTILITY_PRICE ) },
@@ -45,14 +45,14 @@ abstract class StandardBoard : Board() {
             { name -> Station( name, STATION_PRICE ) },
 
             { name -> Street( name, 180 ) },
-            { name -> ActionSquare( name ) },
+            { name -> CardSquare( name ) },
             { name -> Street( name, 180 ) },
             { name -> Street( name, 200 ) },
 
-            { name -> ActionSquare( name ) },
+            { name -> FreeParkingSquare( name ) },
 
             { name -> Street( name, 220 ) },
-            { name -> ActionSquare( name ) },
+            { name -> CardSquare( name ) },
             { name -> Street( name, 220 ) },
             { name -> Street( name, 240 ) },
 
@@ -63,18 +63,18 @@ abstract class StandardBoard : Board() {
             { name -> Utility( name, UTILITY_PRICE ) },
             { name -> Street( name, 280 ) },
 
-            { name -> ActionSquare( name) },
+            { _ -> GoToJailSquare() },
 
             { name -> Street( name, 300 ) },
             { name -> Street( name, 300 ) },
-            { name -> ActionSquare( name ) },
+            { name -> CardSquare( name ) },
             { name -> Street( name, 320 ) },
 
             { name -> Station( name, STATION_PRICE ) },
 
-            { name -> ActionSquare( name ) },
+            { name -> CardSquare( name ) },
             { name -> Street( name, 350 ) },
-            { name -> ActionSquare( name ) },
+            { name -> TaxSquare( name ) },
             { name -> Street( name, 400  ) }
         )
     }

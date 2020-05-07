@@ -14,7 +14,7 @@ class EntryPageController( kodein: Kodein ) : UserInterfaceController( kodein ) 
     private val outgoingRequestController by kodein.instance < OutgoingRequestController > ()
 
     fun getAvailablePieces(): List < PlayingPiece > {
-        return this.gameState.game().getAvailablePieces( gameState.game().pieceSet, gameState.game().players )
+        return this.gameState.game().getAvailablePieces()
     }
 
     fun getSelectedPiece( availablePieces: List < PlayingPiece > ): PlayingPiece {

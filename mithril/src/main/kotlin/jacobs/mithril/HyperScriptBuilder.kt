@@ -1,5 +1,6 @@
 package jacobs.mithril
 
+import jacobs.jsutilities.absorb
 import jacobs.jsutilities.jsObject
 import org.js.mithril.VNode
 
@@ -68,7 +69,7 @@ class HyperScriptBuilder(
             EventHandlers()
                 .apply {
                     eventHandlerClosure()
-                    mergeIntoJsObject( builder.attributes )
+                    builder.attributes.absorb( this )
                 }
         }
 

@@ -1,13 +1,19 @@
 package jacobs.tycoon.domain.pieces
 
+import jacobs.tycoon.domain.board.Square
 import kotlinx.serialization.Serializable
 
 @Serializable
 class PlayingPiece(
-    val name: String
+    val name: String,
+    var square: Square = Square.NULL
 ) {
     companion object {
         val NULL = PlayingPiece( "" )
+    }
+
+    fun moveToSquare( newSquare: Square ) {
+        this.square = newSquare
     }
 
     override fun equals( other: Any? ): Boolean {

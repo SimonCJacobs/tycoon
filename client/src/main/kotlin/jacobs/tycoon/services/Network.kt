@@ -5,6 +5,7 @@ import jacobs.tycoon.controller.communication.CommunicationLibrary
 import jacobs.websockets.content.MessageContent
 import jacobs.websockets.WebSocket
 import jacobs.websockets.ClientWebSockets
+import jacobs.websockets.content.BooleanContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.async
@@ -42,7 +43,7 @@ class Network ( kodein: Kodein ) {
     }
 
     private suspend fun < T > doWhenConnected( toDoLambda: suspend () -> T ): T {
-        this.deferredConnection.await()
+        this.deferredConnection.join()
         return toDoLambda.invoke()
     }
 

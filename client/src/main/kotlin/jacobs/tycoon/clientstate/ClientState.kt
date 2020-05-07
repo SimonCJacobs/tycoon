@@ -4,5 +4,5 @@ import jacobs.websockets.SocketId
 
 class ClientState {
     var isWaitingForServer = true
-    lateinit var socket: SocketId
+    var socket: SocketId = SocketId.NULL
 }

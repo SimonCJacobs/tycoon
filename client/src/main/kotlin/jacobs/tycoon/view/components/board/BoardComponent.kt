@@ -16,11 +16,11 @@ class BoardComponent( kodein: Kodein ) : Component {
     private val state by kodein.instance < GameState > ()
 
     private fun board(): Board {
-        return state.board
+        return state.game().board
     }
 
         // TODO: Construction of the components can probably happen in DI container
-    private val squares: List < SquareComponent > = {
+    private val squares: List < SquareComponent < * > > = {
         val squareComponentFactory: SquareComponentFactory = kodein.direct.instance()
         board().squareList.map { squareComponentFactory.getFromSquare( it ) }
     }()
@@ -54,35 +54,35 @@ class BoardComponent( kodein: Kodein ) : Component {
         return listOfLists.flatten()
     }
 
-    private fun getTopRowAsSquares(): List < SquareComponent > {
+    private fun getTopRowAsSquares(): List < SquareComponent < * > > {
         return ( 1 .. squaresToASide )
             .map { it - 1 } // because list starts at 0
             .map { it + squaresToASide + squaresToASideExcludingCorners }
             .map { this.squares[ it ] }
     }
 
-    private fun getSecondRowGivenSecondSideSquares( leftSquare: SquareComponent, rightSquare: SquareComponent )
-            : VNode {
+    private fun getSecondRowGivenSecondSideSquares( leftSquare: SquareComponent < * >,
+                                                    rightSquare: SquareComponent < * > ): VNode {
         return listOf( m( leftSquare), this.getEmptyCentreCell(), m( rightSquare ) )
             .wrapInTableRow()
     }
 
-    private fun getInnerLeftSideSquares(): List < SquareComponent > {
+    private fun getInnerLeftSideSquares(): List < SquareComponent < * > > {
         return this.getNaturalOrderedInnerSideStartingAtIndex( this.squaresToASide )
             .reversed()
     }
 
-    private fun getInnerRightSideSquares(): List < SquareComponent > {
+    private fun getInnerRightSideSquares(): List < SquareComponent < * > > {
         return this.getNaturalOrderedInnerSideStartingAtIndex(
             2 * squaresToASide + squaresToASideExcludingCorners
         )
     }
 
-    private fun getBottomRowAsSquares(): List < SquareComponent > {
+    private fun getBottomRowAsSquares(): List < SquareComponent < * > > {
         return this.squares.take( this.squaresToASide ).reversed()
     }
 
-    private fun getNaturalOrderedInnerSideStartingAtIndex( startIndex: Int ): List < SquareComponent > {
+    private fun getNaturalOrderedInnerSideStartingAtIndex( startIndex: Int ): List < SquareComponent < * > > {
         return ( startIndex until startIndex + squaresToASideExcludingCorners )
             .map { this.squares[ it ] }
     }
@@ -103,7 +103,7 @@ class BoardComponent( kodein: Kodein ) : Component {
         }
     }
 
-    private fun putPairInRow( pair: Pair < SquareComponent, SquareComponent > ): VNode {
+    private fun putPairInRow( pair: Pair < SquareComponent < * >, SquareComponent < * > > ): VNode {
         return m( Tag.tr ) {
             children( m( pair.first ), m( pair.second ) )
         }
@@ -114,7 +114,7 @@ class BoardComponent( kodein: Kodein ) : Component {
             .map { listOne[ it ] to listTwo[ it ] }
     }
 
-    private fun List < SquareComponent >.wrapInTableRow() : VNode {
+    private fun List < SquareComponent < * > >.wrapInTableRow() : VNode {
         val componentList = this
         return m( Tag.tr ) {
             children( m.map( componentList ) )

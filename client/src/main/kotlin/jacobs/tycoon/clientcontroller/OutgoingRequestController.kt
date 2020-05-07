@@ -6,6 +6,8 @@ import jacobs.tycoon.controller.communication.Request
 import jacobs.tycoon.domain.actions.AddPlayer
 import jacobs.tycoon.domain.actions.CompleteSignUp
 import jacobs.tycoon.domain.actions.GameAction
+import jacobs.tycoon.domain.actions.PieceMoved
+import jacobs.tycoon.domain.actions.RollForMove
 import jacobs.tycoon.domain.actions.RollForOrder
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.services.Network
@@ -26,7 +28,15 @@ class OutgoingRequestController( kodein: Kodein ) {
         return this.sendActionRequest( CompleteSignUp() )
     }
 
-    suspend fun rollTheDice(): Boolean {
+    suspend fun pieceMoved(): Boolean {
+        return this.sendActionRequest( PieceMoved() )
+    }
+
+    suspend fun rollTheDiceForMove(): Boolean {
+        return this.sendActionRequest( RollForMove() )
+    }
+
+    suspend fun rollTheDiceForOrder(): Boolean {
         return this.sendActionRequest( RollForOrder() )
     }
 

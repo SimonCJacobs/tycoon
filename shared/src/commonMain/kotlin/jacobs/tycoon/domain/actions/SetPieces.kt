@@ -16,7 +16,7 @@ class SetPieces ( val pieceSet: PieceSet ) : GameAction() {
     }
 
     override suspend fun execute( gameState: GameState ) {
-        gameState.game().pieceSet = pieceSet
+        gameState.game().board.pieceSet = pieceSet
         this.executedSuccessfully()
     }
 

@@ -1,5 +1,5 @@
 package jacobs.tycoon.domain.actions.results
 
-enum class RollForOrderResultType {
+enum class RollForOrderOutcome {
     ROLLING, COMPLETE, ROLL_OFF
 }

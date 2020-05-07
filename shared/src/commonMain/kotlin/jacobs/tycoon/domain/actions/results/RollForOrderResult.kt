@@ -7,13 +7,13 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class RollForOrderResult (
     val diceRoll: DiceRoll,
-    val nextPhase: RollForOrderResultType,
+    val nextPhase: RollForOrderOutcome,
     val winner: Player = Player.NULL,
     val playersTiedFirst: Set < Player > = emptySet()
 ) {
 
     companion object {
-        val NULL = RollForOrderResult( DiceRoll.NULL, RollForOrderResultType.ROLLING )
+        val NULL = RollForOrderResult( DiceRoll.NULL, RollForOrderOutcome.ROLLING )
     }
 
 }

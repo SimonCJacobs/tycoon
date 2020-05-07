@@ -1,12 +1,10 @@
 package jacobs.tycoon.domain
 
 import jacobs.tycoon.domain.actions.GameAction
-import jacobs.tycoon.domain.actions.RollForOrder
 import jacobs.tycoon.state.GameState
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 
-@Suppress( "DeferredIsResult" )
 class GameController( kodein: Kodein ) : GameExecutor {
 
     private val gameFactory by kodein.instance < GameFactory > ()

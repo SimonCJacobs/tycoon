@@ -5,11 +5,10 @@ import jacobs.tycoon.clientstate.ClientState
 import jacobs.tycoon.controller.communication.toPosition
 import jacobs.tycoon.domain.players.Player
 import jacobs.tycoon.state.GameState
+import jacobs.tycoon.view.components.pieces.PieceDisplayStrategy
 import org.kodein.di.Kodein
-import org.kodein.di.direct
 import org.kodein.di.erased.factory
 import org.kodein.di.erased.instance
-import org.kodein.di.erased.provider
 
 class PlayerComponentFactory( kodein: Kodein ) {
 
@@ -17,12 +16,18 @@ class PlayerComponentFactory( kodein: Kodein ) {
     private val controllerProvider: ( Player ) -> PlayerActionController
         by kodein.factory < Player, PlayerActionController  >()
     private val gameState by kodein.instance < GameState > ()
+    private val pieceDisplayStrategy by kodein.instance < PieceDisplayStrategy > ()
+
 
     fun getSinglePlayerComponent( player: Player ): SinglePlayerComponent {
         if ( this.isThisThePlayersMachine( player ) )
-            return ActiveSinglePlayerComponent( gameState, controllerProvider( player ), player )
+            return ActiveSinglePlayerComponent(
+                gameState, pieceDisplayStrategy, controllerProvider( player ), player
+            )
         else
-            return PassiveSinglePlayerComponent( gameState, controllerProvider( player ), player )
+            return PassiveSinglePlayerComponent(
+                gameState, pieceDisplayStrategy, controllerProvider( player ), player
+            )
     }
 
     fun getOrderedSinglePlayerComponentsExcluding( playerToExclude: Player ): List < SinglePlayerComponent > {

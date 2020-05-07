@@ -2,6 +2,16 @@ package jacobs.jsutilities
 
 import kotlin.reflect.KClass
 
+@Suppress( "UNUSED_VARIABLE" )
+fun Any.absorb( otherObject: dynamic ) {
+    val thisObject = this.asDynamic()
+    js( "Object.assign( thisObject, otherObject )"  )
+}
+
+fun < T : Any > KClass < T >.createInstance( vararg constructorParameters: Any ): T {
+    return instantiateJsClass( this.js, constructorParameters )
+}
+
 fun Map < String, Any >.jsObject(): Any {
     val jsObject = object {}.asDynamic()
     this.forEach { jsObject[ it.key ] = it.value }
@@ -14,10 +24,6 @@ fun jsObject(): Any {
 
 fun jsObject( closure: dynamic.() -> Unit ): Any {
     return object {}.apply( closure )
-}
-
-fun < T : Any > KClass < T >.createInstance( vararg constructorParameters: Any ): T {
-    return instantiateJsClass( this.js, constructorParameters )
 }
 
 /**
