@@ -1,5 +1,19 @@
 package jacobs.tycoon.domain.board
 
+import jacobs.tycoon.domain.board.cards.ChanceCards
+import jacobs.tycoon.domain.board.cards.CommunityChestCards
+import jacobs.tycoon.domain.board.currency.Currency
+import jacobs.tycoon.domain.board.currency.PoundsSterling
+import jacobs.tycoon.domain.board.squares.CardSquare
+import jacobs.tycoon.domain.board.squares.FreeParkingSquare
+import jacobs.tycoon.domain.board.squares.GoSquare
+import jacobs.tycoon.domain.board.squares.GoToJailSquare
+import jacobs.tycoon.domain.board.squares.JustVisitingJailSquare
+import jacobs.tycoon.domain.board.squares.Square
+import jacobs.tycoon.domain.board.squares.Station
+import jacobs.tycoon.domain.board.squares.Street
+import jacobs.tycoon.domain.board.squares.TaxSquare
+import jacobs.tycoon.domain.board.squares.Utility
 import kotlinx.serialization.Serializable
 
 /**
@@ -13,70 +27,122 @@ abstract class StandardBoard : Board() {
         const val UTILITY_PRICE = 150
     }
 
-    protected fun buildSquareList( nameList: List < String > ): List < Square > {
+    protected fun buildSquareList( nameList: List < String > ): List <Square> {
         return nameList.mapIndexed { index, eachName ->
-            this.getNamelessSquareMapList()[ index ]( eachName ) }
+            this.getNamelessSquareMapList()[ index ]( index, eachName ) }
     }
 
-    private fun getNamelessSquareMapList(): List < ( String ) -> Square > {
+    private fun getNamelessSquareMapList(): List < ( Int, String ) -> Square > {
+        val chanceCards = ChanceCards()
+        val communityChestCards = CommunityChestCards()
         return listOf(
 
-            { name -> GoSquare( name ) },
+            { index, name ->
+                GoSquare( indexOnBoard = index, name = name, creditAmount = 200.toCurrency())
+            },
 
-            { name -> Street( name, 60 ) },
-            { name -> CardSquare( name ) },
-            { name -> Street( name, 60 ) },
-            { name -> TaxSquare( name ) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 60.toCurrency()) },
+            { index, name ->
+                CardSquare( indexOnBoard = index, name = name, cardSet = communityChestCards ) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 60.toCurrency()) },
+            { index, name ->
+                TaxSquare( indexOnBoard = index, name = name, taxCharge = 200.toCurrency()) },
 
-            { name -> Station( name, STATION_PRICE ) },
+            { index, name ->
+                Station( indexOnBoard = index, name = name, listPrice = STATION_PRICE.toCurrency()) },
 
-            { name -> Street( name, 100 ) },
-            { name -> CardSquare( name ) },
-            { name -> Street( name, 100 ) },
-            { name -> Street( name, 120 ) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 100.toCurrency()) },
+            { index, name ->
+                CardSquare( indexOnBoard = index, name = name, cardSet = chanceCards ) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 100.toCurrency()) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 120.toCurrency()) },
 
-            { _ -> JustVisitingJailSquare() },
+            { index, _ -> JustVisitingJailSquare( indexOnBoard = index ) },
 
-            { name -> Street( name, 140 ) },
-            { name -> Utility( name, UTILITY_PRICE ) },
-            { name -> Street( name, 140 ) },
-            { name -> Street( name, 160 ) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 140.toCurrency()) },
+            { index, name ->
+                Utility( indexOnBoard = index, name = name, listPrice = UTILITY_PRICE.toCurrency()) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 140.toCurrency()) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 160.toCurrency()) },
 
-            { name -> Station( name, STATION_PRICE ) },
+            { index, name ->
+                Station( indexOnBoard = index, name = name, listPrice = STATION_PRICE.toCurrency()) },
 
-            { name -> Street( name, 180 ) },
-            { name -> CardSquare( name ) },
-            { name -> Street( name, 180 ) },
-            { name -> Street( name, 200 ) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 180.toCurrency()) },
+            { index, name ->
+                CardSquare( indexOnBoard = index, name = name, cardSet = communityChestCards ) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 180.toCurrency()) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 200.toCurrency()) },
 
-            { name -> FreeParkingSquare( name ) },
+            { index, name -> FreeParkingSquare( indexOnBoard = index, name = name ) },
 
-            { name -> Street( name, 220 ) },
-            { name -> CardSquare( name ) },
-            { name -> Street( name, 220 ) },
-            { name -> Street( name, 240 ) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 220.toCurrency()) },
+            { index, name ->
+                CardSquare( indexOnBoard = index, name = name, cardSet = chanceCards ) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 220.toCurrency()) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 240.toCurrency()) },
 
-            { name -> Station(name, STATION_PRICE ) },
+            { index, name ->
+                Station( indexOnBoard = index, name = name, listPrice = STATION_PRICE.toCurrency()) },
 
-            { name -> Street( name, 260 ) },
-            { name -> Street( name, 260 ) },
-            { name -> Utility( name, UTILITY_PRICE ) },
-            { name -> Street( name, 280 ) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 260.toCurrency()) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 260.toCurrency()) },
+            { index, name ->
+                Utility( indexOnBoard = index, name = name, listPrice = UTILITY_PRICE.toCurrency())
+            },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 280.toCurrency())
+            },
 
-            { _ -> GoToJailSquare() },
+            { index, _ -> GoToJailSquare( indexOnBoard = index ) },
 
-            { name -> Street( name, 300 ) },
-            { name -> Street( name, 300 ) },
-            { name -> CardSquare( name ) },
-            { name -> Street( name, 320 ) },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 300.toCurrency())
+            },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 300.toCurrency())
+            },
+            { index, name ->
+                CardSquare( indexOnBoard = index, name = name, cardSet = communityChestCards )
+            },
+            { index, name ->
+                Street( indexOnBoard = index, name = name, listPrice = 320.toCurrency())
+            },
 
-            { name -> Station( name, STATION_PRICE ) },
+            { index, name ->
+                Station( indexOnBoard = index, name = name, listPrice = STATION_PRICE.toCurrency())
+            },
 
-            { name -> CardSquare( name ) },
-            { name -> Street( name, 350 ) },
-            { name -> TaxSquare( name ) },
-            { name -> Street( name, 400  ) }
+            {
+                index, name -> CardSquare( indexOnBoard = index, name = name, cardSet = chanceCards )
+            },
+            {
+                index, name -> Street( indexOnBoard = index, name = name, listPrice = 350.toCurrency())
+            },
+            {
+                index, name -> TaxSquare( indexOnBoard = index, name = name, taxCharge = 150.toCurrency())
+            },
+            {
+                index, name -> Street( indexOnBoard = index, name = name, listPrice = 400.toCurrency())
+            }
         )
     }
+
 }
 

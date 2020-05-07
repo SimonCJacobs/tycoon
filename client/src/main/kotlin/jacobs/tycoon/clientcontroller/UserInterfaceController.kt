@@ -2,6 +2,7 @@ package jacobs.tycoon.clientcontroller
 
 import jacobs.tycoon.clientstate.ClientState
 import jacobs.tycoon.controller.communication.toPosition
+import jacobs.tycoon.domain.phases.SignUp
 import jacobs.tycoon.state.GameState
 import kotlinx.coroutines.CoroutineScope
 import org.kodein.di.Kodein
@@ -22,7 +23,12 @@ open class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.
     }
 
     fun isSignUpPhase(): Boolean {
-        return this.gameState.game().isSignUpPhase()
+        return this.gameState.game().isPhase < SignUp > ()
+    }
+
+    protected fun isTurnOfOwnPlayer(): Boolean {
+        val ownPlayer = gameState.game().players.getPlayerAtPosition( clientState.socket.toPosition() )
+        return gameState.game().isTurnOfPlayer( ownPlayer )
     }
 
     fun ownPlayerIsInTheGame(): Boolean {

@@ -1,5 +1,6 @@
 package jacobs.tycoon.domain.actions
 
+import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.actions.results.RollForOrderResult
 import jacobs.tycoon.domain.dice.DiceRoll
 import jacobs.tycoon.state.GameState
@@ -14,17 +15,18 @@ class RollForOrder : GameAction () {
         return visitor.visit( this )
     }
 
-    override suspend fun duplicate( gameState: GameState ) {
-        this.rollForOrderGivenDiceRoll( gameState, this.result.diceRoll )
+    override suspend fun duplicate( gameController: GameController ) {
+        this.rollForOrderGivenDiceRoll( gameController, this.result.diceRoll )
     }
 
-    override suspend fun execute( gameState: GameState ) {
-        this.result = this.rollForOrderGivenDiceRoll( gameState )
+    override suspend fun execute( gameController: GameController ) {
+        this.result = this.rollForOrderGivenDiceRoll( gameController )
     }
 
-    private suspend fun rollForOrderGivenDiceRoll( gameState: GameState, maybeDiceRoll: DiceRoll? = null )
+    private suspend fun rollForOrderGivenDiceRoll(gameController: GameController,
+                                                  maybeDiceRoll: DiceRoll? = null )
             : RollForOrderResult {
-        val returnValue = gameState.game().rollTheDiceForThrowingOrder( actorPosition, maybeDiceRoll )
+        val returnValue = gameController.game().rollTheDiceForThrowingOrder( actorPosition, maybeDiceRoll )
         this.executedSuccessfully()
         return returnValue
     }

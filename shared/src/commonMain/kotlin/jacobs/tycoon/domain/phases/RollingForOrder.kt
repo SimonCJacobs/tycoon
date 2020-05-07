@@ -1,71 +1,55 @@
 package jacobs.tycoon.domain.phases
 
 import jacobs.tycoon.domain.Game
-import jacobs.tycoon.domain.actions.results.RollForMoveResult
 import jacobs.tycoon.domain.actions.results.RollForOrderResult
 import jacobs.tycoon.domain.actions.results.RollForOrderOutcome
 import jacobs.tycoon.domain.dice.DiceRoll
 import jacobs.tycoon.domain.players.Player
 
-class RollingForOrder private constructor(
-    override val activePlayer: Player,
+class RollingForOrder (
+    override val playerWithTurn: Player,
     private val rollResults: MutableMap < Player, DiceRoll? >,
-    private val isRollOff: Boolean = false
+    private val phasePhactory: PhasePhactory
 ) : DiceRolling < RollForOrderResult > () {
 
-    companion object {
-        fun firstRoll( game: Game ): RollingForOrder {
-            return this.firstRollFromPlayerList( game.players.asSortedList() )
-        }
-        private fun firstRollFromPlayerList( players: List < Player >,
-                isRollOff: Boolean = false ): RollingForOrder {
-            return RollingForOrder(
-                players.first(),
-                players.associateWith { null }.toMutableMap(),
-                isRollOff
-            )
-        }
-    }
+    private lateinit var nextPhase: GamePhase
 
     // PUBLIC API
 
     override fun actOnRoll( game: Game, diceRoll: DiceRoll ): RollForOrderResult {
-        this.rollResults.put( this.activePlayer, diceRoll )
-        return this.continuePhaseFollowingRoll( game, diceRoll )
+        this.rollResults.put( this.playerWithTurn, diceRoll )
+        return this.figureOutNextPhaseAndGetResult( game, diceRoll )
     }
 
-    fun hasRollingStarted(): Boolean {
-        return this.isRollOff || this.rollResults.values.filterNotNull().isNotEmpty()
-    }
-
-    override fun nullResult(): RollForOrderResult {
-        return RollForOrderResult.NULL
+    override fun nextPhase( game: Game ): GamePhase {
+        return this.nextPhase
     }
 
     // PRIVATE API
 
-    private fun continuePhaseFollowingRoll( game: Game, diceRoll: DiceRoll ): RollForOrderResult {
+    private fun figureOutNextPhaseAndGetResult( game: Game, diceRoll: DiceRoll ): RollForOrderResult {
         return when {
-            false == this.hasEveryoneRolled() -> this.continueRolling( game, diceRoll )
+            false == this.hasEveryoneRolled() -> this.continueRolling( diceRoll )
             this.isThereASingleWinner() -> this.completePhase( game, diceRoll )
-            else -> this.startARollOff( game, diceRoll )
+            else -> this.startARollOff( diceRoll )
         }
     }
 
-    private fun continueRolling( game: Game, diceRoll: DiceRoll ): RollForOrderResult {
-        game.continueRollingForThrowingOrderPhase( this.nextRollPhase() )
+    private fun continueRolling( diceRoll: DiceRoll ): RollForOrderResult {
+        this.nextPhase = this.phasePhactory.continueRollingForOrder( this.rollResults )
         return RollForOrderResult( diceRoll, RollForOrderOutcome.ROLLING )
     }
 
     private fun completePhase( game: Game, diceRoll: DiceRoll ): RollForOrderResult {
         val winner = this.getWinner()
-        game.setWinnerOfRollForThrowingOrder( winner )
+        game.moveAllPiecesToStartingSquare()
+        this.nextPhase = this.phasePhactory.rollingForMove( winner )
         return RollForOrderResult( diceRoll, RollForOrderOutcome.COMPLETE, winner )
     }
 
-    private fun startARollOff( game: Game, diceRoll: DiceRoll ): RollForOrderResult {
-        val rollOffPhase = this.rollOffPhase()
-        game.continueRollingForThrowingOrderPhase( rollOffPhase )
+    private fun startARollOff( diceRoll: DiceRoll ): RollForOrderResult {
+        val rollOffPhase = this.phasePhactory.rollOffAmongstPlayers( this.getPlayersWithMaximumRoll() )
+        this.nextPhase = rollOffPhase
         return RollForOrderResult(
             diceRoll = diceRoll,
             nextPhase = RollForOrderOutcome.ROLL_OFF,
@@ -79,7 +63,7 @@ class RollingForOrder private constructor(
     }
 
     private fun getWinner(): Player {
-         return this.getPlayersWithMaximumRoll().single()
+        return this.getPlayersWithMaximumRoll().single()
     }
 
     private fun isThereASingleWinner(): Boolean {
@@ -88,20 +72,6 @@ class RollingForOrder private constructor(
 
     private fun hasEveryoneRolled(): Boolean {
         return false == this.rollResults.containsValue( null )
-    }
-
-    private fun nextRollPhase(): RollingForOrder {
-        return RollingForOrder(
-            this.rollResults.entries.first { it.value == null }.key,
-            this.rollResults
-        )
-    }
-
-    private fun rollOffPhase(): RollingForOrder {
-        return firstRollFromPlayerList(
-            players = this.getPlayersWithMaximumRoll().sorted(),
-            isRollOff = false
-        )
     }
 
 }

@@ -1,4 +1,4 @@
-package jacobs.tycoon.domain.board
+package jacobs.tycoon.domain.board.squares
 
 import kotlinx.serialization.Serializable
 
@@ -9,9 +9,10 @@ abstract class Square {
         val NULL = NullSquare()
     }
 
+    abstract val indexOnBoard: Int
     abstract val name: String
 
-    abstract fun < T > accept( squareVisitor: SquareVisitor < T > ): T
+    abstract fun < T > accept( squareVisitor: SquareVisitor<T>): T
 
     override fun equals( other: Any? ): Boolean {
         return other != null && other is Square && other.name == this.name

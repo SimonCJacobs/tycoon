@@ -1,6 +1,6 @@
 package jacobs.tycoon.domain.pieces
 
-import jacobs.tycoon.domain.board.Square
+import jacobs.tycoon.domain.board.squares.Square
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -12,7 +12,7 @@ class PlayingPiece(
         val NULL = PlayingPiece( "" )
     }
 
-    fun moveToSquare( newSquare: Square ) {
+    fun moveToSquare( newSquare: Square) {
         this.square = newSquare
     }
 

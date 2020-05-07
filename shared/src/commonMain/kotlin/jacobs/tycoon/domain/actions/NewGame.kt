@@ -1,5 +1,6 @@
 package jacobs.tycoon.domain.actions
 
+import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.state.GameState
 import kotlinx.serialization.Serializable
 
@@ -14,11 +15,11 @@ class NewGame : GameAction() {
         return visitor.visit( this )
     }
 
-    override suspend fun duplicate( gameState: GameState ) {
-        this.execute( gameState )
+    override suspend fun duplicate( gameController: GameController) {
+        this.execute( gameController )
     }
 
-    override suspend fun execute( gameState: GameState ) {
+    override suspend fun execute( gameController: GameController ) {
         this.executedSuccessfully()
     }
 }

@@ -1,12 +1,12 @@
 package jacobs.tycoon.view.components.board
 
 import jacobs.tycoon.clientcontroller.SquareController
-import jacobs.tycoon.domain.board.Utility
+import jacobs.tycoon.domain.board.squares.Utility
 
 class UtilityComponent(
     override val square: Utility,
     override val squareController: SquareController
-) : PropertyComponent < Utility >() {
+) : PropertyComponent <Utility>() {
 
     override val name = square.name
 

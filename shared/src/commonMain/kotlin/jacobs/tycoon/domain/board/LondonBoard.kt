@@ -1,10 +1,14 @@
 package jacobs.tycoon.domain.board
 
+import jacobs.tycoon.domain.board.currency.Currency
+import jacobs.tycoon.domain.board.squares.Square
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
 @Serializable
-class LondonBoard : StandardBoard() {
+class LondonBoard(
+    override val currency: Currency
+) : StandardBoard() {
 
     @Transient
     override val location: String = "London"

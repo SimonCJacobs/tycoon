@@ -1,5 +1,8 @@
 package jacobs.tycoon.domain.board
 
+import jacobs.tycoon.domain.board.currency.PoundsSterling
+import jacobs.tycoon.domain.board.currency.currencySerializerModule
+import jacobs.tycoon.domain.board.squares.squareSerializerModule
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlinx.serialization.modules.plus
@@ -10,8 +13,11 @@ class BoardTest {
 
     @Test
     fun londonBoardIsSerializable() {
-        val londonBoard = LondonBoard()
-        val json = Json( JsonConfiguration.Stable, context = squareSerializerModule() )
+        val londonBoard = LondonBoard( PoundsSterling() )
+        val json = Json(
+            JsonConfiguration.Stable,
+            context = squareSerializerModule() + currencySerializerModule()
+        )
         val serializedBoard = json.stringify( LondonBoard.serializer(), londonBoard )
         val deserializedBoard = json.parse( LondonBoard.serializer(), serializedBoard )
         assertBoardsTheSame( londonBoard, deserializedBoard )
@@ -19,10 +25,10 @@ class BoardTest {
 
     @Test
     fun londonBoardIsSerializableInScopeOfBoard() {
-        val londonBoard = LondonBoard()
+        val londonBoard = LondonBoard( PoundsSterling() )
         val json = Json(
             JsonConfiguration.Stable,
-            context = boardSerializerModule() + squareSerializerModule()
+            context = boardSerializerModule() + squareSerializerModule() + currencySerializerModule()
         )
         val serializedBoard = json.stringify( Board.serializer(), londonBoard )
         val deserializedBoard = json.parse( Board.serializer(), serializedBoard )

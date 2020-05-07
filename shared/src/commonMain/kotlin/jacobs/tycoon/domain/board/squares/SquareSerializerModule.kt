@@ -1,15 +1,7 @@
-package jacobs.tycoon.domain.board
+package jacobs.tycoon.domain.board.squares
 
 import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.modules.SerializersModule
-
-fun boardSerializerModule(): SerialModule {
-    return SerializersModule {
-        polymorphic( Board::class, StandardBoard::class ) {
-            LondonBoard::class with LondonBoard.serializer()
-        }
-    }
-}
 
 fun squareSerializerModule(): SerialModule {
     return SerializersModule {

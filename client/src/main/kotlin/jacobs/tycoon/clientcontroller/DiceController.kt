@@ -10,20 +10,15 @@ class DiceController( kodein: Kodein ) : UserInterfaceController( kodein ) {
     private val gameState by kodein.instance < GameState > ()
 
     fun firstDie(): Int {
-        return this.gameState.game().dice.lastRoll.first
+        return this.gameState.game().getLastRoll().first
     }
 
     fun secondDie(): Int {
-        return this.gameState.game().dice.lastRoll.second
+        return this.gameState.game().getLastRoll().second
     }
 
     fun shouldDiceBeShown(): Boolean {
-        if ( this.gameState.game().isSignUpPhase() )
-            return false
-        val phase = this.gameState.game().phase
-        if ( phase is RollingForOrder && false == phase.hasRollingStarted() )
-            return false
-        return true
+        return this.gameState.game().haveDiceBeenRolled()
     }
 
 }

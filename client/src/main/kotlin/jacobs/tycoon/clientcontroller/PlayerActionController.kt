@@ -25,10 +25,11 @@ class PlayerActionController(
     }
 
     private suspend fun rollTheDiceSuspended() {
-        when( this.gameState.game().phase ) {
-            is RollingForMove -> this.outgoingRequestController.rollTheDiceForMove()
-            is RollingForOrder -> this.outgoingRequestController.rollTheDiceForOrder()
-            else -> throw Error ( "Should not get here" )
+        val game = gameState.game()
+        when {
+            game.isPhase < RollingForMove > () -> this.outgoingRequestController.rollTheDiceForMove()
+            game.isPhase < RollingForOrder > () -> this.outgoingRequestController.rollTheDiceForOrder()
+            else -> throw Error ( "Should not get here: dice roll should not be possible when not expected" )
         }
     }
 

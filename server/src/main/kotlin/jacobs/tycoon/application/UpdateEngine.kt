@@ -33,7 +33,7 @@ class UpdateEngine ( kodein: Kodein ) {
     }
 
     private fun doAnyOngoingUpdates() {
-        val updateCount = this.gameHistory.getUpdateCount()
+        val updateCount = this.gameHistory.getActionCount()
         this.updatePushRecord.forEach {
             if ( it.value < updateCount )
                 updateSocketInIndexRange( it.key, it.value, updateCount )
@@ -48,7 +48,7 @@ class UpdateEngine ( kodein: Kodein ) {
     private fun updateSocketInIndexRange( socket: SocketId, firstIndexToUpdate: Int, lastIndexToUpdate: Int ) {
         this.socketServer.notifySocketAtIndex(
             socket,
-            this.gameHistory.getUpdatesBetween( firstIndexToUpdate, lastIndexToUpdate )
+            this.gameHistory.getActionsBetween( firstIndexToUpdate, lastIndexToUpdate )
         )
         this.updatePushRecord [ socket ] = lastIndexToUpdate
     }

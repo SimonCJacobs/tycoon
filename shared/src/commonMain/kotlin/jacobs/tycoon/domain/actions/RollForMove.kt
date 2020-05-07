@@ -1,5 +1,6 @@
 package jacobs.tycoon.domain.actions
 
+import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.actions.results.RollForMoveResult
 import jacobs.tycoon.domain.dice.DiceRoll
 import jacobs.tycoon.state.GameState
@@ -14,17 +15,18 @@ class RollForMove : GameAction () {
         return visitor.visit( this )
     }
 
-    override suspend fun duplicate( gameState: GameState ) {
-        this.rollForMoveGivenDiceRoll( gameState, this.result.diceRoll )
+    override suspend fun duplicate( gameController: GameController) {
+        this.rollForMoveGivenDiceRoll( gameController, this.result.diceRoll )
     }
 
-    override suspend fun execute( gameState: GameState ) {
-        this.result = this.rollForMoveGivenDiceRoll( gameState )
+    override suspend fun execute( gameController: GameController ) {
+        this.result = this.rollForMoveGivenDiceRoll( gameController )
     }
 
-    private suspend fun rollForMoveGivenDiceRoll( gameState: GameState, maybeDiceRoll: DiceRoll? = null )
+    private suspend fun rollForMoveGivenDiceRoll( gameController: GameController,
+                                                  maybeDiceRoll: DiceRoll? = null )
             : RollForMoveResult {
-        val returnValue = gameState.game().rollTheDiceForMove( actorPosition, maybeDiceRoll )
+        val returnValue = gameController.game().rollTheDiceForMove( actorPosition, maybeDiceRoll )
         this.executedSuccessfully()
         return returnValue
     }

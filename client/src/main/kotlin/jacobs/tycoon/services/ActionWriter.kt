@@ -51,7 +51,7 @@ class ActionWriter( kodein: Kodein ) : ActionProcessor < String >, ActionVisitor
             RollForOrderOutcome.ROLLING -> "Let's keep rolling."
             RollForOrderOutcome.COMPLETE ->
                 "So... ${ rollForOrder.result.winner.name } got the highest and will start the game"
-            RollForOrderOutcome.ROLL_OFF -> TODO()
+            RollForOrderOutcome.ROLL_OFF -> "It's a roll off!"
         }
     }
 
@@ -80,10 +80,13 @@ class ActionWriter( kodein: Kodein ) : ActionProcessor < String >, ActionVisitor
     private fun getSnippetForMoveOutcome( moveOutcome: MoveOutcome ): String {
         return when ( moveOutcome ) {
             MoveOutcome.CARD_TURNOVER -> "Please take a card"
+            MoveOutcome.FREE_PARKING -> "Rest a wee while"
+            MoveOutcome.GO_TO_JAIL -> "Time to straighten you out."
+            MoveOutcome.JUST_VISITING -> "\"Just visiting\", eh?"
+            MoveOutcome.ON_MORTGAGED_PROPERTY -> "This property is mortgaged. No charge for this one"
             MoveOutcome.POTENTIAL_RENT -> ""
             MoveOutcome.POTENTIAL_PURCHASE -> "Would you like to buy it?"
             MoveOutcome.TAX -> "You have a bill to pay"
-            MoveOutcome.NOTHING -> "Relax. Nothing doing here"
         }
     }
 

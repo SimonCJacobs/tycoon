@@ -15,6 +15,9 @@ class Console( kodein: Kodein ) : Component {
     private val gameHistory by kodein.instance < GameHistory > ()
     private val processor by kodein.instance < ActionWriter > ()
 
+        // A list from the first log to the last. So needs to be reversed prior to display
+    private val gameLogs: MutableList < String > = mutableListOf()
+
     override fun view(): VNode {
         return m( Tag.aside ) {
             attributes {
@@ -27,25 +30,28 @@ class Console( kodein: Kodein ) : Component {
     }
 
     private fun getLogList(): VNode {
+        this.updateGameLogs()
         return m( Tag.ol ) {
             attributes {
                 reversed = true
             }
-            children( getLogsReversed() )
+            children( getLogNodesReversed() )
         }
     }
 
-    private fun getLogsReversed(): List < VNode > {
-        return this.getTextLogs().map { getLogFromText( it ) }
-            .reversed()
-    }
-
-    private fun getTextLogs(): List < String > {
-        return this.gameHistory.processAllLogs( this.processor )
+    private fun getLogNodesReversed(): List < VNode > {
+        return this.gameLogs.reversed()
+            .map { getLogFromText( it ) }
     }
 
     private fun getLogFromText( text: String ): VNode {
         return m( Tag.li ) { content( text )}
+    }
+
+    private fun updateGameLogs() {
+        this.gameLogs.addAll(
+            this.gameHistory.processHistoryFromIndex( this.processor, this.gameLogs.size )
+        )
     }
 
 }

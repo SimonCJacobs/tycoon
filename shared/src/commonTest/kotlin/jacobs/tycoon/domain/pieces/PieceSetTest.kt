@@ -13,7 +13,11 @@ class PieceSetTest {
         val classicPieces = ClassicPieces()
         val serialized = json.stringify( PieceSet.serializer(), classicPieces )
         val deserialized = json.parse( PieceSet.serializer(), serialized )
-        asserter.assertEquals( "Should deserialize back to original", ClassicPieces::class, deserialized::class )
+        asserter.assertEquals(
+            "Should deserialize back to original",
+            ClassicPieces::class,
+            deserialized::class
+        )
     }
 
 }

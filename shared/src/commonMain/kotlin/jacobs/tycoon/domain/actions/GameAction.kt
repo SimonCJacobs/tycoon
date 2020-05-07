@@ -1,5 +1,6 @@
 package jacobs.tycoon.domain.actions
 
+import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.players.SeatingPosition
 import jacobs.tycoon.state.GameState
 import kotlinx.serialization.Serializable
@@ -14,8 +15,8 @@ abstract class GameAction {
     }
 
     abstract fun < T > accept( visitor: ActionVisitor < T > ): T
-    abstract suspend fun duplicate( gameState: GameState )
-    abstract suspend fun execute( gameState: GameState )
+    abstract suspend fun duplicate( gameController: GameController )
+    abstract suspend fun execute( gameController: GameController )
 
     var actorPosition: SeatingPosition = SeatingPosition.UNINITIALISED
 

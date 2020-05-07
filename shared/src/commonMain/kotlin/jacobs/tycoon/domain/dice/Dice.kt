@@ -9,6 +9,10 @@ class Dice {
     var lastRoll: DiceRoll = DiceRoll.NULL
         private set
 
+    fun haveBeenRolled(): Boolean {
+        return this.lastRoll != DiceRoll.NULL
+    }
+
     fun roll( diceRoll: DiceRoll? = null ): DiceRoll {
         this.lastRoll = diceRoll ?: this.rollForReal()
         return this.lastRoll

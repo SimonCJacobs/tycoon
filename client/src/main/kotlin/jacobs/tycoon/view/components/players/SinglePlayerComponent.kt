@@ -22,6 +22,9 @@ abstract class SinglePlayerComponent : Component {
                 m( Tag.h4 ) {
                     content( player.name )
                 },
+                m( Tag.h5 ) {
+                    content( player.cashHoldings.toString() )
+                },
                 m( Tag.h6 ) {
                     child( m( pieceDisplayStrategy.getPieceDisplayComponent( player.piece ) ) )
                 },

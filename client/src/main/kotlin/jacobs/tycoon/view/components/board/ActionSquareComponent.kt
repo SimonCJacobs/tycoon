@@ -1,9 +1,7 @@
 package jacobs.tycoon.view.components.board
 
 import jacobs.tycoon.clientcontroller.SquareController
-import jacobs.tycoon.domain.board.ActionSquare
-import jacobs.tycoon.state.GameState
-import jacobs.tycoon.view.components.pieces.PieceComponentFactory
+import jacobs.tycoon.domain.board.squares.ActionSquare
 
 class ActionSquareComponent (
     override val square: ActionSquare,

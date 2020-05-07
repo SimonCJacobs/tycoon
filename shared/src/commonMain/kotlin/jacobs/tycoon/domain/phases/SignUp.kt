@@ -1,3 +1,13 @@
 package jacobs.tycoon.domain.phases
 
-object SignUp : GamePhase()
+import jacobs.tycoon.domain.Game
+
+class SignUp(
+    private val phasePhactory: PhasePhactory
+) : GamePhase() {
+
+    override fun nextPhase( game: Game ): GamePhase {
+        return this.phasePhactory.rollingForOrder( game )
+    }
+
+}

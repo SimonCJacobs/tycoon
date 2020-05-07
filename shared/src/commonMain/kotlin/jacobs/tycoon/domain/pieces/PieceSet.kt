@@ -1,9 +1,8 @@
 package jacobs.tycoon.domain.pieces
 
-import jacobs.tycoon.domain.board.Square
+import jacobs.tycoon.domain.board.squares.Square
 import jacobs.tycoon.domain.players.GamePlayers
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 
 @Serializable
 abstract class PieceSet {
@@ -18,7 +17,6 @@ abstract class PieceSet {
 
     fun freezePiecesInUse( players: GamePlayers ) {
         this.piecesInUse = players.asSortedList().map { eachPlayer -> eachPlayer.piece }
-        println( piecesInUse )
     }
 
     fun getAvailablePieces( players: GamePlayers ): List < PlayingPiece > {
@@ -28,11 +26,11 @@ abstract class PieceSet {
         }
     }
 
-    fun getPiecesOnSquare( square: Square ): Set < PlayingPiece > {
+    fun getPiecesOnSquare( square: Square): Set < PlayingPiece > {
         return this.piecesInUse.filter { it.square == square }.toSet()
     }
 
-    fun moveAllToSquare( square: Square ) {
+    fun moveAllToSquare( square: Square) {
         this.piecesInUse.forEach { it.moveToSquare( square ) }
     }
 

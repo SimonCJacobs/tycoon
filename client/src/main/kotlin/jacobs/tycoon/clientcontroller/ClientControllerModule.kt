@@ -14,6 +14,7 @@ fun clientControllerModule(): Kodein.Module {
         bind < IncomingController > () with singleton { IncomingController( kodein ) }
         bind < MainPageController > () with singleton { MainPageController( kodein ) }
         bind < OutgoingRequestController > () with singleton { OutgoingRequestController( kodein ) }
+        bind < PieceController > () with singleton { PieceController( kodein ) }
         bind < PlayerActionController > () with
             factory { player: Player -> PlayerActionController( kodein, player ) }
         bind < SquareController > () with singleton { SquareController( kodein ) }
