@@ -7,8 +7,11 @@ import jacobs.tycoon.domain.actions.AddPlayer
 import jacobs.tycoon.domain.actions.CompleteSignUp
 import jacobs.tycoon.domain.actions.GameAction
 import jacobs.tycoon.domain.actions.PieceMoved
+import jacobs.tycoon.domain.actions.ReadCard
+import jacobs.tycoon.domain.actions.RentCharge
+import jacobs.tycoon.domain.actions.RespondToPropertyOffer
 import jacobs.tycoon.domain.actions.RollForMove
-import jacobs.tycoon.domain.actions.RollForOrder
+import jacobs.tycoon.domain.actions.RollForOrderAction
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.services.Network
 import jacobs.websockets.content.BooleanContent
@@ -24,6 +27,10 @@ class OutgoingRequestController( kodein: Kodein ) {
         return this.sendActionRequest( AddPlayer( playerName, playingPiece ) )
     }
 
+    suspend fun chargeRent(): Boolean {
+        return this.sendActionRequest( RentCharge() )
+    }
+
     suspend fun completeGameSignUp(): Boolean {
         return this.sendActionRequest( CompleteSignUp() )
     }
@@ -32,12 +39,20 @@ class OutgoingRequestController( kodein: Kodein ) {
         return this.sendActionRequest( PieceMoved() )
     }
 
+    suspend fun readCard(): Boolean {
+        return this.sendActionRequest( ReadCard() )
+    }
+
+    suspend fun respondToPropertyOffer( isBuying: Boolean ): Boolean {
+        return this.sendActionRequest( RespondToPropertyOffer( isBuying ) )
+    }
+
     suspend fun rollTheDiceForMove(): Boolean {
         return this.sendActionRequest( RollForMove() )
     }
 
     suspend fun rollTheDiceForOrder(): Boolean {
-        return this.sendActionRequest( RollForOrder() )
+        return this.sendActionRequest( RollForOrderAction() )
     }
 
     private suspend fun sendActionRequest( action: GameAction ): Boolean {

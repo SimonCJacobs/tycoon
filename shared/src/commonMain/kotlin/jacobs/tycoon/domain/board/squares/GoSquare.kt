@@ -11,6 +11,9 @@ class GoSquare(
     private val creditAmount: CurrencyAmount
 ) : ActionSquare() {
 
+    companion object {
+        val NULL = GoSquare( 0, "", CurrencyAmount.NULL )
+    }
 
     override fun < T > accept( squareVisitor: SquareVisitor < T > ): T {
         return squareVisitor.visit( this )

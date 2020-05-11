@@ -3,13 +3,14 @@ package jacobs.mithril
 import jacobs.jsutilities.absorb
 import jacobs.jsutilities.jsObject
 import org.js.mithril.VNode
+import org.js.mithril.m
 
 class HyperScriptBuilder(
     private val tag: Tag?,
     closure: Details.() -> Unit
 ) {
 
-    private var attributes: Any = jsObject()
+    private var attributes: MutableList < Any > = mutableListOf()
     private var child: VNode? = null
     private var children: Array < out VNode>? = null
     private var stringContents: String? = null
@@ -18,21 +19,28 @@ class HyperScriptBuilder(
         Details( this ).closure()
     }
 
+    @Suppress("UnsafeCastFromDynamic")
+    private fun getAttributes(): dynamic {
+        val combinedAttributes = jsObject()
+        attributes.forEach { absorb( combinedAttributes, it ) }
+        return combinedAttributes
+    }
+
     @ExperimentalJsExport
     fun build() : VNode {
         if ( null != this.child )
-            return org.js.mithril.m(this.tag.toString(), this.attributes, this.child)
+            return m( this.tag.toString(), getAttributes(), this.child )
         this.children.also {
             if ( null != it )
-                return org.js.mithril.m(this.tag.toString(), this.attributes, it)
+                return m( this.tag.toString(), getAttributes(), it )
         }
         this.stringContents.also {
             if ( null != it )
-                return org.js.mithril.m(this.tag.toString(), this.attributes, it)
+                return m( this.tag.toString(), getAttributes(), it )
         }
         this.tag.also {
             if ( null != it )
-                return org.js.mithril.m(it.toString(), this.attributes, "")
+                return m( it.toString(), getAttributes(), "" )
         }
         throw Error( "Unknown hyperscript format: all arguments null (*should* never get here!)" )
     }
@@ -41,8 +49,8 @@ class HyperScriptBuilder(
         private val builder: HyperScriptBuilder
     ) {
 
-        fun attributes( attributeClosure: dynamic.() -> Unit ) {
-            this.builder.attributes = jsObject( attributeClosure )
+        fun attributes( attributes: Any ) {
+            this.builder.attributes.add( attributes )
         }
 
         fun child( child: VNode? ) {
@@ -65,11 +73,12 @@ class HyperScriptBuilder(
             this.builder.stringContents = stringContents
         }
 
+        @Suppress("UNCHECKED_CAST")
         fun eventHandlers( eventHandlerClosure: EventHandlers.() -> Unit ) {
             EventHandlers()
                 .apply {
                     eventHandlerClosure()
-                    builder.attributes.absorb( this )
+                    builder.attributes.add( this )
                 }
         }
 

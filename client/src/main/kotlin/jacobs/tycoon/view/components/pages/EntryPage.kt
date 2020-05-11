@@ -46,6 +46,7 @@ class EntryPage( kodein: Kodein ) : Page {
         }
     }
 
+    @Suppress( "unused" )
     private fun getPlayerNameEntry(): VNode {
         return m( Tag.div ) {
             children(
@@ -53,10 +54,10 @@ class EntryPage( kodein: Kodein ) : Page {
                     content( "What's your name?" )
                 },
                 m( Tag.input ) {
-                    attributes {
-                        type = text
-                        value = pageState.playerNameInProgress
-                    }
+                    attributes ( object {
+                        val type = "text"
+                        val value = pageState.playerNameInProgress
+                    } )
                     eventHandlers {
                         onInputExt = { pageState.playerNameInProgress = ( it.target as HTMLInputElement ).value }
                     }
@@ -89,21 +90,23 @@ class EntryPage( kodein: Kodein ) : Page {
         }
     }
 
+    @Suppress( "unused" )
     private fun getSinglePieceOptionElement( thisPiece: PlayingPiece, selectedPiece: PlayingPiece ): VNode {
         return m( Tag.option ) {
-            attributes {
-                value = thisPiece.name
-                selected = if ( thisPiece == selectedPiece ) "selected" else ""
-            }
+            attributes ( object {
+                val value = thisPiece.name
+                val selected = if ( thisPiece == selectedPiece ) "selected" else ""
+            } )
             content( thisPiece.name )
         }
     }
 
+    @Suppress( "unused" )
     private fun getSubmitButton(): VNode {
         return m( Tag.button ) {
-            attributes {
-                type = "button"
-            }
+            attributes ( object {
+                val type = "button"
+            } )
             eventHandlers {
                 onclick = { uiController.onEntryPageButtonClick() }
             }

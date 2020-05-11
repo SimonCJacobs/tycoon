@@ -16,7 +16,7 @@ class CompleteSignUp : GameAction() {
     }
 
     override suspend fun execute( gameController: GameController ) {
-        gameController.game().completeSignUp()
+        gameController.completeSignUp()
         this.executedSuccessfully()
     }
 }

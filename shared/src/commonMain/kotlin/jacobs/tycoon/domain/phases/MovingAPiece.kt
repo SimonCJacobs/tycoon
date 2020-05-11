@@ -6,31 +6,34 @@ import jacobs.tycoon.domain.board.currency.CurrencyAmount
 import jacobs.tycoon.domain.board.squares.Square
 import jacobs.tycoon.domain.players.Player
 
-class MovingAPiece(
+class MovingAPiece (
     override val playerWithTurn: Player,
     val destinationSquare: Square,
-    private val goCreditAmount: CurrencyAmount,
-    private val phasePhactory: PhasePhactory
-) : TurnBasedPhase() {
+    private val goCreditAmount: CurrencyAmount
+) : TurnBasedPhase {
 
     private var didPassGo: Boolean = false
-    private lateinit var outcomeGenerator: SquareLandingOutcomeGenerator
+
+    lateinit var outcomeGenerator: SquareLandingOutcomeGenerator
+    lateinit var result: MoveResult
+
+    override fun accept(turnBasedPhaseVisitor: TurnBasedPhaseVisitor ) {
+        turnBasedPhaseVisitor.visit( this )
+    }
+
+    fun carryOutMove( game: Game ): MoveResult {
+        this.didPassGo = this.playerWithTurn.moveToSquareAndMaybePassGo( this.destinationSquare )
+        this.dealWithAnyPassingOfGo( didPassGo )
+        this.generateOutcomeOfLandingOnSquare( game )
+        return this.getMoveResult()
+            .also { this.result = it }
+    }
 
     fun isSquareDropTarget( square: Square): Boolean {
         return this.destinationSquare == square
     }
 
-    override fun nextPhase( game: Game ): GamePhase {
-        return this.outcomeGenerator.nextPhase
-    }
-
-    fun processOutcome( game: Game ) {
-        this.didPassGo = this.playerWithTurn.moveToSquareAndMaybePassGo( this.destinationSquare )
-        this.dealWithAnyPassingOfGo( didPassGo )
-        this.generateOutcomeOfLandingOnSquare( game )
-    }
-
-    fun getMoveResult(): MoveResult {
+    private fun getMoveResult(): MoveResult {
         return MoveResult(
             destinationSquare = destinationSquare,
             outcome = this.outcomeGenerator.outcome,
@@ -44,7 +47,7 @@ class MovingAPiece(
     }
 
     private fun generateOutcomeOfLandingOnSquare( game: Game ) {
-        this.outcomeGenerator = SquareLandingOutcomeGenerator( game, playerWithTurn, phasePhactory )
+        this.outcomeGenerator = SquareLandingOutcomeGenerator( game, playerWithTurn )
         this.destinationSquare.accept( this.outcomeGenerator )
     }
 

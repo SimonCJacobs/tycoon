@@ -7,7 +7,7 @@ import jacobs.tycoon.state.GameState
 import kotlinx.serialization.Serializable
 
 @Serializable
-class RollForOrder : GameAction () {
+class RollForOrderAction : GameAction () {
 
     var result = RollForOrderResult.NULL
 
@@ -23,10 +23,9 @@ class RollForOrder : GameAction () {
         this.result = this.rollForOrderGivenDiceRoll( gameController )
     }
 
-    private suspend fun rollForOrderGivenDiceRoll(gameController: GameController,
-                                                  maybeDiceRoll: DiceRoll? = null )
-            : RollForOrderResult {
-        val returnValue = gameController.game().rollTheDiceForThrowingOrder( actorPosition, maybeDiceRoll )
+    private fun rollForOrderGivenDiceRoll( gameController: GameController,
+              maybeDiceRoll: DiceRoll? = null ): RollForOrderResult {
+        val returnValue = gameController.rollTheDiceForThrowingOrder( actorPosition, maybeDiceRoll )
         this.executedSuccessfully()
         return returnValue
     }

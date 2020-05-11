@@ -2,7 +2,6 @@ package jacobs.tycoon.view.components.board
 
 import org.js.mithril.Component
 import org.js.mithril.VNode
-import jacobs.jsutilities.jsObject
 import jacobs.mithril.DragEventHandler
 import jacobs.mithril.HyperScriptBuilder
 import jacobs.mithril.m
@@ -10,7 +9,7 @@ import jacobs.mithril.Tag
 import jacobs.tycoon.clientcontroller.SquareController
 import jacobs.tycoon.domain.board.squares.Square
 
-abstract class SquareComponent < TSquare: Square> : Component {
+abstract class SquareComponent < TSquare: Square > : Component {
 
     protected abstract val squareController: SquareController
 
@@ -18,17 +17,20 @@ abstract class SquareComponent < TSquare: Square> : Component {
     protected abstract val square: TSquare
 
     private var dragIsOverhead = false
+    protected open var tableColumnCount = 1
 
+    @Suppress( "unused" )
     final override fun view(): VNode {
         return m( Tag.td ) {
             this.
-            attributes {
-                style = jsObject {
-                    backgroundColor = if ( dragIsOverhead ) "orange" else "white"
-                    border = "1.2px solid black"
-                    textAlign = "center"
+            attributes ( object {
+                val colspan = tableColumnCount
+                val style = object {
+                    val backgroundColor = if ( dragIsOverhead ) "orange" else "white"
+                    val border = "1.2px solid black"
+                    val textAlign = "center"
                 }
-            }
+            } )
             addDropTargetHandlersIfDestination()
             children(
                 getNameDisplay(),
@@ -37,13 +39,16 @@ abstract class SquareComponent < TSquare: Square> : Component {
         }
     }
 
-    @Suppress( "RedundantIf" )
+    @Suppress( "unused" )
     private fun getNameDisplay(): VNode {
         return m( Tag.h6 ) {
-            attributes {
-                    // Stops drag getting forgotten when over this element
-                pointerEvents = if ( dragIsOverhead ) false else true
-            }
+            attributes ( object {
+                val style = object {
+                        // Stops drag getting forgotten when over this element
+                    val pointerEvents = if ( dragIsOverhead ) "none" else "auto"
+                }
+            } )
+            addDropTargetHandlersIfDestination()
             content( name )
         }
     }
@@ -87,11 +92,12 @@ abstract class SquareComponent < TSquare: Square> : Component {
     }
 
     private fun onDrop(): DragEventHandler {
-        return {
+        return { event ->
             if ( squareController.isThisValidDestinationAndActorForDrop() ) {
                 dragIsOverhead = false
                 squareController.actOnSuccessfulPieceDrop()
             }
+            event.preventDefault()
         }
     }
 

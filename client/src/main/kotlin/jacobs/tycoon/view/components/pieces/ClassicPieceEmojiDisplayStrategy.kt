@@ -19,15 +19,15 @@ class ClassicPieceEmojiDisplayStrategy : PieceDisplayStrategy {
     private fun getEmojiFromPiece( playingPiece: PlayingPiece ): String {
         return when ( playingPiece.name ) {
             "Battleship" -> "🚢"
-                "Boot" -> "👢"
-                "Cannon" -> "🔫"
-                "Horse and rider" -> "🏇"
-                "Iron" -> "🧲"
-                "Racing car" -> "🏎️"
-                "Scottie dog" -> "🐕"
-                "Thimble" -> "🧵"
-                "Top hat" -> "🎩"
-                "Wheelbarrow" -> "🥕"
+            "Boot" -> "👢"
+            "Cannon" -> "🔫"
+            "Horse and rider" -> "🏇"
+            "Iron" -> "🧲"
+            "Racing car" -> "🏎️"
+            "Scottie dog" -> "🐕"
+            "Thimble" -> "🧵"
+            "Top hat" -> "🎩"
+            "Wheelbarrow" -> "🥕"
             else -> throw Error( "Missing piece name ${ playingPiece.name }")
         }
     }

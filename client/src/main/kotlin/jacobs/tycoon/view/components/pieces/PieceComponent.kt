@@ -12,11 +12,12 @@ class PieceComponent (
     private val pieceController: PieceController
 ) : Component {
 
+    @Suppress( "unused" )
     override fun view(): VNode {
         return m( Tag.div ) {
-            attributes {
-                draggable = true // Pieces are always draggable. Why not? :)
-            }
+            attributes ( object {
+                val draggable = true // Pieces are always draggable. Why not? :)
+            } )
             eventHandlers {
                 ondragstart = { pieceController.setPieceInDrag( playingPiece ) }
                 ondragend = { pieceController.removePieceInDrag() }

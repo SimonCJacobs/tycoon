@@ -1,6 +1,6 @@
 package jacobs.mithril
 
-import jacobs.jsutilities.jsObject
+import jacobs.jsutilities.toJsObject
 import org.js.mithril.Component
 import org.js.mithril.mount as mountJs
 import org.js.mithril.redraw as redrawJs
@@ -21,7 +21,7 @@ class Mithril {
     }
 
     fun route( element: Element, defaultRoute: String, routeMap: Map < String, Component > ) {
-        return routeJs( element, defaultRoute, routeMap.jsObject() )
+        return routeJs( element, defaultRoute, routeMap.toJsObject() )
     }
 
 }

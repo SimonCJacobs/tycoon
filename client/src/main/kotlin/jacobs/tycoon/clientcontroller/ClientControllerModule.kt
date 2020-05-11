@@ -9,6 +9,7 @@ import org.kodein.di.erased.singleton
 
 fun clientControllerModule(): Kodein.Module {
     return Kodein.Module( "clientController" ) {
+        bind < BoardController > () with singleton { BoardController( kodein ) }
         bind < DiceController > () with singleton { DiceController( kodein ) }
         bind < EntryPageController > () with singleton { EntryPageController( kodein ) }
         bind < IncomingController > () with singleton { IncomingController( kodein ) }

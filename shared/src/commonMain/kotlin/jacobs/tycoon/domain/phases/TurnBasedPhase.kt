@@ -2,7 +2,8 @@ package jacobs.tycoon.domain.phases
 
 import jacobs.tycoon.domain.players.Player
 
-abstract class TurnBasedPhase : GamePhase() {
-    abstract val playerWithTurn: Player
+interface TurnBasedPhase : GamePhase {
+    val playerWithTurn: Player
+    fun accept( turnBasedPhaseVisitor: TurnBasedPhaseVisitor )
     fun isTurnOfPlayer( testPlayer: Player ): Boolean { return this.playerWithTurn == testPlayer }
 }

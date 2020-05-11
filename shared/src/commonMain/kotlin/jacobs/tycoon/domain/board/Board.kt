@@ -1,7 +1,9 @@
 package jacobs.tycoon.domain.board
 
+import jacobs.tycoon.domain.board.cards.CardSet
 import jacobs.tycoon.domain.board.currency.Currency
 import jacobs.tycoon.domain.board.currency.CurrencyAmount
+import jacobs.tycoon.domain.board.squares.GoSquare
 import jacobs.tycoon.domain.board.squares.JailSquare
 import jacobs.tycoon.domain.board.squares.Square
 import jacobs.tycoon.domain.dice.DiceRoll
@@ -14,25 +16,46 @@ import kotlinx.serialization.Transient
 abstract class Board {
 
     abstract val location: String
-    protected abstract val currency: Currency
     @Transient lateinit var pieceSet: PieceSet
-    abstract val squareList: List <Square>
+    @Transient var squareList: List < Square > = emptyList() // Initialized only for serialization purposes
+        private set
 
-    companion object {
-        private val JAIL_SQUARE = JailSquare()
+    abstract var goSquare: GoSquare
+    abstract var jailSquare: JailSquare
+
+    protected abstract val cardSets: List < CardSet >
+    protected abstract val currency: Currency
+
+
+    // Initialisation
+
+    /**
+     * Requires initialising and shuffling before use. Reason for doing this in a method rather than on construction is
+     * to sidestep some anomalies that arise with the order of construction when deserializing.
+     */
+    fun initialise() {
+        this.squareList = this.buildSquareList()
+    }
+
+    fun applyShuffleOrders( shuffleOrders: List < List < Int > >  ) {
+        shuffleOrders.forEachIndexed {
+            index, list -> cardSets[ index ].applyShuffleOrder( list )
+        }
+    }
+
+    fun shuffleCards(): List < List < Int > > {
+        return cardSets.map { it.shuffle() }
     }
 
     // Protected API
+
+    protected abstract fun buildSquareList(): List < Square >
 
     protected fun Int.toCurrency(): CurrencyAmount {
         return currency.ofAmount( this )
     }
 
     // Public API
-
-    fun getJailSquare(): Square {
-        return JAIL_SQUARE
-    }
 
     fun getPieceCount(): Int {
         return this.pieceSet.count()

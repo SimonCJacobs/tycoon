@@ -1,6 +1,5 @@
 package jacobs.tycoon.clientcontroller
 
-import jacobs.tycoon.domain.phases.RollingForOrder
 import jacobs.tycoon.state.GameState
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance

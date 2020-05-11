@@ -12,10 +12,10 @@ abstract class Square {
     abstract val indexOnBoard: Int
     abstract val name: String
 
-    abstract fun < T > accept( squareVisitor: SquareVisitor<T>): T
+    abstract fun < T > accept( squareVisitor: SquareVisitor < T > ): T
 
     override fun equals( other: Any? ): Boolean {
-        return other != null && other is Square && other.name == this.name
+        return other != null && other is Square && other.indexOnBoard == this.indexOnBoard
     }
 
     override fun hashCode(): Int {

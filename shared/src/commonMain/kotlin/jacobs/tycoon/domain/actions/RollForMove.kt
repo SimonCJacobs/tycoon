@@ -23,10 +23,9 @@ class RollForMove : GameAction () {
         this.result = this.rollForMoveGivenDiceRoll( gameController )
     }
 
-    private suspend fun rollForMoveGivenDiceRoll( gameController: GameController,
-                                                  maybeDiceRoll: DiceRoll? = null )
+    private fun rollForMoveGivenDiceRoll( gameController: GameController, maybeDiceRoll: DiceRoll? = null )
             : RollForMoveResult {
-        val returnValue = gameController.game().rollTheDiceForMove( actorPosition, maybeDiceRoll )
+        val returnValue = gameController.rollTheDiceForMove( actorPosition, maybeDiceRoll )
         this.executedSuccessfully()
         return returnValue
     }

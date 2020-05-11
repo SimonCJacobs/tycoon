@@ -6,11 +6,11 @@ import org.w3c.dom.Element
 import kotlin.js.Promise
 
 @JsExport @ExperimentalJsExport
-internal external fun m( selector: String?, attributes: Any?, vNode: VNode? ): VNode
-internal external fun m( selector: String?, attributes: Any?, vNodes: Array < out VNode > ): VNode
-internal external fun m( selector: String?, attributes: Any?, text: String ): VNode
-internal external fun m( selector: String?, attributes: Any?, number: Number ): VNode
-internal external fun m( selector: String?, attributes: Any?, boolean: Boolean ): VNode
+internal external fun m( selector: String?, attributes: dynamic, vNode: VNode? ): VNode
+internal external fun m( selector: String?, attributes: dynamic, vNodes: Array < out VNode > ): VNode
+internal external fun m( selector: String?, attributes: dynamic, text: String ): VNode
+internal external fun m( selector: String?, attributes: dynamic, number: Number ): VNode
+internal external fun m( selector: String?, attributes: dynamic, boolean: Boolean ): VNode
 internal external fun m( component: Component ): VNode
 
 internal external fun mount( element: Element, component: Component )

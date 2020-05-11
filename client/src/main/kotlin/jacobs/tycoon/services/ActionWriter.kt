@@ -2,12 +2,15 @@ package jacobs.tycoon.services
 
 import jacobs.tycoon.domain.actions.ActionVisitor
 import jacobs.tycoon.domain.actions.AddPlayer
+import jacobs.tycoon.domain.actions.ReadCard
 import jacobs.tycoon.domain.actions.CompleteSignUp
 import jacobs.tycoon.domain.actions.GameAction
 import jacobs.tycoon.domain.actions.NewGame
 import jacobs.tycoon.domain.actions.PieceMoved
+import jacobs.tycoon.domain.actions.RentCharge
+import jacobs.tycoon.domain.actions.RespondToPropertyOffer
 import jacobs.tycoon.domain.actions.RollForMove
-import jacobs.tycoon.domain.actions.RollForOrder
+import jacobs.tycoon.domain.actions.RollForOrderAction
 import jacobs.tycoon.domain.actions.SetBoard
 import jacobs.tycoon.domain.actions.SetPieces
 import jacobs.tycoon.domain.actions.results.MoveOutcome
@@ -41,12 +44,24 @@ class ActionWriter( kodein: Kodein ) : ActionProcessor < String >, ActionVisitor
         return "A new game of $gameName has begun!"
     }
 
-    override fun visit( rollForOrder: RollForOrder ): String {
+    override fun visit( readCard: ReadCard ): String {
+        return "The card said: <i>${ readCard.result.cardText }</i>"
+    }
+
+    override fun visit( respondToPropertyOffer: RespondToPropertyOffer ): String {
+        return when ( respondToPropertyOffer.decidedToBuy ) {
+            true -> "Congratulations on your purchase, ${ respondToPropertyOffer.actorPosition.name() }. " +
+                "May it bring you much happiness"
+            false -> "Something wrong with the goods, pal? Ok, it's going under the hammer"
+        }
+    }
+
+    override fun visit( rollForOrder: RollForOrderAction ): String {
         return "${ rollForOrder.actorPosition.name() } rolled " +
             "${ rollForOrder.result.diceRoll.inWordAndNumber() }. " + this.getRollForOrderAddendum( rollForOrder )
     }
 
-    private fun getRollForOrderAddendum( rollForOrder: RollForOrder ): String {
+    private fun getRollForOrderAddendum( rollForOrder: RollForOrderAction ): String {
         return when( rollForOrder.result.nextPhase ) {
             RollForOrderOutcome.ROLLING -> "Let's keep rolling."
             RollForOrderOutcome.COMPLETE ->
@@ -79,15 +94,22 @@ class ActionWriter( kodein: Kodein ) : ActionProcessor < String >, ActionVisitor
 
     private fun getSnippetForMoveOutcome( moveOutcome: MoveOutcome ): String {
         return when ( moveOutcome ) {
-            MoveOutcome.CARD_TURNOVER -> "Please take a card"
+            MoveOutcome.CARD_READING -> "Please take a card"
             MoveOutcome.FREE_PARKING -> "Rest a wee while"
-            MoveOutcome.GO_TO_JAIL -> "Time to straighten you out."
+            MoveOutcome.GO_TO_JAIL -> "Time to straighten you out. In the name of God, go!"
+            MoveOutcome.JAIL -> "Let this be a lesson to you"
             MoveOutcome.JUST_VISITING -> "\"Just visiting\", eh?"
+            MoveOutcome.ON_GO_SQUARE -> "Woo hoo!"
             MoveOutcome.ON_MORTGAGED_PROPERTY -> "This property is mortgaged. No charge for this one"
-            MoveOutcome.POTENTIAL_RENT -> ""
+            MoveOutcome.ON_OWN_PROPERTY -> "Oh! This looks familiar. You putting on the kettle?"
             MoveOutcome.POTENTIAL_PURCHASE -> "Would you like to buy it?"
+            MoveOutcome.POTENTIAL_RENT -> ""
             MoveOutcome.TAX -> "You have a bill to pay"
         }
+    }
+
+    override fun visit( rentCharge: RentCharge ): String {
+        return "That'll be ${ rentCharge.result.rentDue } please for your visit. Ain't a free country you know"
     }
 
     override fun visit( setBoard: SetBoard ): String {

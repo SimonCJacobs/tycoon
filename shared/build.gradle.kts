@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.time.format.DateTimeFormatter
+import java.time.Instant
 
 repositories {
     jcenter()
@@ -20,6 +22,11 @@ kotlin {
     jvm()
 
     sourceSets {
+        forEach {
+            it.languageSettings.apply {
+                useExperimentalAnnotation( "kotlin.ExperimentalStdlibApi" )
+            }
+        }
         val commonMain by getting {
             dependencies {
                 api( kotlin( "stdlib-common" ) )
@@ -62,6 +69,22 @@ kotlin {
 
 tasks {
     withType < KotlinCompile > {
-        kotlinOptions.jvmTarget = Versions.javaBytecode
+        kotlinOptions {
+            freeCompilerArgs = listOf(
+                "-Xopt-in=kotlin.RequiresOptIn", "-Xopt-in=kotlin.ExperimentalStdlibApi"
+            )
+            jvmTarget = Versions.javaBytecode
+        }
+
     }
 }
+/*
+gradle.addBuildListener(
+    object : BuildAdapter() {
+        override fun buildFinished( result: BuildResult ) {
+            val formatter = DateTimeFormatter.ofPattern( "MM/dd/yyyy 'at' hh:mma z" )
+            println( "Finished build at time ${ formatter.format( Instant.now() ) }")
+        }
+    }
+)
+*/

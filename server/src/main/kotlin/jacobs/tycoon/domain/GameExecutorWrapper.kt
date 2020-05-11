@@ -15,6 +15,14 @@ class GameExecutorWrapper( kodein: Kodein ) : GameExecutor {
 
     private val mutex = Mutex()
 
+    /**
+     * A note on thread safety.
+     *
+     * All game actions triggering a modification of the state of the application come through this method.
+     * Thus the lock placed on this code means that only one coroutine at a time can modify the state of the game
+     * and the entire underlying game can execute synchronously and safe in the knowledge other coroutines will not
+     * be changing state unexpectedly.
+     */
     override suspend fun execute( action: GameAction ) {
         this.mutex.lock() // Lock the update to ensure order of calls is preserved as this can be accessed simultaneously
         this.gameExecutor.execute( action )
@@ -22,6 +30,10 @@ class GameExecutorWrapper( kodein: Kodein ) : GameExecutor {
         this.mutex.unlock()
     }
 
+    /**
+     * This is a sole exception to the thread safety point! Callers must start the game before allow any
+     * other actions to be executed
+     */
     override suspend fun startGame() {
         this.gameExecutor.startGame()
         this.execute( NewGame() )

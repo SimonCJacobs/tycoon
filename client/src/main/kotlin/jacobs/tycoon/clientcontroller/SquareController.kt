@@ -31,10 +31,6 @@ class SquareController( kodein: Kodein ) : UserInterfaceController( kodein ) {
         return this.gameState.game().isThisTheSquareToMoveTo( square )
     }
 
-    fun isGameUnderway(): Boolean {
-        return this.gameState.game().isGameUnderway()
-    }
-
     fun getPiecesOnSquare( square: Square): Set < PlayingPiece > {
         return this.gameState.game().board.getPiecesOnSquare( square )
     }

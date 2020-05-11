@@ -2,28 +2,22 @@ package jacobs.tycoon.view.components.board
 
 import org.js.mithril.Component
 import org.js.mithril.VNode
-import jacobs.jsutilities.jsObject
 import jacobs.tycoon.domain.board.Board
 import jacobs.mithril.m
 import jacobs.mithril.Tag
-import jacobs.tycoon.state.GameState
+import jacobs.tycoon.clientcontroller.BoardController
 import org.kodein.di.Kodein
 import org.kodein.di.direct
 import org.kodein.di.erased.instance
 
 class BoardComponent( kodein: Kodein ) : Component {
 
-    private val state by kodein.instance < GameState > ()
+    private val boardController by kodein.instance < BoardController > ()
+    private val gameName by kodein.instance < String > ( tag = "gameName" )
 
     private fun board(): Board {
-        return state.game().board
+        return boardController.board()
     }
-
-        // TODO: Construction of the components can probably happen in DI container
-    private val squares: List < SquareComponent < * > > = {
-        val squareComponentFactory: SquareComponentFactory = kodein.direct.instance()
-        board().squareList.map { squareComponentFactory.getFromSquare( it ) }
-    }()
 
     /**
      * All boards must have a square count of the form 4k + 4, and a board in such a form will have
@@ -31,6 +25,17 @@ class BoardComponent( kodein: Kodein ) : Component {
      */
     private val squaresToASide = ( board().squareList.size / 4 ) + 1
     private val squaresToASideExcludingCorners = squaresToASide - 2
+
+    // TODO: Construction of the components can happen in DI container
+
+    private val jailComponent: SquareComponent < * > = {
+        kodein.direct.instance < SquareComponentFactory > ()
+            .getForJailSquare( board().jailSquare, squaresToASideExcludingCorners )
+    }()
+    private val squares: List < SquareComponent < * > > = {
+        val squareComponentFactory: SquareComponentFactory = kodein.direct.instance()
+        board().squareList.map { squareComponentFactory.getFromSquare( it ) }
+    }()
 
     override fun view(): VNode {
         return m( Tag.table ) {
@@ -45,14 +50,27 @@ class BoardComponent( kodein: Kodein ) : Component {
             listOf(
                 listOf(
                     this.getTopRowAsSquares().wrapInTableRow(),
-                    this.getSecondRowGivenSecondSideSquares( leftSquares[ 0 ], rightSquares[ 0 ] )
+                    this.getSecondRowGivenSecondSideSquares( leftSquares.first[ 0 ], rightSquares.first[ 0 ] )
                 ),
-                this.pairUpFromIndex( leftSquares, rightSquares, 1 )
+                this.pairUpFromIndex( leftSquares.first, rightSquares.first, 1 )
                     .map { putPairInRow( it ) },
+                this.getOneAboveBottomRowSquares( leftSquares.second, rightSquares.second ),
                 listOf( this.getBottomRowAsSquares().wrapInTableRow() )
             )
         return listOfLists.flatten()
     }
+
+    private fun getOneAboveBottomRowSquares( leftSideComponent: SquareComponent < * >,
+             rightSideComponent: SquareComponent < * > ): List < VNode > {
+        val componentList = listOf(
+            leftSideComponent, jailComponent, rightSideComponent
+        )
+        return listOf( componentList.wrapInTableRow() )
+    }
+
+   // private fun getEmptySquares( numberOfSquares: Int ): Array < VNode > {
+   //     return ( 1 .. numberOfSquares ).map { m( Tag.td ) }.toTypedArray()
+   // }
 
     private fun getTopRowAsSquares(): List < SquareComponent < * > > {
         return ( 1 .. squaresToASide )
@@ -63,18 +81,21 @@ class BoardComponent( kodein: Kodein ) : Component {
 
     private fun getSecondRowGivenSecondSideSquares( leftSquare: SquareComponent < * >,
                                                     rightSquare: SquareComponent < * > ): VNode {
-        return listOf( m( leftSquare), this.getEmptyCentreCell(), m( rightSquare ) )
+        return listOf( m( leftSquare), this.getCentreCell(), m( rightSquare ) )
             .wrapInTableRow()
     }
 
-    private fun getInnerLeftSideSquares(): List < SquareComponent < * > > {
-        return this.getNaturalOrderedInnerSideStartingAtIndex( this.squaresToASide )
-            .reversed()
+    private fun getInnerLeftSideSquares(): Pair < List < SquareComponent < * > >, SquareComponent < * > > {
+        return Pair(
+            this.getNaturalOrderedInnerSideLessOneStartingAtIndex( this.squaresToASide + 1 ).reversed(),
+            this.squares.get( squaresToASide )
+        )
     }
 
-    private fun getInnerRightSideSquares(): List < SquareComponent < * > > {
-        return this.getNaturalOrderedInnerSideStartingAtIndex(
-            2 * squaresToASide + squaresToASideExcludingCorners
+    private fun getInnerRightSideSquares(): Pair < List < SquareComponent < * > >, SquareComponent < * > > {
+        return Pair(
+            this.getNaturalOrderedInnerSideLessOneStartingAtIndex( 2 * squaresToASide + squaresToASideExcludingCorners ),
+            this.squares.last()
         )
     }
 
@@ -82,25 +103,18 @@ class BoardComponent( kodein: Kodein ) : Component {
         return this.squares.take( this.squaresToASide ).reversed()
     }
 
-    private fun getNaturalOrderedInnerSideStartingAtIndex( startIndex: Int ): List < SquareComponent < * > > {
-        return ( startIndex until startIndex + squaresToASideExcludingCorners )
+    private fun getNaturalOrderedInnerSideLessOneStartingAtIndex( startIndex: Int ): List < SquareComponent < * > > {
+        return ( startIndex until startIndex + squaresToASideExcludingCorners - 1 )
             .map { this.squares[ it ] }
     }
 
-    private fun getEmptyCentreCell(): VNode {
-        return m( Tag.td ) {
-            attributes {
-                colspan = squaresToASideExcludingCorners
-                rowspan = squaresToASideExcludingCorners
-                style = jsObject {
-                    fontStyle = "italic"
-                    fontSize = "80px"
-                    textAlign = "center"
-                    transform = "rotate( -0.048turn )"
-                }
-            }
-            content( "Monopolisation" )
-        }
+    private fun getCentreCell(): VNode {
+        if ( this.boardController.isReadingCard() )
+            return m( CardCentreCellComponent(
+                this.boardController.getCardBeingRead(), squaresToASideExcludingCorners
+            ) )
+        else
+            return m( LogoCentreCellComponent( gameName, squaresToASideExcludingCorners ) )
     }
 
     private fun putPairInRow( pair: Pair < SquareComponent < * >, SquareComponent < * > > ): VNode {

@@ -1,104 +1,111 @@
 package jacobs.tycoon.domain
 
 import jacobs.tycoon.domain.actions.results.MoveResult
+import jacobs.tycoon.domain.actions.results.ReadCardResult
+import jacobs.tycoon.domain.actions.results.RentChargeResult
 import jacobs.tycoon.domain.actions.results.RollForMoveResult
 import jacobs.tycoon.domain.actions.results.RollForOrderResult
 import jacobs.tycoon.domain.board.Board
+import jacobs.tycoon.domain.board.cards.Card
+import jacobs.tycoon.domain.board.squares.Property
 import jacobs.tycoon.domain.board.squares.Square
 import jacobs.tycoon.domain.dice.Dice
 import jacobs.tycoon.domain.dice.DiceRoll
+import jacobs.tycoon.domain.phases.CardReading
 import jacobs.tycoon.domain.phases.GamePhase
 import jacobs.tycoon.domain.phases.MovingAPiece
+import jacobs.tycoon.domain.phases.NotTurnOfPlayerException
+import jacobs.tycoon.domain.phases.PhaseStatus
+import jacobs.tycoon.domain.phases.PotentialPurchase
+import jacobs.tycoon.domain.phases.PotentialRentCharge
 import jacobs.tycoon.domain.phases.RollingForMove
 import jacobs.tycoon.domain.phases.RollingForOrder
 import jacobs.tycoon.domain.phases.SignUp
 import jacobs.tycoon.domain.phases.TurnBasedPhase
+import jacobs.tycoon.domain.phases.TurnStatus
+import jacobs.tycoon.domain.phases.TurnlessPhaseStatus
+import jacobs.tycoon.domain.phases.WrongPhaseException
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.domain.players.GamePlayers
 import jacobs.tycoon.domain.players.Player
 import jacobs.tycoon.domain.players.SeatingPosition
-import kotlinx.coroutines.sync.Mutex
+import jacobs.tycoon.domain.services.GameCycle
 import kotlin.reflect.KClass
 
-//TODO: gonna need an overall review of thread safety.
+/**
+ * Class is *NOT* designed to be thread safe. It is intended that only one coroutine at a time will access the game.
+ * Monopoly isn't exactly a fast-paced game now is it?
+ */
 class Game(
     private val minimumNumberOfPlayers: Int
 ) {
+
     lateinit var board: Board
+    private val dice = Dice()
+    @PublishedApi internal var phaseStatus: PhaseStatus = TurnlessPhaseStatus( SignUp )
     val players: GamePlayers = GamePlayers()
 
-    private val dice = Dice()
-    @PublishedApi internal lateinit var phase: GamePhase
-
-    private val mutex = Mutex()
-
-    // 0. INITIALISATION
-
-    fun setGamePhase( newPhase: GamePhase ) {
-        this.phase = newPhase
-    }
-
-    // 1. UPDATING GAME STATE API AS MAIN GAME ACTION
-
-    suspend fun addPlayer( newPlayer: Player ): Boolean {
-        var returnValue = false
-        mutex.lock()
-        if ( this.canNewPlayerJoin() && false == this.players.isThereAPlayerOfName( newPlayer.name ) ) {
-            this.players.addPlayer( newPlayer )
-            returnValue = true
-        }
-        mutex.unlock()
-        return returnValue
-    }
-
-    fun completeSignUp(): Boolean {
-        if ( false == this.isPhase < SignUp >() )
-            return false
-        this.board.pieceSet.freezePiecesInUse( this.players )
-        this.goToNextPhase()
-        return true
-    }
-
-    suspend fun movePieceCompleted(): MoveResult {
-        val movePiecePhase = this.phase
-        mutex.lock()
-        if ( false == movePiecePhase is MovingAPiece ) {
-            mutex.unlock()
-            throw Error( "Not time to move a piece" )
-        }
-        movePiecePhase.processOutcome( this )
-        this.goToNextPhase()
-        mutex.unlock()
-        return movePiecePhase.getMoveResult()
-    }
-
-    suspend fun rollTheDiceForMove( position: SeatingPosition, maybeDiceRoll: DiceRoll? = null )
-        : RollForMoveResult {
-        var result = RollForMoveResult.NULL
-        mutex.lock()
-        val currentPhase = this.phase
-        if ( currentPhase is RollingForMove && currentPhase.isTurnOfPlayer( position.getPlayer( this ) ) ) {
-            result = currentPhase.actOnRoll( this, this.dice.roll( maybeDiceRoll ) )
-        }
-        this.goToNextPhase()
-        mutex.unlock()
-        return result
-    }
-
     /**
-     * Not sure it clarifies anything to try and jam this together with the the other roll function.
+     * *** 1. UPDATING GAME STATE API AS MAIN GAME ACTION ***
      */
-    suspend fun rollTheDiceForThrowingOrder( position: SeatingPosition, maybeDiceRoll: DiceRoll? = null )
-        : RollForOrderResult {
-        var result = RollForOrderResult.NULL
-        mutex.lock()
-        val currentPhase = this.phase
-        if ( currentPhase is RollingForOrder && currentPhase.isTurnOfPlayer( position.getPlayer( this ) ) ) {
-            result = currentPhase.actOnRoll( this, this.dice.roll( maybeDiceRoll ) )
+
+    fun addPlayer( possibleNewPlayer: Player ): Boolean {
+        if ( canGivenNewPlayerJoin( possibleNewPlayer ) )
+            return players.addPlayer( possibleNewPlayer )
+        else
+            return false
+    }
+
+    fun completePieceMove( gameCycle: GameCycle, position: SeatingPosition ): MoveResult {
+        return gameCycle.doOnTurnPhaseAndCycle < MovingAPiece, MoveResult > ( this, position ) {
+            this.carryOutMove( it )
         }
-        this.goToNextPhase()
-        mutex.unlock()
-        return result
+    }
+
+    fun chargeRent( gameCycle: GameCycle, actorPosition: SeatingPosition ): RentChargeResult {
+        return gameCycle.doInPhaseAndCycle < PotentialRentCharge, RentChargeResult > ( this ) {
+            val requestingPlayer = actorPosition.getPlayer( it )
+            if ( false == this.canPlayerChargeRent( requestingPlayer ) )
+                throw NotTurnOfPlayerException(
+                    "Requesting player ${ requestingPlayer.name } does not own the occupied property " +
+                        this.occupiedProperty.name
+                )
+            this.chargeRent( requestingPlayer )
+        }
+    }
+
+    fun completeSignUp( gameCycle: GameCycle) {
+        gameCycle.doInPhaseAndCycle < SignUp, Unit > ( this ) {
+            this.completeSignUp( it )
+        }
+    }
+
+    fun readCard( gameCycle: GameCycle, position: SeatingPosition ): ReadCardResult {
+        return gameCycle.doOnTurnPhaseAndCycle < CardReading, ReadCardResult > ( this, position ) {
+            this.result
+        }
+    }
+
+    fun respondToPropertyOffer(gameCycle: GameCycle, decidedToBuy: Boolean, position: SeatingPosition ) {
+        return gameCycle.doOnTurnPhaseAndCycle < PotentialPurchase, Unit > ( this, position ) {
+            this.respondToOffer( decidedToBuy )
+        }
+    }
+
+    fun rollTheDiceForMove( gameCycle: GameCycle, position: SeatingPosition, maybeDiceRoll: DiceRoll? = null )
+            : RollForMoveResult {
+        return gameCycle.doOnTurnPhaseAndCycle < RollingForMove, RollForMoveResult > ( this, position ) {
+            this.setDiceRoll( dice.roll( maybeDiceRoll ) )
+            this.getRollResult( it )
+        }
+    }
+
+    fun rollTheDiceForThrowingOrder( gameCycle: GameCycle, position: SeatingPosition,
+                                    maybeDiceRoll: DiceRoll? = null ) : RollForOrderResult {
+        return gameCycle.doOnTurnPhaseAndCycle < RollingForOrder, RollForOrderResult > ( this, position ) {
+            this.setDiceRoll( dice.roll( maybeDiceRoll ) )
+            this.noteDiceRoll( it )
+        }
     }
 
     // 2. UPDATING GAME STATE FROM MID-PHASE ACTION TODO COULD SEPARATE THIS OUT
@@ -109,17 +116,29 @@ class Game(
 
     // 3. INTERROGATING GAME STATE API TODO COULD SEPARATE THIS OUT
 
-    fun canGameStart(): Boolean {
-        return this.isPhase < SignUp >() &&
-            this.players.count() >= this.minimumNumberOfPlayers
+    inline fun < reified T : TurnBasedPhase > anyPastPhasesOfTypeInTurn(): Boolean {
+        val turnStatus = phaseStatus as? TurnStatus ?: return false
+        return turnStatus.anyPastPhasesOfType < T > ()
     }
 
-    fun canNewPlayerJoin(): Boolean {
-        return this.isPhase < SignUp >() && this.players.count() < this.board.getPieceCount()
+    fun canGameStart(): Boolean {
+        return doInPhaseOrElse < SignUp, Boolean > ( false ) {
+            players.countAll() >= minimumNumberOfPlayers
+        }
+    }
+
+    fun canAnyNewPlayerJoin(): Boolean {
+        return doInPhaseOrElse < SignUp, Boolean > ( false ) {
+            players.countAll() < board.getPieceCount()
+        }
     }
 
     fun getAvailablePieces(): List < PlayingPiece > {
         return this.board.pieceSet.getAvailablePieces( players )
+    }
+
+    fun getCardBeingRead(): Card {
+        return this.doInPhaseOrPastPhasesOfTurn < CardReading, Card > { this.card }
     }
 
     fun getLastRoll(): DiceRoll {
@@ -135,29 +154,61 @@ class Game(
     }
 
     inline fun < reified T : GamePhase > isPhase(): Boolean {
-        return this.phase is T
+        return this.phaseStatus.current() is T
+    }
+
+    fun isPropertyOwned( property: Property ): Boolean {
+        return this.players.doesAnyoneOwnProperty( property )
     }
 
     fun isThisThePieceToMove( piece: PlayingPiece ): Boolean {
-        return this.phase.let { it is MovingAPiece && it.playerWithTurn.piece == piece }
+        return doInPhaseOrElse < MovingAPiece, Boolean > ( false ) { playerWithTurn.piece == piece }
     }
 
     fun isThisTheSquareToMoveTo( square: Square ): Boolean {
-        return this.phase.let { it is MovingAPiece && it.isSquareDropTarget( square ) }
+        return doInPhaseOrElse < MovingAPiece, Boolean > ( false ) { isSquareDropTarget( square ) }
     }
 
     fun isTurnOfPlayer( testPlayer: Player ): Boolean {
-        val phase = this.phase
-        if ( false == phase is TurnBasedPhase )
-            return false
-        else
-            return phase.isTurnOfPlayer( testPlayer )
+        return this.phaseStatus.isItTurnOfPlayer( testPlayer )
     }
 
     // 4. HELPER METHODS
 
-    private fun goToNextPhase() {
-        this.phase = this.phase.nextPhase( this )
+    private fun canGivenNewPlayerJoin( player: Player ): Boolean {
+        return this.canAnyNewPlayerJoin() && false == this.players.isThereAPlayerOfName( player.name )
+    }
+
+    /**
+     * Carry out actions within a (validated) phase, or else throw
+     */
+    private inline fun < reified T : GamePhase, R > doInPhase( action: T.() -> R ): R {
+        val phase = phaseStatus.current() as? T
+            ?: this.throwWrongPhaseException( T::class, phaseStatus.current()::class )
+        return phase.action()
+    }
+
+    /**
+     * Carry out actions within a (validated) phase, or else return
+     */
+    private inline fun < reified T : GamePhase, R > doInPhaseOrElse( elseReturn: R, action: T.() -> R ): R {
+        val phase = phaseStatus.current()
+        if ( phase is T )
+            return phase.action()
+        else
+            return elseReturn
+    }
+
+    private inline fun < reified T : TurnBasedPhase, R > doInPhaseOrPastPhasesOfTurn( action: T.() -> R ): R {
+        val turnStatus = phaseStatus as? TurnStatus
+            ?: this.throwWrongPhaseException( T::class, phaseStatus.current()::class )
+        return turnStatus.getFirstPhaseOfType < T > ()
+            ?.run { action() }
+            ?: this.throwWrongPhaseException( T::class, phaseStatus.current()::class )
+    }
+
+    private fun throwWrongPhaseException( expected: KClass < out GamePhase >, actual: KClass < out GamePhase > ): Nothing {
+        throw WrongPhaseException( "Expected ${ expected.simpleName } got ${ actual.simpleName } ")
     }
 
 }

@@ -5,31 +5,24 @@ import kotlin.test.asserter
 
 class AbsorbTest {
 
-    @Test
+    @Test @Suppress( "UNUSED_VARIABLE" )
     fun absorbAbsorbs() {
-        val original = jsObject {
-            one = "one"
-            two = "two"
+        val original = js( "{ one: \"one\", two: \"two\" }" )
+        val b = object {
+            val three = "three"
+            val four = "four"
         }
-        val b = jsObject {
-            three = "three"
-            four = "four"
-        }
-        original.absorb( b )
-        val expectedObject = jsObject {
-            one = "one"
-            two = "two"
-            three = "three"
-            four = "four"
-        }
+        absorb( original, b )
+        val expectedObject = js( "{ one: \"one\", two: \"two\", three: \"three\", four: \"four\"}" )
         listOf( "one", "two", "three", "four" ).forEach { assertPropertySame( it, expectedObject, original ) }
     }
 
-    private fun assertPropertySame( propertyName: String, expectedObject: dynamic, actualObject: dynamic ) {
+    @Suppress( "USELESS_CAST" )
+    private fun assertPropertySame(propertyName: String, expectedObject: dynamic, actualObject: Any ) {
         asserter.assertEquals(
             "Property $propertyName is same",
-            expectedObject[ propertyName ] as Any,
-            actualObject[ propertyName ] as Any
+            expectedObject[ propertyName ] as Any?,
+            actualObject.asDynamic()[ propertyName ] as Any?
         )
     }
 

@@ -17,8 +17,15 @@ import org.kodein.di.erased.instance
  * * Client attempt to reestablish connection
  * * Add backdoor to alter game state
  * * encrypted communication
- * malformeed requeest handling
+ * * malformeed requeest handling
+ * * Need some end-to-end tests to make sure serialization has happened correctly on build.
  * *
+ * * note when double chick it will crash the game as not in phase for second click if server not responded
+ * by that point
+ * * DROP NOT PERFECT WHEN PIECE ON SQUARE ALREADDY
+ * * NEEED TO CLEARDOUBLE COUNT on visiting jail
+ * NEED TO allow leaving jail!
+ * * note somwhere xss is covered by mithril
  * * GAME
  * * Trading options
  * * Game winner

@@ -22,6 +22,10 @@ open class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.
         return this.gameState.hasGame()
     }
 
+    fun isGameUnderway(): Boolean {
+        return this.gameState.game().isGameUnderway()
+    }
+
     fun isSignUpPhase(): Boolean {
         return this.gameState.game().isPhase < SignUp > ()
     }
@@ -31,8 +35,8 @@ open class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.
         return gameState.game().isTurnOfPlayer( ownPlayer )
     }
 
-    fun ownPlayerIsInTheGame(): Boolean {
-        return this.gameState.game().players.hasPlayerInPosition( clientState.socket.toPosition() )
+    fun userOfClientMachineHasSignedUpForGame(): Boolean {
+        return this.gameState.game().players.hasPlayerInPositionSignedUp( clientState.socket.toPosition() )
     }
 
 }

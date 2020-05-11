@@ -13,10 +13,7 @@ class LondonBoard(
     @Transient
     override val location: String = "London"
 
-    @Transient
-    override val squareList: List < Square > = this.buildSquareList( this.nameListProvider() )
-
-    private fun nameListProvider(): List < String > {
+    override fun nameListProvider(): List < String > {
         return listOf(
             "Go",
             "Old Kent Road", "Community Chest", "Whitechapel Road", "Income Tax",

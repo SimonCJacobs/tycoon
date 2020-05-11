@@ -1,6 +1,5 @@
 package jacobs.tycoon.view.components.pages
 
-import jacobs.jsutilities.jsObject
 import jacobs.mithril.Tag
 import org.js.mithril.VNode
 import jacobs.mithril.m
@@ -48,12 +47,13 @@ class MainPage ( kodein: Kodein ) : Page {
         }
     }
 
+    @Suppress( "unused", "RedundantIf" )
     private fun getStartButton(): VNode {
         return m( Tag.button ) {
-            attributes {
-                type = button
-                if ( false == mainPageController.canGameStart() ) disabled
-            }
+            attributes ( object {
+                val type = "button"
+                val disabled = if ( false == mainPageController.canGameStart() ) true else false
+            } )
             eventHandlers {
                 onclick = { mainPageController.startGame() }
             }
@@ -61,14 +61,15 @@ class MainPage ( kodein: Kodein ) : Page {
         }
     }
 
+    @Suppress( "unused" )
     private fun getActionPanel(): VNode {
         return m( Tag.div ) {
-            attributes {
-                style = jsObject {
-                    display = "flex"
-                    justifyContent = "space-between"
+            attributes ( object {
+                val style = object {
+                    val display = "flex"
+                    val justifyContent = "space-between"
                 }
-            }
+            } )
             children(
                 m( ownPlayerComponent ),
                 m( diceComponent )

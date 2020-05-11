@@ -8,52 +8,46 @@ import jacobs.tycoon.domain.players.Player
 
 class RollingForOrder (
     override val playerWithTurn: Player,
-    private val rollResults: MutableMap < Player, DiceRoll? >,
-    private val phasePhactory: PhasePhactory
-) : DiceRolling < RollForOrderResult > () {
+    val rollResults: MutableMap < Player, DiceRoll? >
+) : DiceRollingPhase() {
 
-    private lateinit var nextPhase: GamePhase
+    lateinit var result: RollForOrderResult
 
-    // PUBLIC API
-
-    override fun actOnRoll( game: Game, diceRoll: DiceRoll ): RollForOrderResult {
-        this.rollResults.put( this.playerWithTurn, diceRoll )
-        return this.figureOutNextPhaseAndGetResult( game, diceRoll )
+    override fun accept(turnBasedPhaseVisitor: TurnBasedPhaseVisitor ) {
+        turnBasedPhaseVisitor.visit( this )
     }
 
-    override fun nextPhase( game: Game ): GamePhase {
-        return this.nextPhase
+    fun noteDiceRoll( game: Game ): RollForOrderResult {
+        this.rollResults.put( this.playerWithTurn, this.diceRoll )
+        this.figureOutResult( game )
+        return this.result
     }
 
     // PRIVATE API
 
-    private fun figureOutNextPhaseAndGetResult( game: Game, diceRoll: DiceRoll ): RollForOrderResult {
-        return when {
-            false == this.hasEveryoneRolled() -> this.continueRolling( diceRoll )
-            this.isThereASingleWinner() -> this.completePhase( game, diceRoll )
-            else -> this.startARollOff( diceRoll )
+    private fun figureOutResult( game: Game ) {
+        when {
+            false == this.hasEveryoneRolled() -> this.continueRolling()
+            this.isThereASingleWinner() -> this.completePhase( game )
+            else -> this.startARollOff()
         }
     }
 
-    private fun continueRolling( diceRoll: DiceRoll ): RollForOrderResult {
-        this.nextPhase = this.phasePhactory.continueRollingForOrder( this.rollResults )
-        return RollForOrderResult( diceRoll, RollForOrderOutcome.ROLLING )
+    private fun continueRolling() {
+        this.result = RollForOrderResult( diceRoll, RollForOrderOutcome.ROLLING )
     }
 
-    private fun completePhase( game: Game, diceRoll: DiceRoll ): RollForOrderResult {
+    private fun completePhase( game: Game ) {
         val winner = this.getWinner()
         game.moveAllPiecesToStartingSquare()
-        this.nextPhase = this.phasePhactory.rollingForMove( winner )
-        return RollForOrderResult( diceRoll, RollForOrderOutcome.COMPLETE, winner )
+        this.result = RollForOrderResult( diceRoll, RollForOrderOutcome.COMPLETE, winner )
     }
 
-    private fun startARollOff( diceRoll: DiceRoll ): RollForOrderResult {
-        val rollOffPhase = this.phasePhactory.rollOffAmongstPlayers( this.getPlayersWithMaximumRoll() )
-        this.nextPhase = rollOffPhase
-        return RollForOrderResult(
+    private fun startARollOff() {
+        this.result = RollForOrderResult(
             diceRoll = diceRoll,
             nextPhase = RollForOrderOutcome.ROLL_OFF,
-            playersTiedFirst = rollOffPhase.rollResults.keys
+            playersTiedFirst = this.getPlayersWithMaximumRoll()
         )
     }
 

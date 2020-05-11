@@ -18,38 +18,41 @@ import jacobs.tycoon.domain.players.Player
 
 class SquareLandingOutcomeGenerator (
     private val game: Game,
-    private val playerWithTurn: Player,
-    private val phasePhactory: PhasePhactory
+    private val playerWithTurn: Player
 ) : SquareVisitor < Unit > {
 
+    private var maybeNextPhaseLambda: ( PhasePhactory.() -> TurnBasedPhase )? = null
+
+    val isNextPhase: Boolean
+        get() = null != maybeNextPhaseLambda
+    val nextPhaseLambda: PhasePhactory.() -> TurnBasedPhase
+        get() = maybeNextPhaseLambda ?: throw Error ( "No implied next phase from square landing" )
+
     lateinit var outcome: MoveOutcome
-    lateinit var nextPhase: GamePhase
 
     override fun visit( square: CardSquare ) {
-        this.nextPhase = CardTurnover( this.playerWithTurn, square )
+        this.maybeNextPhaseLambda = { this.cardReading( playerWithTurn, square ) }
+        this.outcome = MoveOutcome.CARD_READING
     }
 
     override fun visit( square: FreeParkingSquare ) {
-        this.doNewRollingPhase()
         this.outcome = MoveOutcome.FREE_PARKING
     }
 
     override fun visit( square: GoSquare ) {
-        this.doNewRollingPhase()
-        this.outcome = MoveOutcome.FREE_PARKING
+        this.outcome = MoveOutcome.ON_GO_SQUARE
     }
 
     override fun visit( square: GoToJailSquare ) {
-        this.doNewRollingPhase()
+        this.maybeNextPhaseLambda = { this.movingAPieceNotViaGo( playerWithTurn, square ) }
         this.outcome = MoveOutcome.GO_TO_JAIL
     }
 
     override fun visit( square: JailSquare ) {
-        throw Error( "Not possible to reach jail through a throw of the dice" )
+        this.outcome = MoveOutcome.JAIL
     }
 
     override fun visit( square: JustVisitingJailSquare ) {
-        this.doNewRollingPhase()
         this.outcome = MoveOutcome.JUST_VISITING
     }
 
@@ -63,7 +66,6 @@ class SquareLandingOutcomeGenerator (
 
     override fun visit( square: TaxSquare ) {
         playerWithTurn.debitFunds( square.getTaxCharge() )
-        this.doNewRollingPhase()
         this.outcome = MoveOutcome.TAX
     }
 
@@ -71,31 +73,25 @@ class SquareLandingOutcomeGenerator (
         this.doPropertyMoveOutcome( square )
     }
 
-    private fun doNewRollingPhase() {
-        this.nextPhase = this.phasePhactory.rollingForMove(
-            this.nextPlayerInTurn()
-        )
-    }
-
     private fun doPropertyMoveOutcome( property: Property ) {
         when {
-            property.hasOwner() && property.isMortgaged() -> {
-                this.doNewRollingPhase()
+             property.isMortgaged() -> {
                 this.outcome = MoveOutcome.ON_MORTGAGED_PROPERTY
             }
-            property.hasOwner() -> {
-                this.nextPhase = PotentialRentCharge( this.playerWithTurn, property )
+            this.playerWithTurn.owns( property ) -> {
+                this.outcome = MoveOutcome.ON_OWN_PROPERTY
+            }
+            this.game.isPropertyOwned( property ) -> {
+                this.maybeNextPhaseLambda = {
+                    potentialRentCharge( playerWithTurn, game.players.nextActive( playerWithTurn), property )
+                }
                 this.outcome = MoveOutcome.POTENTIAL_RENT
             }
             else -> {
-                this.nextPhase = PotentialPurchase( this.playerWithTurn, property )
+                this.maybeNextPhaseLambda = { potentialPurchase( playerWithTurn, property ) }
                 this.outcome = MoveOutcome.POTENTIAL_PURCHASE
             }
         }
-    }
-
-    private fun nextPlayerInTurn(): Player {
-        return game.players.next( this.playerWithTurn )
     }
 
 }

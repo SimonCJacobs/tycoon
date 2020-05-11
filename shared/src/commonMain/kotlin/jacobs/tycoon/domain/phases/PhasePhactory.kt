@@ -1,7 +1,8 @@
 package jacobs.tycoon.domain.phases
 
-import jacobs.tycoon.domain.Game
 import jacobs.tycoon.domain.board.currency.Currency
+import jacobs.tycoon.domain.board.squares.CardSquare
+import jacobs.tycoon.domain.board.squares.Property
 import jacobs.tycoon.domain.board.squares.Square
 import jacobs.tycoon.domain.dice.DiceRoll
 import jacobs.tycoon.domain.players.Player
@@ -13,44 +14,69 @@ class PhasePhactory( kodein: Kodein ) {
     private val currency by kodein.instance < Currency > ()
     private val goCreditAmount by kodein.instance < Int > ( tag = "goCreditAmount" )
 
+    fun auctionProperty( playerWithTurn: Player, property: Property ): AuctionProperty {
+        return AuctionProperty(
+            playerWithTurn = playerWithTurn,
+            targetProperty = property
+        )
+    }
+
+    fun bankruptcyProceedings( playerWithTurn: Player, bankruptPlayer: Player ): BankruptcyProceedings {
+        return BankruptcyProceedings(
+            playerWithTurn = playerWithTurn,
+            bankruptPlayer = bankruptPlayer
+        )
+    }
+
+    fun cardReading( playerWithTurn: Player, square: CardSquare ): CardReading {
+        return CardReading( playerWithTurn, square )
+    }
+
     fun continueRollingForOrder( rollResults: MutableMap < Player, DiceRoll? > ): RollingForOrder {
         return RollingForOrder(
             playerWithTurn = rollResults.entries.first { it.value == null }.key,
-            rollResults = rollResults,
-            phasePhactory = this
+            rollResults = rollResults
         )
     }
 
-    fun movingAPiece( rollingForMove: RollingForMove, destinationSquare: Square ): MovingAPiece {
+    fun movingAPiece( playerWithTurn: Player, destinationSquare: Square ): MovingAPiece {
         return MovingAPiece(
-            playerWithTurn = rollingForMove.playerWithTurn,
-            destinationSquare = destinationSquare,
-            goCreditAmount =  currency.ofAmount( goCreditAmount ),
-            phasePhactory = this
-        )
-    }
-
-    fun rollingForMove( playerWithTurn: Player ): RollingForMove {
-        return RollingForMove(
             playerWithTurn = playerWithTurn,
-            phasePhactory = this
+            destinationSquare = destinationSquare,
+            goCreditAmount = currency.ofAmount( goCreditAmount )
         )
     }
 
-    fun rollingForOrder( game: Game ): RollingForOrder {
-        return this.rollForOrderGivenPlayers( game.players.asSortedList() )
+    fun movingAPieceNotViaGo( playerWithTurn: Player, destinationSquare: Square ): MovingAPiece {
+        return MovingAPiece(
+            playerWithTurn = playerWithTurn,
+            destinationSquare = destinationSquare,
+            goCreditAmount = currency.ofAmount( 0 )
+        )
     }
 
-    fun rollOffAmongstPlayers( players: Set < Player > ): RollingForOrder {
-        return this.rollForOrderGivenPlayers( players = players.sorted() )
+    fun potentialPurchase( playerWithTurn: Player, property: Property ): PotentialPurchase {
+        return PotentialPurchase( playerWithTurn, property )
     }
 
-    private fun rollForOrderGivenPlayers( players: List < Player > )
-            : RollingForOrder {
+    fun potentialRentCharge( playerWithTurn: Player, playerWithTurnStarting: Player, property: Property )
+            : PotentialRentCharge {
+        return PotentialRentCharge(
+            playerOccupyingProperty = playerWithTurn,
+            playerWithTurnStarting = playerWithTurnStarting,
+            occupiedProperty = property
+        )
+    }
+
+    fun rollingForMove( playerToRollNext: Player ): RollingForMove {
+        return RollingForMove( playerToRollNext )
+    }
+
+    fun startRollingForOrder( playerCollection: Collection < Player > ): RollingForOrder {
+        val players = playerCollection.sorted()
         return RollingForOrder(
             playerWithTurn = players.first(),
-            rollResults = players.associateWith { null }.toMutableMap(),
-            phasePhactory = this
+            rollResults = players.associateWith { null }.toMutableMap()
         )
     }
 

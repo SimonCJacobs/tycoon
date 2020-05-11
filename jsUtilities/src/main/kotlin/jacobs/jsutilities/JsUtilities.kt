@@ -2,28 +2,41 @@ package jacobs.jsutilities
 
 import kotlin.reflect.KClass
 
-@Suppress( "UNUSED_VARIABLE" )
-fun Any.absorb( otherObject: dynamic ) {
-    val thisObject = this.asDynamic()
-    js( "Object.assign( thisObject, otherObject )"  )
+@Suppress( "UNUSED_VARIABLE", "UNUSED_PARAMETER" )
+fun absorb( survivingObject: dynamic, otherObject: Any ): dynamic {
+    return js( "Object.assign( survivingObject, otherObject )"  )
 }
-
+/*
+@Suppress( "UNUSED_VARIABLE", "UNUSED_PARAMETER" )
+fun Any.absorbWithAssign( otherObject: dynamic ) {
+    val thisObject = this.asDynamic()
+    js( "Object.assign( thisObject, otherObject )" )
+}
+*/
 fun < T : Any > KClass < T >.createInstance( vararg constructorParameters: Any ): T {
     return instantiateJsClass( this.js, constructorParameters )
 }
 
-fun Map < String, Any >.jsObject(): Any {
+fun Map < String, Any >.toJsObject(): Any {
     val jsObject = object {}.asDynamic()
     this.forEach { jsObject[ it.key ] = it.value }
     return jsObject as Any
 }
 
-fun jsObject(): Any {
-    return object {}
+@Suppress("UNUSED_VARIABLE")
+fun jsObject(): dynamic {
+    return js( "{}" )
 }
 
-fun jsObject( closure: dynamic.() -> Unit ): Any {
-    return object {}.apply( closure )
+@Suppress("UNUSED_VARIABLE")
+fun Any.toJsObject(): dynamic {
+    val thisArg = this
+    return js( "Object.assign( {}, thisArg )" )
+}
+
+fun Any.setProperty( propertyName: String, propertyValue: Any ) {
+    val thisDynamic = this.asDynamic()
+    thisDynamic[ propertyName ] = propertyValue
 }
 
 /**

@@ -1,5 +1,6 @@
 package jacobs.tycoon.domain.board.squares
 
+import jacobs.tycoon.domain.board.cards.Card
 import jacobs.tycoon.domain.board.cards.CardSet
 import kotlinx.serialization.Serializable
 
@@ -12,6 +13,10 @@ class CardSquare(
 
     override fun < T > accept( squareVisitor: SquareVisitor < T > ): T {
         return squareVisitor.visit( this )
+    }
+
+    fun getNextCard(): Card {
+        return this.cardSet.drawCard()
     }
 
 }

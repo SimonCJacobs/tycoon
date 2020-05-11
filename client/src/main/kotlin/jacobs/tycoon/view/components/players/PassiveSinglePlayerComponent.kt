@@ -16,12 +16,33 @@ class PassiveSinglePlayerComponent(
     override val player: Player
 ) : SinglePlayerComponent() {
 
-    override fun getOwnTurnDiceRollDisplay(): VNode {
+    override fun getDiceRollDisplay(): VNode {
+        return this.getTextUpdate( "Turn to roll" )
+    }
+
+    override fun getChargeRentDisplay(): VNode? {
+        return null // Must keep silent!
+    }
+
+    override fun getPropertyPurchaseDisplay(): VNode {
+        return this.getTextUpdate( "Considering purchase" )
+    }
+
+    override fun getReadCardDisplay(): VNode {
+        return this.getTextUpdate( "Reading card" )
+    }
+
+    override fun getAlwaysActions(): Array < VNode? > {
+        return arrayOf() // No actions for the passive player of course!
+    }
+
+    @Suppress( "unused" )
+    private fun getTextUpdate(text: String ): VNode {
         return m( Tag.p ) {
-            attributes {
-                fontStyle = "italic"
-            }
-            content( "Turn to roll" )
+            attributes ( object {
+                val fontStyle = "italic"
+            } )
+            content( text )
         }
     }
 

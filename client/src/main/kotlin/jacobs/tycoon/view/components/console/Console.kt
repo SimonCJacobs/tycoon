@@ -1,6 +1,5 @@
 package jacobs.tycoon.view.components.console
 
-import jacobs.jsutilities.jsObject
 import jacobs.mithril.m
 import jacobs.mithril.Tag
 import jacobs.tycoon.services.ActionWriter
@@ -18,23 +17,25 @@ class Console( kodein: Kodein ) : Component {
         // A list from the first log to the last. So needs to be reversed prior to display
     private val gameLogs: MutableList < String > = mutableListOf()
 
+    @Suppress( "unused" )
     override fun view(): VNode {
         return m( Tag.aside ) {
-            attributes {
-                style = jsObject {
-                    border = "1px solid black"
+            attributes ( object {
+                val style = object {
+                    val border = "1px solid black"
                 }
-            }
+            } )
             child( getLogList() )
         }
     }
 
+    @Suppress( "unused" )
     private fun getLogList(): VNode {
         this.updateGameLogs()
         return m( Tag.ol ) {
-            attributes {
-                reversed = true
-            }
+            attributes ( object {
+                val reversed = true
+            } )
             children( getLogNodesReversed() )
         }
     }

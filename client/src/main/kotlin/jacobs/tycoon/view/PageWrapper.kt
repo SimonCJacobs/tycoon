@@ -28,9 +28,9 @@ class PageWrapper( kodein: Kodein ) : Component {
     private fun getCurrentPage(): Page {
         return when {
             this.uiController.hasGameBeenInitialised() == false -> this.splashPage
-            this.uiController.ownPlayerIsInTheGame() == false && this.uiController.isSignUpPhase()
+            this.uiController.userOfClientMachineHasSignedUpForGame() == false && this.uiController.isSignUpPhase()
                 -> this.entryPage
-            this.uiController.ownPlayerIsInTheGame() == false && false == this.uiController.isSignUpPhase()
+            this.uiController.userOfClientMachineHasSignedUpForGame() == false && false == this.uiController.isSignUpPhase()
                 -> this.noEntryPage
             else -> this.mainPage
         }

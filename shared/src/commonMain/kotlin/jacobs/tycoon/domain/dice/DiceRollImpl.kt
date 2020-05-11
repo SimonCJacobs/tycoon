@@ -16,7 +16,7 @@ class DiceRollImpl( private val numberOfSides: Int ) : DiceRoll() {
     }
 
     private fun rollOneDie(): Int {
-        return Random.nextInt( 1, numberOfSides + 1 )
+        return 3 + Random.nextInt( 0, 2 )// Random.nextInt( 1, numberOfSides + 1 )
     }
 
 }

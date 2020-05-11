@@ -25,7 +25,7 @@ class EntryPageController( kodein: Kodein ) : UserInterfaceController( kodein ) 
     }
 
     fun onEntryPageButtonClick() {
-        if ( this.gameState.game().canNewPlayerJoin() )
+        if ( this.gameState.game().canAnyNewPlayerJoin() )
             this.runServerAddPlayerProcess( entryPageState.playerNameInProgress, entryPageState.selectedPiece!! )
         else
             this.entryPageState.showNoGameEntry = true

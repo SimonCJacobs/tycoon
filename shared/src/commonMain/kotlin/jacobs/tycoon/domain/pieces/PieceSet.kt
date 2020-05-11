@@ -16,7 +16,7 @@ abstract class PieceSet {
     }
 
     fun freezePiecesInUse( players: GamePlayers ) {
-        this.piecesInUse = players.asSortedList().map { eachPlayer -> eachPlayer.piece }
+        this.piecesInUse = players.activeList().map { eachPlayer -> eachPlayer.piece }
     }
 
     fun getAvailablePieces( players: GamePlayers ): List < PlayingPiece > {

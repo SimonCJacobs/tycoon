@@ -28,18 +28,43 @@ abstract class SinglePlayerComponent : Component {
                 m( Tag.h6 ) {
                     child( m( pieceDisplayStrategy.getPieceDisplayComponent( player.piece ) ) )
                 },
-                diceRollDisplay()
+                getActionArea()
             )
         }
     }
 
-    private fun diceRollDisplay(): VNode? {
-        if ( playerActionController.isItOwnTurn() )
-            return this.getOwnTurnDiceRollDisplay()
-        else
-            return null
+    private fun getActionArea(): VNode {
+        return m( Tag.div ) {
+            children(
+                *getOwnTurnDisplays(),
+                *getAlwaysActionsIfInGame()
+            )
+        }
     }
 
-    protected abstract fun getOwnTurnDiceRollDisplay(): VNode
+    private fun getOwnTurnDisplays(): Array < VNode? > {
+        if ( playerActionController.isItOwnTurn() )
+            return arrayOf(
+                if ( playerActionController.isItTimeToRollTheDice() ) getDiceRollDisplay() else null,
+                if ( playerActionController.isThereAChanceToBuyProperty() ) getPropertyPurchaseDisplay() else null,
+                if ( playerActionController.isThereAChanceToChargeRent() ) getChargeRentDisplay() else null,
+                if ( playerActionController.isThereACardToRead() ) getReadCardDisplay() else null
+            )
+        else
+            return emptyArray()
+    }
+
+    private fun getAlwaysActionsIfInGame(): Array < VNode ? > {
+        if ( playerActionController.isGameUnderway() )
+            return getAlwaysActions()
+        else
+            return emptyArray()
+    }
+
+    protected abstract fun getChargeRentDisplay(): VNode?
+    protected abstract fun getDiceRollDisplay(): VNode
+    protected abstract fun getReadCardDisplay(): VNode
+    protected abstract fun getPropertyPurchaseDisplay(): VNode
+    protected abstract fun getAlwaysActions(): Array < VNode? >
 
 }

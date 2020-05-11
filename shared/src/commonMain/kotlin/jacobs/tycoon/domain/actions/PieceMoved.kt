@@ -19,7 +19,7 @@ class PieceMoved : GameAction() {
     }
 
     override suspend fun execute( gameController: GameController ) {
-        this.result = gameController.game().movePieceCompleted()
+        this.result = gameController.completePieceMove( this.actorPosition )
         this.executedSuccessfully()
     }
 
