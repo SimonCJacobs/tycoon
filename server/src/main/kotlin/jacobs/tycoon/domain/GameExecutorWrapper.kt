@@ -1,7 +1,7 @@
 package jacobs.tycoon.domain
 
 import jacobs.tycoon.domain.actions.GameAction
-import jacobs.tycoon.domain.actions.NewGame
+import jacobs.tycoon.domain.actions.gameadmin.NewGame
 import jacobs.tycoon.state.GameHistory
 import kotlinx.coroutines.sync.Mutex
 import org.kodein.di.Kodein
@@ -36,7 +36,7 @@ class GameExecutorWrapper( kodein: Kodein ) : GameExecutor {
      */
     override suspend fun startGame() {
         this.gameExecutor.startGame()
-        this.execute( NewGame() )
+        this.execute(NewGame())
     }
 
 }

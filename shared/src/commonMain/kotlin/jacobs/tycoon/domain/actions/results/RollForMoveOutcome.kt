@@ -1,5 +1,8 @@
 package jacobs.tycoon.domain.actions.results
 
 enum class RollForMoveOutcome {
-    GO_TO_JAIL, MOVE_TO_SQUARE
+    BANKRUPTCY_PROCEEDINGS,
+    GO_TO_JAIL,
+    MOVE_TO_SQUARE,
+    REMAIN_IN_JAIL
 }

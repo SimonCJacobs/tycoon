@@ -11,5 +11,5 @@ enum class MoveOutcome {
     ON_MORTGAGED_PROPERTY,
     POTENTIAL_RENT,
     POTENTIAL_PURCHASE,
-    TAX,
+    TAX
 }

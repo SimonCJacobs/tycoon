@@ -8,9 +8,13 @@ import org.kodein.di.erased.instance
  * Essentially providing a single entry point to the domain and state so that this can be restricted to one
  * coroutine at a time
  */
-class ActualGameExecutor( kodein: Kodein ) : GameExecutor {
+class ActualGameExecutor : GameExecutor {
 
-    private val gameController by kodein.instance < GameController > ()
+    private lateinit var gameController: GameController
+
+    fun registerGameController( gameController: GameController ) {
+        this.gameController = gameController
+    }
 
     override suspend fun execute( action: GameAction) {
         action.execute( this.gameController )

@@ -26,6 +26,10 @@ abstract class PieceSet {
         }
     }
 
+    fun getPieceByName( name: String ): PlayingPiece? {
+        return this.pieces.firstOrNull { it.name == name }
+    }
+
     fun getPiecesOnSquare( square: Square): Set < PlayingPiece > {
         return this.piecesInUse.filter { it.square == square }.toSet()
     }

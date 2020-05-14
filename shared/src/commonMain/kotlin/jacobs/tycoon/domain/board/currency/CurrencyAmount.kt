@@ -5,7 +5,7 @@ import kotlin.math.roundToInt
 
 @Serializable
 data class CurrencyAmount (
-    private val amount: Int,
+    val amount: Int,
     private val currency: Currency
 ) {
 
@@ -23,6 +23,10 @@ data class CurrencyAmount (
 
     fun half(): CurrencyAmount {
         return CurrencyAmount( this.amount / 2, currency )
+    }
+
+    fun isZero(): Boolean {
+        return this.amount == 0
     }
 
     operator fun minus( otherCurrencyAmount: CurrencyAmount ): CurrencyAmount {

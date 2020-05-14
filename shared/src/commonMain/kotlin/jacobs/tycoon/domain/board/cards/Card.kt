@@ -7,6 +7,16 @@ import jacobs.tycoon.domain.phases.TurnBasedPhase
 import jacobs.tycoon.domain.players.Player
 
 class Card(
+    val indexInDeck: Int,
     val instruction: String,
-    val action: PhasePhactory.( Game, Player ) -> TurnBasedPhase
-)
+    val action: CardAction,
+    private val cardSet: CardSet
+) {
+
+    var isRetainedByPlayer: Boolean = false
+
+    fun returnToDeck() {
+        cardSet.returnToDeck( this )
+    }
+
+}

@@ -1,5 +1,6 @@
 package jacobs.tycoon.application
 
+import jacobs.tycoon.clientcontroller.ChangeListener
 import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.services.Network
 import jacobs.tycoon.view.View
@@ -56,6 +57,7 @@ class Application ( kodein: Kodein ) {
 
     fun start() {
         this.coroutineScope.launch {
+            gameController.initialise()
             gameController.startGame()
             network.connect()
             view.initialise()

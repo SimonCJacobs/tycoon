@@ -4,7 +4,10 @@ import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.websockets.SocketId
 
 class ClientState {
+    var isPlayerComposingDeal: Boolean = false
     var isWaitingForServer = true
-    var pieceInDrag: PlayingPiece? = null
-    var socket: SocketId = SocketId.NULL
+    var maybeSocket: SocketId? = null
+    var pieceBeingDragged: PlayingPiece? = null
+    val socketNotNull: SocketId
+        get() = maybeSocket!!
 }

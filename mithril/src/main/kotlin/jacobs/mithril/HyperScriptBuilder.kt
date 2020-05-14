@@ -29,20 +29,28 @@ class HyperScriptBuilder(
     @ExperimentalJsExport
     fun build() : VNode {
         if ( null != this.child )
-            return m( this.tag.toString(), getAttributes(), this.child )
+            return m( this.tag.convert(), getAttributes(), this.child )
         this.children.also {
             if ( null != it )
-                return m( this.tag.toString(), getAttributes(), it )
+                return m( this.tag.convert(), getAttributes(), it )
         }
         this.stringContents.also {
             if ( null != it )
-                return m( this.tag.toString(), getAttributes(), it )
+                return m( this.tag.convert(), getAttributes(), it )
         }
         this.tag.also {
             if ( null != it )
-                return m( it.toString(), getAttributes(), "" )
+                return m( it.convert(), getAttributes(), "" )
         }
         throw Error( "Unknown hyperscript format: all arguments null (*should* never get here!)" )
+    }
+
+    private fun Tag?.convert(): String? {
+        return when( this ) {
+            null -> null
+            Tag.textNode ->  "#"
+            else -> this.toString()
+        }
     }
 
     class Details(

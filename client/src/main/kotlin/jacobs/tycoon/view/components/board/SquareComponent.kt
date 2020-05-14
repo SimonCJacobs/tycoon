@@ -28,6 +28,7 @@ abstract class SquareComponent < TSquare: Square > : Component {
                 val style = object {
                     val backgroundColor = if ( dragIsOverhead ) "orange" else "white"
                     val border = "1.2px solid black"
+                    var cursor = if ( dragIsOverhead ) "move" else "auto"
                     val textAlign = "center"
                 }
             } )

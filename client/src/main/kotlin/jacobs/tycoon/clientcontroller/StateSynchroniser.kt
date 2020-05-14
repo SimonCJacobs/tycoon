@@ -11,6 +11,7 @@ import org.kodein.di.erased.instance
 
 class StateSynchroniser ( kodein: Kodein ) {
 
+    private val changeListener by kodein.instance < ChangeListener >()
     private val clientState by kodein.instance < ClientState >()
     private val gameController by kodein.instance < GameController > ()
     private val gameHistory by kodein.instance < GameHistory >()
@@ -26,6 +27,7 @@ class StateSynchroniser ( kodein: Kodein ) {
 
     private suspend fun applySingleAction( gameAction: GameAction ) {
         this.gameController.duplicate( gameAction )
+        changeListener.onAction( gameAction )
         gameHistory.logAction( gameAction )
     }
 

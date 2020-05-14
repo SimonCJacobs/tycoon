@@ -27,12 +27,8 @@ class PlayerActionController(
         launch { outgoingRequestController.respondToPropertyOffer( true ) }
     }
 
-    fun canBuild(): Boolean {
-        return false // TODO add building option
-    }
-
     fun canPlayerAffordProperty(): Boolean {
-        return this.player.cashHoldings >= ( this.player.square() as Property ).listPrice
+        return this.player.cashHoldings >= ( this.player.location() as Property ).listPrice
     }
 
     fun chargeRent() {
@@ -40,7 +36,7 @@ class PlayerActionController(
     }
 
     fun getPropertyPrice(): String {
-        return ( player.square() as Property ).listPrice.toString()
+        return ( player.location() as Property ).listPrice.toString()
     }
 
     fun isItOwnTurn(): Boolean {
@@ -75,12 +71,8 @@ class PlayerActionController(
         launch { outgoingRequestController.respondToPropertyOffer( false ) }
     }
 
-    fun startNewBuilding() {
-        TODO("Not yet implemented")
-    }
-
-    fun startTrade() {
-        TODO("Not yet implemented")
+    fun startComposingDeal() {
+        this.clientState.isPlayerComposingDeal = true
     }
 
     private suspend fun rollTheDiceSuspended() {

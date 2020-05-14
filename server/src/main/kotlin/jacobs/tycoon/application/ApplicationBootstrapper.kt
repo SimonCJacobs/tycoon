@@ -20,7 +20,7 @@ internal class ApplicationBootstrapper {
     private fun getContainer(): Kodein {
         return Kodein {
             import( applicationModule() )
-            import( domainModule )
+            import( domainModule() )
             import( serverControllerModule() )
             import(serverDomainModule())
             import( settingsModule() )

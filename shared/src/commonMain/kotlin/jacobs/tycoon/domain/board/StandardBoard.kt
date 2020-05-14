@@ -10,6 +10,7 @@ import jacobs.tycoon.domain.board.squares.GoSquare
 import jacobs.tycoon.domain.board.squares.GoToJailSquare
 import jacobs.tycoon.domain.board.squares.JailSquare
 import jacobs.tycoon.domain.board.squares.JustVisitingJailSquare
+import jacobs.tycoon.domain.board.squares.RentCard
 import jacobs.tycoon.domain.board.squares.Square
 import jacobs.tycoon.domain.board.squares.Station
 import jacobs.tycoon.domain.board.squares.Street
@@ -35,8 +36,6 @@ abstract class StandardBoard : Board() {
     @Transient
     override val cardSets = listOf( CommunityChestCards(), ChanceCards() )
     @Transient
-    private val colourGroups = StandardColourGroups
-    @Transient
     override var goSquare: GoSquare = GoSquare.NULL
     @Transient
     override var jailSquare: JailSquare = JailSquare.NULL
@@ -47,6 +46,10 @@ abstract class StandardBoard : Board() {
     override fun buildSquareList(): List < Square > {
         return this.nameListProvider().mapIndexed { index, eachName ->
             this.getNamelessSquareMapList()[ index ]( index, eachName ) }
+    }
+    
+    fun colourGroups(): StandardColourGroups {
+        return StandardColourGroups.instance( currency )
     }
 
     protected abstract fun nameListProvider(): List < String >
@@ -77,7 +80,8 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 60.toCurrency(),
-                    colourGroup = colourGroups.BROWN
+                    rentCard = RentCard( listOf( 2, 10, 30, 90, 160, 250 ), currency ),
+                    colourGroup = colourGroups().BROWN
                 ) },
             { index, name ->
                 CardSquare(
@@ -91,7 +95,8 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 60.toCurrency(),
-                    colourGroup = colourGroups.BROWN
+                    rentCard = RentCard( listOf( 4, 20, 60, 180, 320, 450 ), currency ),
+                    colourGroup = colourGroups().BROWN
                 ) },
             { index, name -> TaxSquare( indexOnBoard = index, name = name, taxCharge = 200.toCurrency()) },
 
@@ -109,7 +114,8 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 100.toCurrency(),
-                    colourGroup = colourGroups.LIGHT_BLUE
+                    rentCard = RentCard( listOf( 6, 30, 90, 270, 400, 550 ), currency ),
+                    colourGroup = colourGroups().LIGHT_BLUE
                 ) },
             { index, name ->
                 CardSquare(
@@ -123,7 +129,8 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 100.toCurrency(),
-                    colourGroup = colourGroups.LIGHT_BLUE
+                    rentCard = RentCard( listOf( 6, 30, 90, 270, 400, 550 ), currency ),
+                    colourGroup = colourGroups().LIGHT_BLUE
 
                 ) },
             { index, name ->
@@ -131,7 +138,8 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 120.toCurrency(),
-                    colourGroup = colourGroups.LIGHT_BLUE
+                    rentCard = RentCard( listOf( 8, 40, 100, 300, 450, 600 ), currency ),
+                    colourGroup = colourGroups().LIGHT_BLUE
                 ) },
 
             { index, _ -> JustVisitingJailSquare( indexOnBoard = index )
@@ -146,7 +154,8 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 140.toCurrency(),
-                    colourGroup = colourGroups.PINK
+                    rentCard = RentCard( listOf( 10, 50, 150, 450, 625, 750 ), currency ),
+                    colourGroup = colourGroups().PINK
                 ) },
             { index, name ->
                 Utility(
@@ -161,14 +170,16 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 140.toCurrency(),
-                    colourGroup = colourGroups.PINK
+                    rentCard = RentCard( listOf( 10, 50, 150, 450, 625, 750 ), currency ),
+                    colourGroup = colourGroups().PINK
                 ) },
             { index, name ->
                 Street(
                     indexOnBoard = index,
                     name = name,
                     listPrice = 160.toCurrency(),
-                    colourGroup = colourGroups.PINK
+                    rentCard = RentCard( listOf( 12, 60, 180, 500, 700, 900 ), currency ),
+                    colourGroup = colourGroups().PINK
                 ) },
 
             { index, name ->
@@ -184,7 +195,8 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 180.toCurrency(),
-                    colourGroup = colourGroups.ORANGE
+                    rentCard = RentCard( listOf( 14, 70, 200, 550, 750, 950 ), currency ),
+                    colourGroup = colourGroups().ORANGE
                 ) },
             { index, name ->
                 CardSquare(
@@ -198,14 +210,16 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 180.toCurrency(),
-                    colourGroup = colourGroups.ORANGE
+                    rentCard = RentCard( listOf( 14, 70, 200, 550, 750, 950 ), currency ),
+                    colourGroup = colourGroups().ORANGE
                 ) },
             { index, name ->
                 Street(
                     indexOnBoard = index,
                     name = name,
                     listPrice = 200.toCurrency(),
-                    colourGroup = colourGroups.ORANGE
+                    rentCard = RentCard( listOf( 16, 80, 220, 600, 8000, 1000 ), currency ),
+                    colourGroup = colourGroups().ORANGE
                 ) },
 
             { index, name -> FreeParkingSquare( indexOnBoard = index, name = name ) },
@@ -215,7 +229,8 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 220.toCurrency(),
-                    colourGroup = colourGroups.RED
+                    rentCard = RentCard( listOf( 18, 90, 250, 700, 875, 1050 ), currency ),
+                    colourGroup = colourGroups().RED
                 ) },
             { index, name ->
                 CardSquare(
@@ -229,14 +244,16 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 220.toCurrency(),
-                    colourGroup = colourGroups.RED
+                    rentCard = RentCard( listOf( 18, 90, 250, 700, 875, 1050 ), currency ),
+                    colourGroup = colourGroups().RED
                 ) },
             { index, name ->
                 Street(
                     indexOnBoard = index,
                     name = name,
                     listPrice = 240.toCurrency(),
-                    colourGroup = colourGroups.RED
+                    rentCard = RentCard( listOf( 20, 100, 300, 750, 925, 1100 ), currency ),
+                    colourGroup = colourGroups().RED
                 ) },
 
             { index, name ->
@@ -253,14 +270,16 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 260.toCurrency(),
-                    colourGroup = colourGroups.YELLOW
+                    rentCard = RentCard( listOf( 22, 110, 330, 800, 975, 1150 ), currency ),
+                    colourGroup = colourGroups().YELLOW
                 ) },
             { index, name ->
                 Street(
                     indexOnBoard = index,
                     name = name,
                     listPrice = 260.toCurrency(),
-                    colourGroup = colourGroups.YELLOW
+                    rentCard = RentCard( listOf( 22, 110, 330, 800, 975, 1150 ), currency ),
+                    colourGroup = colourGroups().YELLOW
                 ) },
             { index, name ->
                 Utility(
@@ -275,7 +294,8 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 280.toCurrency(),
-                    colourGroup = colourGroups.YELLOW
+                    rentCard = RentCard( listOf( 24, 120, 360, 850, 1025, 1200 ), currency ),
+                    colourGroup = colourGroups().YELLOW
                 )
             },
 
@@ -286,7 +306,8 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 300.toCurrency(),
-                    colourGroup = colourGroups.GREEN
+                    rentCard = RentCard( listOf( 26, 130, 390, 900, 1100, 1275 ), currency ),
+                    colourGroup = colourGroups().GREEN
                 )
             },
             { index, name ->
@@ -294,7 +315,8 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 300.toCurrency(),
-                    colourGroup = colourGroups.GREEN
+                    rentCard = RentCard( listOf( 26, 130, 390, 900, 1100, 1275 ), currency ),
+                    colourGroup = colourGroups().GREEN
                 )
             },
             { index, name ->
@@ -309,7 +331,8 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 320.toCurrency(),
-                    colourGroup = colourGroups.GREEN
+                    rentCard = RentCard( listOf( 28, 150, 450, 1000, 1200, 1400 ), currency ),
+                    colourGroup = colourGroups().GREEN
                 )
             },
 
@@ -335,7 +358,8 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 350.toCurrency(),
-                    colourGroup = colourGroups.DARK_BLUE
+                    rentCard = RentCard( listOf( 35, 175, 500, 1100, 1300, 1500 ), currency ),
+                    colourGroup = colourGroups().DARK_BLUE
                 )
             },
             {
@@ -346,7 +370,8 @@ abstract class StandardBoard : Board() {
                     indexOnBoard = index,
                     name = name,
                     listPrice = 400.toCurrency(),
-                    colourGroup = colourGroups.DARK_BLUE
+                    rentCard = RentCard( listOf( 50, 200, 600, 1400, 1700, 2000 ), currency ),
+                    colourGroup = colourGroups().DARK_BLUE
                 )
             }
         )

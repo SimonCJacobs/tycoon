@@ -1,5 +1,6 @@
 package jacobs.tycoon.domain.phases
 
+import jacobs.tycoon.domain.actions.results.RentChargeOutcome
 import jacobs.tycoon.domain.actions.results.RentChargeResult
 import jacobs.tycoon.domain.board.currency.CurrencyAmount
 import jacobs.tycoon.domain.board.squares.Property
@@ -9,15 +10,14 @@ import jacobs.tycoon.domain.board.squares.Street
 import jacobs.tycoon.domain.board.squares.Utility
 import jacobs.tycoon.domain.dice.DiceRoll
 import jacobs.tycoon.domain.players.Player
+import jacobs.tycoon.domain.rules.JailRules
 
 class PotentialRentCharge (
     val playerOccupyingProperty: Player,
     playerWithTurnStarting: Player,
-    val occupiedProperty: Property
-) : RollingForMove( playerWithTurnStarting ) {
-
-    var requireBankruptcyProceedings = false
-        private set
+    val occupiedProperty: Property,
+    jailRules: JailRules
+) : RollingForMove( playerWithTurnStarting, jailRules ) {
 
     override fun accept(turnBasedPhaseVisitor: TurnBasedPhaseVisitor ) {
         turnBasedPhaseVisitor.visit( this )
@@ -30,25 +30,29 @@ class PotentialRentCharge (
     fun chargeRent( owner: Player ): RentChargeResult {
         val rentDue = this.getRentDue( owner )
         if ( rentDue > playerOccupyingProperty.cashHoldings )
-            this.requireBankruptcyProceedings = true
+            return this.getResult( rentDue, RentChargeOutcome.BANKRUPTCY_PROCEEDINGS )
         else
-            this.completeRentTransaction( rentDue, owner )
-        return this.generateResult( rentDue )
+            return this.chargeRentAndGetResult( rentDue, owner )
     }
 
     private fun getRentDue( owner: Player ): CurrencyAmount {
         return this.occupiedProperty.accept( RentVisitor( owner, playerWithTurn.lastDiceRoll() ) )
     }
 
-    private fun generateResult( rentDue: CurrencyAmount ): RentChargeResult {
-        return RentChargeResult(
-            rentDue = rentDue
-        )
+    private fun chargeRentAndGetResult( rentDue: CurrencyAmount, owner: Player ): RentChargeResult {
+        completeRentTransaction( rentDue, owner )
+        return this.getResult( rentDue, RentChargeOutcome.RENT_PAID )
     }
 
     private fun completeRentTransaction( rentDue: CurrencyAmount, owner: Player ) {
         playerOccupyingProperty.debitFunds( rentDue )
         owner.creditFunds( rentDue )
+    }
+
+    private fun getResult( rentDue: CurrencyAmount, outcome: RentChargeOutcome ): RentChargeResult {
+        return RentChargeResult(
+            rentDue = rentDue, outcome = outcome
+        )
     }
 
     class RentVisitor( private val owner: Player, private val lastRoll: DiceRoll ) : PropertyVisitor < CurrencyAmount > {

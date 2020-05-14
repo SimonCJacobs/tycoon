@@ -12,6 +12,7 @@ fun squareSerializerModule(): SerialModule {
             GoToJailSquare::class with GoToJailSquare.serializer()
             JailSquare::class with JailSquare.serializer()
             JustVisitingJailSquare::class with JustVisitingJailSquare.serializer()
+            NullProperty::class with NullProperty.serializer()
             NullSquare::class with NullSquare.serializer()
             Station::class with Station.serializer()
             Street::class with Street.serializer()

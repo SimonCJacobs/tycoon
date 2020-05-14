@@ -7,8 +7,8 @@ import kotlinx.serialization.Transient
 class ChanceCards : CardSet() {
 
     @Transient
-    override val cardList: List < Card > = listOf(
-        Card( "Advance to \"Go\"" )
+    override val cardContentsList: List < Pair < String, CardAction > > = listOf(
+        "Advance to \"Go\"" to
             { game, player -> movingAPiece( player, game.board.goSquare ) }
     )
 

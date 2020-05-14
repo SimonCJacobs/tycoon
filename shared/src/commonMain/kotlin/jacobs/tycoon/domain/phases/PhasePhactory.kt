@@ -1,23 +1,30 @@
 package jacobs.tycoon.domain.phases
 
+import jacobs.tycoon.domain.actions.trading.TradeOffer
 import jacobs.tycoon.domain.board.currency.Currency
 import jacobs.tycoon.domain.board.squares.CardSquare
 import jacobs.tycoon.domain.board.squares.Property
 import jacobs.tycoon.domain.board.squares.Square
 import jacobs.tycoon.domain.dice.DiceRoll
 import jacobs.tycoon.domain.players.Player
+import jacobs.tycoon.domain.rules.JailRules
+import jacobs.tycoon.domain.rules.MiscellaneousRules
+import jacobs.tycoon.domain.services.auction.Auctioneer
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 
 class PhasePhactory( kodein: Kodein ) {
 
+    private val auctioneer by kodein.instance < Auctioneer > ()
     private val currency by kodein.instance < Currency > ()
-    private val goCreditAmount by kodein.instance < Int > ( tag = "goCreditAmount" )
+    private val jailRules by kodein.instance < JailRules > ()
+    private val miscellaneousRules by kodein.instance < MiscellaneousRules > ()
 
     fun auctionProperty( playerWithTurn: Player, property: Property ): AuctionProperty {
         return AuctionProperty(
             playerWithTurn = playerWithTurn,
-            targetProperty = property
+            property = property,
+            auctioneer = auctioneer
         )
     }
 
@@ -39,11 +46,15 @@ class PhasePhactory( kodein: Kodein ) {
         )
     }
 
+    fun crownTheVictor( theWinner: Player ): TurnBasedPhase {
+        return CrownTheVictor( theWinner )
+    }
+
     fun movingAPiece( playerWithTurn: Player, destinationSquare: Square ): MovingAPiece {
         return MovingAPiece(
             playerWithTurn = playerWithTurn,
             destinationSquare = destinationSquare,
-            goCreditAmount = currency.ofAmount( goCreditAmount )
+            goCreditAmount = miscellaneousRules.goCreditAmount
         )
     }
 
@@ -55,6 +66,10 @@ class PhasePhactory( kodein: Kodein ) {
         )
     }
 
+    fun offerTrade( playerWithTurn: Player, tradeOffer: TradeOffer ): TradeBeingConsidered {
+        return TradeBeingConsidered( playerWithTurn, tradeOffer )
+    }
+
     fun potentialPurchase( playerWithTurn: Player, property: Property ): PotentialPurchase {
         return PotentialPurchase( playerWithTurn, property )
     }
@@ -64,12 +79,17 @@ class PhasePhactory( kodein: Kodein ) {
         return PotentialRentCharge(
             playerOccupyingProperty = playerWithTurn,
             playerWithTurnStarting = playerWithTurnStarting,
-            occupiedProperty = property
+            occupiedProperty = property,
+            jailRules = jailRules
         )
     }
 
     fun rollingForMove( playerToRollNext: Player ): RollingForMove {
-        return RollingForMove( playerToRollNext )
+        return RollingForMove( playerToRollNext, jailRules )
+    }
+
+    fun rollingForMoveFromJail( playerToRollNext: Player ): RollingForMoveFromJail {
+        return RollingForMoveFromJail( playerToRollNext, jailRules )
     }
 
     fun startRollingForOrder( playerCollection: Collection < Player > ): RollingForOrder {

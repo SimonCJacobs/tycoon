@@ -2,7 +2,6 @@ package jacobs.tycoon.view.components.players
 
 import jacobs.mithril.MouseEventHandler
 import jacobs.mithril.Tag
-import org.js.mithril.Component
 import jacobs.mithril.m
 import jacobs.tycoon.clientcontroller.PlayerActionController
 import jacobs.tycoon.domain.players.Player
@@ -44,22 +43,17 @@ class ActiveSinglePlayerComponent(
     }
 
     override fun getReadCardDisplay(): VNode {
-        return getButtonWithTextAndHandler( "Read card") { playerActionController.readCard() }
+        return getButtonWithTextAndHandler( "Read card" ) { playerActionController.readCard() }
     }
 
     override fun getAlwaysActions(): Array < VNode? > {
         return arrayOf(
-            this.getTradingOption(),
-            if ( this.playerActionController.canBuild() ) this.getBuildingOption() else null
+            this.getDealingOption()
         )
     }
 
-    private fun getTradingOption(): VNode {
-        return getButtonWithTextAndHandler( "Trade" ) { playerActionController.startTrade() }
-    }
-
-    private fun getBuildingOption(): VNode {
-        return getButtonWithTextAndHandler( "Build" ) { playerActionController.startNewBuilding() }
+    private fun getDealingOption(): VNode {
+        return getButtonWithTextAndHandler( "Do dealing" ) { playerActionController.startComposingDeal() }
     }
 
     @Suppress( "unused" )

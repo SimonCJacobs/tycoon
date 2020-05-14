@@ -2,12 +2,11 @@ package jacobs.tycoon.state
 
 import jacobs.tycoon.domain.GameExecutor
 import jacobs.tycoon.domain.GameExecutorWrapper
-import jacobs.tycoon.domain.actions.SetBoard
-import jacobs.tycoon.domain.actions.SetPieces
+import jacobs.tycoon.domain.actions.gameadmin.SetBoard
+import jacobs.tycoon.domain.actions.gameadmin.SetPieces
 import jacobs.tycoon.domain.board.LondonBoard
 import jacobs.tycoon.domain.board.currency.PoundsSterling
 import jacobs.tycoon.domain.pieces.ClassicPieces
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -38,7 +37,7 @@ class GameExecutorWrapperTest {
     fun `Executes underlying update call when setting Board`() {
         runBlocking {
             val dummyController = mock( GameExecutor::class.java )
-            val londonBoardAction = SetBoard( LondonBoard( PoundsSterling() ) )
+            val londonBoardAction = SetBoard(LondonBoard(PoundsSterling()))
             mockitoWhen( dummyController.execute( londonBoardAction ) )
                 .then {
                     londonBoardAction.executed = true
@@ -56,7 +55,7 @@ class GameExecutorWrapperTest {
     fun `Executes underlying update call when setting pieces`() {
         runBlocking {
             val dummyController = mock( GameExecutor::class.java )
-            val pieceSetAction = SetPieces( ClassicPieces() )
+            val pieceSetAction = SetPieces(ClassicPieces())
             mockitoWhen( dummyController.execute( pieceSetAction ) )
                 .then {
                     pieceSetAction.executed = true

@@ -6,6 +6,7 @@ import jacobs.tycoon.domain.board.Board
 import jacobs.mithril.m
 import jacobs.mithril.Tag
 import jacobs.tycoon.clientcontroller.BoardController
+import jacobs.tycoon.view.components.board.centre.CentreCellReposifactory
 import org.kodein.di.Kodein
 import org.kodein.di.direct
 import org.kodein.di.erased.instance
@@ -13,7 +14,7 @@ import org.kodein.di.erased.instance
 class BoardComponent( kodein: Kodein ) : Component {
 
     private val boardController by kodein.instance < BoardController > ()
-    private val gameName by kodein.instance < String > ( tag = "gameName" )
+    private val centreCellReposifactory by kodein.instance < CentreCellReposifactory > ()
 
     private fun board(): Board {
         return boardController.board()
@@ -81,7 +82,11 @@ class BoardComponent( kodein: Kodein ) : Component {
 
     private fun getSecondRowGivenSecondSideSquares( leftSquare: SquareComponent < * >,
                                                     rightSquare: SquareComponent < * > ): VNode {
-        return listOf( m( leftSquare), this.getCentreCell(), m( rightSquare ) )
+        return listOf(
+            leftSquare,
+            this.centreCellReposifactory.getCentreCell( squaresToASideExcludingCorners ),
+            rightSquare
+        )
             .wrapInTableRow()
     }
 
@@ -108,15 +113,6 @@ class BoardComponent( kodein: Kodein ) : Component {
             .map { this.squares[ it ] }
     }
 
-    private fun getCentreCell(): VNode {
-        if ( this.boardController.isReadingCard() )
-            return m( CardCentreCellComponent(
-                this.boardController.getCardBeingRead(), squaresToASideExcludingCorners
-            ) )
-        else
-            return m( LogoCentreCellComponent( gameName, squaresToASideExcludingCorners ) )
-    }
-
     private fun putPairInRow( pair: Pair < SquareComponent < * >, SquareComponent < * > > ): VNode {
         return m( Tag.tr ) {
             children( m( pair.first ), m( pair.second ) )
@@ -128,7 +124,7 @@ class BoardComponent( kodein: Kodein ) : Component {
             .map { listOne[ it ] to listTwo[ it ] }
     }
 
-    private fun List < SquareComponent < * > >.wrapInTableRow() : VNode {
+    private fun List < Component >.wrapInTableRow() : VNode {
         val componentList = this
         return m( Tag.tr ) {
             children( m.map( componentList ) )

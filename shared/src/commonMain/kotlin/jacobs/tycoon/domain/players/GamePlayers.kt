@@ -8,6 +8,10 @@ class GamePlayers {
 
     private val playersAndIfInGame: MutableMap < Player, Boolean > = mutableMapOf()
 
+    fun activeCount(): Int {
+        return this.activeList().size
+    }
+
     fun addPlayer( player: Player ): Boolean {
         this.playersAndIfInGame.put( player, true )
         return true
@@ -27,6 +31,10 @@ class GamePlayers {
 
     fun eliminatePlayerFromGame( player: Player ) {
         this.playersAndIfInGame.put( player, false )
+    }
+
+    fun getByName( name: String ): Player? {
+        return this.playersAndIfInGame.keys.firstOrNull { name == it.name }
     }
 
     fun getPiecesInUse(): Set < PlayingPiece > {

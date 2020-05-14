@@ -17,11 +17,11 @@ class PieceController ( kodein: Kodein ) : UserInterfaceController( kodein ) {
     }
 
     fun removePieceInDrag() {
-        this.clientState.pieceInDrag = null
+        this.clientState.pieceBeingDragged = null
     }
 
     fun setPieceInDrag( playingPiece: PlayingPiece ) {
-        this.clientState.pieceInDrag = playingPiece
+        this.clientState.pieceBeingDragged = playingPiece
     }
 
 }

@@ -17,6 +17,11 @@ class PieceComponent (
         return m( Tag.div ) {
             attributes ( object {
                 val draggable = true // Pieces are always draggable. Why not? :)
+                val style = object {
+                    val cursor = "grab"
+                    val display = "inline-block"
+                    val padding = "4px"
+                }
             } )
             eventHandlers {
                 ondragstart = { pieceController.setPieceInDrag( playingPiece ) }

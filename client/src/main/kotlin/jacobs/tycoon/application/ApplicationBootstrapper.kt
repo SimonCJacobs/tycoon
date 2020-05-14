@@ -2,6 +2,7 @@ package jacobs.tycoon.application
 
 import jacobs.tycoon.clientstate.clientStateModule
 import jacobs.tycoon.clientcontroller.clientControllerModule
+import jacobs.tycoon.domain.clientDomainModule
 import jacobs.tycoon.domain.domainModule
 import jacobs.tycoon.services.servicesModule
 import jacobs.tycoon.settings.settingsModule
@@ -21,9 +22,10 @@ class ApplicationBootstrapper {
     private fun createApplication(): Application {
         val kodein = Kodein {
             import( applicationModule() )
+            import( clientDomainModule() )
             import( clientStateModule )
             import( clientControllerModule() )
-            import( domainModule )
+            import( domainModule() )
             import( servicesModule() )
             import( settingsModule() )
             import( sharedStateModule() )

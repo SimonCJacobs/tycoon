@@ -3,6 +3,7 @@ package jacobs.tycoon.clientcontroller
 import jacobs.tycoon.clientstate.ClientState
 import jacobs.tycoon.controller.communication.toPosition
 import jacobs.tycoon.domain.phases.SignUp
+import jacobs.tycoon.services.PlayerIdentifier
 import jacobs.tycoon.state.GameState
 import kotlinx.coroutines.CoroutineScope
 import org.kodein.di.Kodein
@@ -13,6 +14,7 @@ open class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.
 
     private val clientState by kodein.instance < ClientState > ()
     private val gameState by kodein.instance < GameState > ()
+    private val playerIdentifier by kodein.instance <PlayerIdentifier> ()
 
     fun isClientWaitingForServer(): Boolean {
         return this.clientState.isWaitingForServer
@@ -31,12 +33,13 @@ open class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.
     }
 
     protected fun isTurnOfOwnPlayer(): Boolean {
-        val ownPlayer = gameState.game().players.getPlayerAtPosition( clientState.socket.toPosition() )
-        return gameState.game().isTurnOfPlayer( ownPlayer )
+        return gameState.game().isTurnOfPlayer(
+            playerIdentifier.playerUsingThisMachine
+        )
     }
 
     fun userOfClientMachineHasSignedUpForGame(): Boolean {
-        return this.gameState.game().players.hasPlayerInPositionSignedUp( clientState.socket.toPosition() )
+        return this.playerIdentifier.hasUserOfThisMachineSignedUpForGame()
     }
 
 }

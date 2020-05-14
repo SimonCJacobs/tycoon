@@ -1,30 +1,40 @@
 package jacobs.tycoon.services
 
 import jacobs.tycoon.domain.actions.ActionVisitor
-import jacobs.tycoon.domain.actions.AddPlayer
-import jacobs.tycoon.domain.actions.ReadCard
-import jacobs.tycoon.domain.actions.CompleteSignUp
+import jacobs.tycoon.domain.actions.gameadmin.AddPlayer
+import jacobs.tycoon.domain.actions.cards.ReadCard
+import jacobs.tycoon.domain.actions.gameadmin.CompleteSignUp
 import jacobs.tycoon.domain.actions.GameAction
-import jacobs.tycoon.domain.actions.NewGame
-import jacobs.tycoon.domain.actions.PieceMoved
-import jacobs.tycoon.domain.actions.RentCharge
-import jacobs.tycoon.domain.actions.RespondToPropertyOffer
-import jacobs.tycoon.domain.actions.RollForMove
-import jacobs.tycoon.domain.actions.RollForOrderAction
-import jacobs.tycoon.domain.actions.SetBoard
-import jacobs.tycoon.domain.actions.SetPieces
+import jacobs.tycoon.domain.actions.auction.AuctionBid
+import jacobs.tycoon.domain.actions.auction.AuctionNotification
+import jacobs.tycoon.domain.actions.auction.ConcludeAuction
+import jacobs.tycoon.domain.actions.cards.PlayGetOutOfJailFreeCard
+import jacobs.tycoon.domain.actions.gameadmin.NewGame
+import jacobs.tycoon.domain.actions.moving.PieceMoved
+import jacobs.tycoon.domain.actions.property.RentCharge
+import jacobs.tycoon.domain.actions.property.RespondToPropertyOffer
+import jacobs.tycoon.domain.actions.moving.RollForMove
+import jacobs.tycoon.domain.actions.moving.RollForOrderAction
+import jacobs.tycoon.domain.actions.gameadmin.SetBoard
+import jacobs.tycoon.domain.actions.gameadmin.SetPieces
+import jacobs.tycoon.domain.actions.property.Build
+import jacobs.tycoon.domain.actions.property.MortgageProperty
+import jacobs.tycoon.domain.actions.property.PayOffMortgage
+import jacobs.tycoon.domain.actions.property.SellBuildings
 import jacobs.tycoon.domain.actions.results.MoveOutcome
 import jacobs.tycoon.domain.actions.results.RollForMoveOutcome
 import jacobs.tycoon.domain.actions.results.RollForOrderOutcome
+import jacobs.tycoon.domain.actions.trading.OfferTrade
+import jacobs.tycoon.domain.actions.trading.RespondToTradeOffer
 import jacobs.tycoon.domain.players.SeatingPosition
-import jacobs.tycoon.state.GameState
+import jacobs.tycoon.domain.services.auction.AuctionPhase
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 
-class ActionWriter( kodein: Kodein ) : ActionProcessor < String >, ActionVisitor < String > {
+class ActionWriter( kodein: Kodein ) : ActionProcessor < String >, ActionVisitor < String? > {
 
     private val gameName by kodein.instance < String > ( tag = "gameName" )
-    private val gameState by kodein.instance < GameState > ()
+    private val playerIdentifier by kodein.instance < PlayerIdentifier > ()
 
     override fun process( gameAction: GameAction ): String? {
         if ( false == gameAction.successful )
@@ -32,63 +42,57 @@ class ActionWriter( kodein: Kodein ) : ActionProcessor < String >, ActionVisitor
         return gameAction.accept( this )
     }
 
-    override fun visit( addPlayer: AddPlayer ): String {
+    override fun visit( addPlayer: AddPlayer): String {
         return "Player ${ addPlayer.playerName } has joined using piece ${ addPlayer.playingPiece.name }"
     }
 
-    override fun visit( completeSignUp: CompleteSignUp ): String {
+    override fun visit( auctionBid: AuctionBid ): String? {
+        // Not used. The players get good information elsewhere during the auction.
+        return null
+    }
+
+    override fun visit( auctionNotification: AuctionNotification ): String? {
+        // Not used. The players get good information elsewhere during the auction.
+        return null
+    }
+
+    override fun visit( build: Build ): String {
+        return "Nice new pads you have there ${ build.actorPosition.name() }"
+    }
+
+    override fun visit( completeSignUp: CompleteSignUp): String {
         return "The game sign-up stage is complete. Let's roll the dice to see the order of play :)"
     }
 
-    override fun visit( newGame: NewGame ): String {
+    override fun visit( concludeAuction: ConcludeAuction ): String {
+        if ( concludeAuction.status.areThereBids() )
+            return "It's all over. Sold for ${ concludeAuction.status.leadingBidNotNull } to " +
+                "${ concludeAuction.status.leadingBidderNotNull.name }. Hearty congratulations"
+        else
+            return "Well that's disappointing. No-one wanted it :( Let's move along now"
+    }
+
+    override fun visit( mortgageProperty: MortgageProperty ): String {
+        return "Tough times eh? ${ mortgageProperty.actorPosition.name() } mortgaged " +
+            "${ mortgageProperty.property }"
+    }
+
+    override fun visit( newGame: NewGame): String {
         return "A new game of $gameName has begun!"
     }
 
-    override fun visit( readCard: ReadCard ): String {
-        return "The card said: <i>${ readCard.result.cardText }</i>"
+    override fun visit( offerTrade: OfferTrade ): String {
+        return "Hang on a sec! ${ offerTrade.actorPosition.name() } offered a trade to " +
+            offerTrade.tradeOffer.offerRecipient.name
     }
 
-    override fun visit( respondToPropertyOffer: RespondToPropertyOffer ): String {
-        return when ( respondToPropertyOffer.decidedToBuy ) {
-            true -> "Congratulations on your purchase, ${ respondToPropertyOffer.actorPosition.name() }. " +
-                "May it bring you much happiness"
-            false -> "Something wrong with the goods, pal? Ok, it's going under the hammer"
-        }
+    override fun visit( payOffMortgage: PayOffMortgage ): String {
+        return "Well done, ${ payOffMortgage.actorPosition.name() }. That's " +
+            "${ payOffMortgage.property.name } back in play "
     }
 
-    override fun visit( rollForOrder: RollForOrderAction ): String {
-        return "${ rollForOrder.actorPosition.name() } rolled " +
-            "${ rollForOrder.result.diceRoll.inWordAndNumber() }. " + this.getRollForOrderAddendum( rollForOrder )
-    }
-
-    private fun getRollForOrderAddendum( rollForOrder: RollForOrderAction ): String {
-        return when( rollForOrder.result.nextPhase ) {
-            RollForOrderOutcome.ROLLING -> "Let's keep rolling."
-            RollForOrderOutcome.COMPLETE ->
-                "So... ${ rollForOrder.result.winner.name } got the highest and will start the game"
-            RollForOrderOutcome.ROLL_OFF -> "It's a roll off!"
-        }
-    }
-
-    override fun visit( rollForMove: RollForMove ): String {
-        return "${ rollForMove.actorPosition.name() } rolled " +
-            "${ rollForMove.result.diceRoll.inWordAndNumber() }. " + this.getRollForMoveAddendum( rollForMove )
-    }
-
-    private fun getRollForMoveAddendum( rollForMove: RollForMove ): String {
-        return when( rollForMove.result.outcome ) {
-            RollForMoveOutcome.GO_TO_JAIL -> "That's a third double in a row... which means some time in the can."
-            RollForMoveOutcome.MOVE_TO_SQUARE -> this.getRandomMovingPhrase()
-        }
-    }
-
-    private fun getRandomMovingPhrase(): String {
-        return listOf( "On yer bike!", "Well what are you waiting for?", "Moving time.", "Chop chop",
-            "Please proceed to your destination", "Start those engines" ).random()
-    }
-
-    override fun visit( pieceMoved: PieceMoved ): String {
-        return "Welcome to ${ pieceMoved.result.destinationSquare.name }! " +
+    override fun visit( pieceMoved: PieceMoved): String {
+        return "Welcome to ${ pieceMoved.result.destinationSquare.name }, ${ pieceMoved.actorPosition.name() }! " +
             this.getSnippetForMoveOutcome( pieceMoved.result.outcome )
     }
 
@@ -108,20 +112,83 @@ class ActionWriter( kodein: Kodein ) : ActionProcessor < String >, ActionVisitor
         }
     }
 
-    override fun visit( rentCharge: RentCharge ): String {
+    override fun visit( playGetOutOfJailFreeCard: PlayGetOutOfJailFreeCard ): String {
+        return "Where did you get that nugget? Ok, you are free to go."
+    }
+
+
+    override fun visit( readCard: ReadCard): String {
+        return "The card said: \"${ readCard.result.cardText }\""
+    }
+
+    override fun visit( respondToPropertyOffer: RespondToPropertyOffer): String {
+        return when ( respondToPropertyOffer.decidedToBuy ) {
+            true -> "Congratulations on your purchase, ${ respondToPropertyOffer.actorPosition.name() }. " +
+                "May it bring you much happiness"
+            false -> "Something wrong with the goods, pal? Ok, it's going under the hammer"
+        }
+    }
+
+    override fun visit( respondToTradeOffer: RespondToTradeOffer ): String {
+        val response = if ( respondToTradeOffer.response )
+            " YES! Let's switch things around."
+        else
+            "... no. As you were then."
+        return "And the answer is:${ response }"
+    }
+
+    override fun visit( rollForOrder: RollForOrderAction ): String {
+        return "${ rollForOrder.actorPosition.name() } rolled " +
+            "${ rollForOrder.result.diceRoll.inWordAndNumber() }. " + this.getRollForOrderAddendum( rollForOrder )
+    }
+
+    private fun getRollForOrderAddendum( rollForOrder: RollForOrderAction ): String {
+        return when( rollForOrder.result.nextPhase ) {
+            RollForOrderOutcome.ROLLING -> "Let's keep rolling."
+            RollForOrderOutcome.COMPLETE ->
+                "So... ${ rollForOrder.result.winner.name } got the highest and will start the game"
+            RollForOrderOutcome.ROLL_OFF -> "It's a roll off!"
+        }
+    }
+
+    override fun visit( rollForMove: RollForMove): String {
+        return "${ rollForMove.actorPosition.name() } rolled " +
+            "${ rollForMove.result.diceRoll.inWordAndNumber() }. " + this.getRollForMoveAddendum( rollForMove )
+    }
+
+    private fun getRollForMoveAddendum( rollForMove: RollForMove): String {
+        return when( rollForMove.result.outcome ) {
+            RollForMoveOutcome.GO_TO_JAIL -> "That's a third double in a row... which means some time in the can."
+            RollForMoveOutcome.MOVE_TO_SQUARE -> this.getRandomMovingPhrase()
+            RollForMoveOutcome.BANKRUPTCY_PROCEEDINGS -> "Uh oh. Your time's up"
+            RollForMoveOutcome.REMAIN_IN_JAIL -> "You stay where you are, pal"
+        }
+    }
+
+    private fun getRandomMovingPhrase(): String {
+        return listOf( "On yer bike!", "Well what are you waiting for?", "Moving time.", "Chop chop",
+            "Please proceed to your destination", "Start those engines" ).random()
+    }
+
+    override fun visit( rentCharge: RentCharge): String {
         return "That'll be ${ rentCharge.result.rentDue } please for your visit. Ain't a free country you know"
     }
 
-    override fun visit( setBoard: SetBoard ): String {
+    override fun visit( sellBuildings: SellBuildings ): String {
+        return "Fair enough, ${ sellBuildings.actorPosition.name() }. Hope you find something nice to " +
+            "spend the money on"
+    }
+
+    override fun visit( setBoard: SetBoard): String {
         return "Using board with locations in ${ setBoard.board.location }"
     }
 
-    override fun visit( setPieces: SetPieces ): String {
+    override fun visit( setPieces: SetPieces): String {
         return "Using \"${ setPieces.pieceSet.name }\" piece set"
     }
 
     private fun SeatingPosition.name(): String {
-        return this.getPlayer( gameState.game() ).name
+        return playerIdentifier.getPlayerFromSeatingPosition( this ).name
     }
 
 }

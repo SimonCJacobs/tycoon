@@ -1,15 +1,18 @@
 package jacobs.tycoon.domain.services
 
 import jacobs.tycoon.domain.Game
+import jacobs.tycoon.domain.bank.Bank
+import jacobs.tycoon.domain.rules.MiscellaneousRules
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 
 class GameFactory( kodein: Kodein ) {
 
-    private val minimumNumberOfPlayers by kodein.instance < Int > ( tag = "minimumPlayers" )
+    private val miscellaneousRules by kodein.instance < MiscellaneousRules > ()
 
     fun newGame(): Game {
-        return Game(minimumNumberOfPlayers)
+        val bank = Bank( miscellaneousRules )
+        return Game( bank, miscellaneousRules.minimumNumberOfPlayers )
     }
 
 }

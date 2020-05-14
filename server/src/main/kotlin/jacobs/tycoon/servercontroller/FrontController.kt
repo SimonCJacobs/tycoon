@@ -9,7 +9,7 @@ import org.kodein.di.erased.instance
 
 internal class FrontController( kodein: Kodein ) {
 
-    private val gameController by kodein.instance < GameExecutor > ( tag = "wrapper" )
+    private val gameExecutor by kodein.instance < GameExecutor > ( tag = "wrapper" )
 
     @Suppress( "RedundantSuspendModifier", "UNUSED_PARAMETER" )
     suspend fun dealWithNotification( requestObject: MessageContent ) {
@@ -18,7 +18,7 @@ internal class FrontController( kodein: Kodein ) {
 
     suspend fun dealWithRequest( requestMessage: MessageContent, requestSocket: SocketId ): MessageContent {
         val request = requestMessage as Request
-        val requestDispatcher = RequestDispatcher( request, requestSocket, gameController )
+        val requestDispatcher = RequestDispatcher( request, requestSocket, gameExecutor )
         return requestDispatcher.dispatch()
     }
 

@@ -7,11 +7,16 @@ import org.w3c.dom.events.Event
 import org.w3c.dom.events.InputEvent
 import org.w3c.dom.events.KeyboardEvent
 
+@Suppress("unused")
 class EventHandlers {
 
     // Mithril lifecycle methods
 
+    var oninit: LifecycleMethod? = null
+    var oncreate: LifecycleMethod? = null
     var onupdate: LifecycleMethod? = null
+    var onbeforeremove: LifecycleMethod? = null
+    var onremove: LifecycleMethod? = null
 
     // Combined methods
 

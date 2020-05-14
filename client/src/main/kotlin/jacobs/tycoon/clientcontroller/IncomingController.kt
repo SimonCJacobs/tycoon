@@ -28,7 +28,7 @@ class IncomingController ( kodein: Kodein ) {
 
     private fun readWelcomeMessage( welcomeMessage: ClientWelcomeMessage ) {
         console.log( welcomeMessage.message )
-        this.clientState.socket = welcomeMessage.socket
+        this.clientState.maybeSocket = welcomeMessage.socket
     }
 
 }

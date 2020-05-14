@@ -9,6 +9,7 @@ abstract class Currency {
         val NULL = NullCurrency()
     }
 
+    abstract val inWords: String
     abstract val prefix: String
 
     fun ofAmount( amount: Int ): CurrencyAmount {

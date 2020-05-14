@@ -1,35 +1,45 @@
 package jacobs.tycoon.domain
 
+import jacobs.tycoon.domain.actions.property.BuildingProject
 import jacobs.tycoon.domain.actions.results.MoveResult
 import jacobs.tycoon.domain.actions.results.ReadCardResult
 import jacobs.tycoon.domain.actions.results.RentChargeResult
 import jacobs.tycoon.domain.actions.results.RollForMoveResult
 import jacobs.tycoon.domain.actions.results.RollForOrderResult
+import jacobs.tycoon.domain.actions.trading.TradeOffer
+import jacobs.tycoon.domain.bank.Bank
 import jacobs.tycoon.domain.board.Board
 import jacobs.tycoon.domain.board.cards.Card
+import jacobs.tycoon.domain.board.currency.CurrencyAmount
 import jacobs.tycoon.domain.board.squares.Property
 import jacobs.tycoon.domain.board.squares.Square
+import jacobs.tycoon.domain.board.squares.Street
 import jacobs.tycoon.domain.dice.Dice
 import jacobs.tycoon.domain.dice.DiceRoll
+import jacobs.tycoon.domain.phases.AuctionProperty
+import jacobs.tycoon.domain.services.auction.AuctionPhase
 import jacobs.tycoon.domain.phases.CardReading
 import jacobs.tycoon.domain.phases.GamePhase
 import jacobs.tycoon.domain.phases.MovingAPiece
 import jacobs.tycoon.domain.phases.NotTurnOfPlayerException
-import jacobs.tycoon.domain.phases.PhaseStatus
+import jacobs.tycoon.domain.phases.status.PhaseStatus
 import jacobs.tycoon.domain.phases.PotentialPurchase
 import jacobs.tycoon.domain.phases.PotentialRentCharge
 import jacobs.tycoon.domain.phases.RollingForMove
+import jacobs.tycoon.domain.phases.RollingForMoveFromJail
 import jacobs.tycoon.domain.phases.RollingForOrder
 import jacobs.tycoon.domain.phases.SignUp
+import jacobs.tycoon.domain.phases.TradeBeingConsidered
 import jacobs.tycoon.domain.phases.TurnBasedPhase
-import jacobs.tycoon.domain.phases.TurnStatus
-import jacobs.tycoon.domain.phases.TurnlessPhaseStatus
+import jacobs.tycoon.domain.phases.status.TurnStatus
+import jacobs.tycoon.domain.phases.status.TurnlessPhaseStatus
 import jacobs.tycoon.domain.phases.WrongPhaseException
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.domain.players.GamePlayers
 import jacobs.tycoon.domain.players.Player
 import jacobs.tycoon.domain.players.SeatingPosition
 import jacobs.tycoon.domain.services.GameCycle
+import jacobs.tycoon.domain.services.auction.AuctionStatus
 import kotlin.reflect.KClass
 
 /**
@@ -37,6 +47,7 @@ import kotlin.reflect.KClass
  * Monopoly isn't exactly a fast-paced game now is it?
  */
 class Game(
+    val bank: Bank,
     private val minimumNumberOfPlayers: Int
 ) {
 
@@ -56,6 +67,19 @@ class Game(
             return false
     }
 
+    fun bidFromPosition( amount: CurrencyAmount, actorPosition: SeatingPosition ): Boolean {
+        return doInPhase < AuctionProperty, Boolean > {
+            this.makeBid( amount, actorPosition.player() )
+        }
+    }
+
+    fun build( project: BuildingProject ): Boolean {
+        if ( project.isValid() == false )
+            return false
+        project.carryOut()
+        return true
+    }
+
     fun completePieceMove( gameCycle: GameCycle, position: SeatingPosition ): MoveResult {
         return gameCycle.doOnTurnPhaseAndCycle < MovingAPiece, MoveResult > ( this, position ) {
             this.carryOutMove( it )
@@ -64,7 +88,7 @@ class Game(
 
     fun chargeRent( gameCycle: GameCycle, actorPosition: SeatingPosition ): RentChargeResult {
         return gameCycle.doInPhaseAndCycle < PotentialRentCharge, RentChargeResult > ( this ) {
-            val requestingPlayer = actorPosition.getPlayer( it )
+            val requestingPlayer = actorPosition.player()
             if ( false == this.canPlayerChargeRent( requestingPlayer ) )
                 throw NotTurnOfPlayerException(
                     "Requesting player ${ requestingPlayer.name } does not own the occupied property " +
@@ -74,9 +98,51 @@ class Game(
         }
     }
 
-    fun completeSignUp( gameCycle: GameCycle) {
+    fun completeSignUp( gameCycle: GameCycle ) {
         gameCycle.doInPhaseAndCycle < SignUp, Unit > ( this ) {
             this.completeSignUp( it )
+        }
+    }
+
+    fun concludeAuction( gameCycle: GameCycle ): AuctionStatus {
+        return gameCycle.doInPhaseAndCycle < AuctionProperty, AuctionStatus > ( this ) {
+            this.concludeAuction()
+            this.auction.status
+        }
+    }
+
+    fun mortgageProperty( property: Property, actorPosition: SeatingPosition ): Boolean {
+        if ( property.isMortgaged() || actorPosition.player().owns( property ) == false )
+            return false
+        property.takeOutMortgage()
+        actorPosition.player().creditFunds( property.mortgagedValue() )
+        return true
+    }
+
+    fun offerTrade( gameCycle: GameCycle, tradeOffer: TradeOffer, actorPosition: SeatingPosition ): Boolean {
+        if ( actorPosition.player() != tradeOffer.offeringPlayer )
+            return false
+        else
+            return gameCycle.startNewTradingPhase( tradeOffer, this )
+    }
+
+    fun payOffMortgage( property: Property, actorPosition: SeatingPosition ): Boolean {
+        if ( false == property.isMortgaged() || actorPosition.player().owns( property ) == false )
+            return false
+        property.payOffMortgage()
+        actorPosition.player().debitFunds( property.mortgagePlusInterest() )
+        return true
+    }
+
+    fun playGetOutOfJailFreeCard( actorPosition: SeatingPosition ): Boolean {
+        return this.doInPhaseOrElse < RollingForMoveFromJail, Boolean > ( false ) {
+            if ( actorPosition.player().hasGetOutOfJailFreeCard() ) {
+                this.usingGetOutOfJailFreeCard()
+                actorPosition.player().returnGetOutOfJailFreeCard()
+                true
+            }
+            else
+                false
         }
     }
 
@@ -89,6 +155,16 @@ class Game(
     fun respondToPropertyOffer(gameCycle: GameCycle, decidedToBuy: Boolean, position: SeatingPosition ) {
         return gameCycle.doOnTurnPhaseAndCycle < PotentialPurchase, Unit > ( this, position ) {
             this.respondToOffer( decidedToBuy )
+        }
+    }
+
+    fun respondToTradeOffer( gameCycle: GameCycle, response: Boolean,
+                             actorPosition: SeatingPosition ): Boolean {
+        return gameCycle.doInPhaseAndCycle < TradeBeingConsidered, Boolean > ( this ) {
+            if ( false == this.isPlayerWhoReceivedOffer( actorPosition.player() ) )
+                throw NotTurnOfPlayerException( "${ actorPosition.player() } can't respond to the offer"  )
+            this.respondToTrade( response )
+            true
         }
     }
 
@@ -105,6 +181,17 @@ class Game(
         return gameCycle.doOnTurnPhaseAndCycle < RollingForOrder, RollForOrderResult > ( this, position ) {
             this.setDiceRoll( dice.roll( maybeDiceRoll ) )
             this.noteDiceRoll( it )
+        }
+    }
+
+    fun sellProperties( streets: List < Street >, housesToSell: List < Int >,
+                        actorPosition: SeatingPosition): Boolean {
+        TODO( "do once can do buying!" )
+    }
+
+    fun updateAuctionProceedings(auctionPhase: AuctionPhase) : Boolean {
+        return doInPhase < AuctionProperty, Boolean > {
+            this.updateAuction( auctionPhase )
         }
     }
 
@@ -130,6 +217,12 @@ class Game(
     fun canAnyNewPlayerJoin(): Boolean {
         return doInPhaseOrElse < SignUp, Boolean > ( false ) {
             players.countAll() < board.getPieceCount()
+        }
+    }
+
+    fun getAuctionStatus(): AuctionStatus {
+        return this.doInPhase < AuctionProperty, AuctionStatus > {
+            this.auction.status
         }
     }
 
@@ -176,7 +269,9 @@ class Game(
     // 4. HELPER METHODS
 
     private fun canGivenNewPlayerJoin( player: Player ): Boolean {
-        return this.canAnyNewPlayerJoin() && false == this.players.isThereAPlayerOfName( player.name )
+        return this.canAnyNewPlayerJoin() &&
+            false == this.players.isThereAPlayerOfName( player.name ) &&
+            player.name != ""
     }
 
     /**
@@ -209,6 +304,10 @@ class Game(
 
     private fun throwWrongPhaseException( expected: KClass < out GamePhase >, actual: KClass < out GamePhase > ): Nothing {
         throw WrongPhaseException( "Expected ${ expected.simpleName } got ${ actual.simpleName } ")
+    }
+
+    private fun SeatingPosition.player(): Player {
+        return this.getPlayer( this@Game )
     }
 
 }

@@ -9,23 +9,47 @@ import kotlinx.serialization.Transient
 @Serializable
 abstract class CardSet {
 
-    protected abstract val cardList: List < Card >
+    protected abstract val cardContentsList: List < Pair < String, CardAction > >
 
-    @Transient private var nextCardPointer: Int = 0
-    @Transient private var shuffleOrder: List < Int > = emptyList()
+    @Transient private var cardList: List < Card > = emptyList()
+    @Transient private var shuffleOrder: ArrayDeque < Int > = ArrayDeque()
 
     fun applyShuffleOrder( order: List < Int > ) {
-        this.shuffleOrder = order
+        this.populateCardList()
+        this.shuffleOrder = ArrayDeque( order )
     }
 
     fun drawCard(): Card {
-        val indexInShuffleOrder = nextCardPointer++.rem( cardList.size )
-        return this.cardList[ this.shuffleOrder[ indexInShuffleOrder ] ]
+        return this.cardList[ this.shuffleOrder[ 0 ] ]
+            .also { this.dealWithWhereaboutsOfCardAfterTurn( it ) }
+    }
+
+    fun returnToDeck( card: Card ) {
+        this.shuffleOrder.add( card.indexInDeck )
     }
 
     fun shuffle(): List < Int > {
-        this.shuffleOrder = this.cardList.indices.shuffled()
+        this.populateCardList()
+        this.shuffleOrder = ArrayDeque( this.cardList.indices.shuffled() )
         return this.shuffleOrder
+    }
+
+    private fun dealWithWhereaboutsOfCardAfterTurn( card: Card ) {
+        if ( card.isRetainedByPlayer )
+            this.shuffleOrder.removeFirst()
+        else
+            this.shuffleOrder.addLast( this.shuffleOrder.removeFirst() )
+    }
+
+    private fun populateCardList() {
+        this.cardList = cardContentsList.mapIndexed { index, contents ->
+            Card(
+                indexInDeck = index,
+                instruction = contents.first,
+                action = contents.second,
+                cardSet = this
+            )
+        }
     }
 
 }

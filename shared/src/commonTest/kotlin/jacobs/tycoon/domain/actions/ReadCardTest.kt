@@ -1,5 +1,6 @@
 package jacobs.tycoon.domain.actions
 
+import jacobs.tycoon.domain.actions.cards.ReadCard
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonConfiguration
 import kotlin.test.Test

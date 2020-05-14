@@ -2,7 +2,6 @@ package jacobs.tycoon.clientcontroller
 
 import jacobs.tycoon.clientstate.ClientState
 import jacobs.tycoon.domain.board.squares.Square
-import jacobs.tycoon.domain.phases.MovingAPiece
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.state.GameState
 import jacobs.tycoon.view.components.pieces.PieceComponentFactory
@@ -10,7 +9,6 @@ import kotlinx.coroutines.launch
 import org.js.mithril.Component
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
-import org.w3c.dom.DragEvent
 
 class SquareController( kodein: Kodein ) : UserInterfaceController( kodein ) {
 
@@ -41,7 +39,7 @@ class SquareController( kodein: Kodein ) : UserInterfaceController( kodein ) {
     }
 
     private fun isThisValidDestination(): Boolean {
-        return this.clientState.pieceInDrag
+        return this.clientState.pieceBeingDragged
             .let {
                 if ( it == null )
                     false

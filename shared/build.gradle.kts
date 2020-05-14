@@ -1,6 +1,5 @@
+import kotlin.Suppress
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
-import java.time.format.DateTimeFormatter
-import java.time.Instant
 
 repositories {
     jcenter()
@@ -21,6 +20,7 @@ kotlin {
     }
     jvm()
 
+    @Suppress( "UNUSED_VARIABLE" )
     sourceSets {
         forEach {
             it.languageSettings.apply {
@@ -78,13 +78,3 @@ tasks {
 
     }
 }
-/*
-gradle.addBuildListener(
-    object : BuildAdapter() {
-        override fun buildFinished( result: BuildResult ) {
-            val formatter = DateTimeFormatter.ofPattern( "MM/dd/yyyy 'at' hh:mma z" )
-            println( "Finished build at time ${ formatter.format( Instant.now() ) }")
-        }
-    }
-)
-*/

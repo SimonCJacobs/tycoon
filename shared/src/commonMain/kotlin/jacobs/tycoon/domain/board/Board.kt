@@ -20,12 +20,12 @@ abstract class Board {
     @Transient var squareList: List < Square > = emptyList() // Initialized only for serialization purposes
         private set
 
+    abstract val currency: Currency
+    var housesToAHotel: Int = -1
     abstract var goSquare: GoSquare
     abstract var jailSquare: JailSquare
 
     protected abstract val cardSets: List < CardSet >
-    protected abstract val currency: Currency
-
 
     // Initialisation
 
@@ -33,7 +33,8 @@ abstract class Board {
      * Requires initialising and shuffling before use. Reason for doing this in a method rather than on construction is
      * to sidestep some anomalies that arise with the order of construction when deserializing.
      */
-    fun initialise() {
+    fun initialise( housesToAHotel: Int ) {
+        this.housesToAHotel = housesToAHotel
         this.squareList = this.buildSquareList()
     }
 
