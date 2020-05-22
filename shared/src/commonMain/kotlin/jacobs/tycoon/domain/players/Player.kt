@@ -1,6 +1,7 @@
 package jacobs.tycoon.domain.players
 
-import jacobs.tycoon.domain.board.cards.Card
+import jacobs.tycoon.domain.actions.trading.Assets
+import jacobs.tycoon.domain.board.cards.GetOutOfJailFreeCard
 import jacobs.tycoon.domain.board.currency.CurrencyAmount
 import jacobs.tycoon.domain.board.colourgroups.ColourGroup
 import jacobs.tycoon.domain.board.squares.Property
@@ -30,11 +31,15 @@ data class Player(
         )
     }
 
-    @Transient private var getOutOfJailFreeCards: MutableList < Card > = mutableListOf()
+    @Transient private var getOutOfJailFreeCards: MutableList < GetOutOfJailFreeCard > = mutableListOf()
     @Transient private val locationWhenRolledRecord: MutableList < Square > = mutableListOf()
     @Transient private val properties: MutableSet < Property > = mutableSetOf()
     @Transient private val rollCountWhenPenalised: MutableList < Int > = mutableListOf()
     @Transient private val rollRecord: MutableList < DiceRoll > = mutableListOf()
+
+    fun acquireGetOutOfJailFreeCard( card: GetOutOfJailFreeCard ) {
+        this.getOutOfJailFreeCards.add( card )
+    }
 
     fun acquireProperty( property: Property ) {
         this.properties.add( property )
@@ -50,6 +55,11 @@ data class Player(
         this.acquireProperty( property )
     }
 
+    fun canTrade( property: Property ): Boolean {
+        return this.owns( property ) &&
+            ( false == property is Street || false == this.hasAnyDevelopmentInColourGroup( property.colourGroup ) )
+    }
+
     fun creditFunds( amount: CurrencyAmount ) {
         this.cashHoldings = this.cashHoldings + amount
     }
@@ -58,7 +68,7 @@ data class Player(
         this.cashHoldings = this.cashHoldings - amount
     }
 
-    fun disposeOfGetOutOfJailFreeCards( number: Int ): List < Card > {
+    fun disposeOfGetOutOfJailFreeCards( number: Int ): List < GetOutOfJailFreeCard > {
         return ( 1 .. number ).map { removeGetOutOfJailFreeCard() }
     }
 
@@ -66,20 +76,20 @@ data class Player(
         this.properties.remove( property )
     }
 
+    fun forEachPropertyOwned( callback: ( Property ) -> Unit ) {
+        this.properties.forEach( callback )
+    }
+
+    fun getAllAssets(): Assets {
+        return Assets(
+            this.properties.toList(),
+            this.cashHoldings,
+            this.getOutOfJailFreeCards.size
+        )
+    }
+
     fun hasGetOutOfJailFreeCard(): Boolean {
         return this.getOutOfJailFreeCards.isNotEmpty()
-    }
-
-    fun howManyOfColourGroupOwned( colourGroup: ColourGroup): Int {
-        return this.properties.count { it is Street && it.colourGroup == colourGroup }
-    }
-
-    fun howManyStationsOwned(): Int {
-        return this.properties.count { it is Station }
-    }
-
-    fun howManyUtilitiesOwned(): Int {
-        return this.properties.count { it is Utility }
     }
 
     fun howManyDoublesRolledInRow(): Int {
@@ -91,6 +101,18 @@ data class Player(
                 return count
         }
         return count
+    }
+
+    fun howManyGetOutOfJailFreeCards(): Int {
+        return this.getOutOfJailFreeCards.size
+    }
+
+    fun howManyStationsOwned(): Int {
+        return this.properties.count { it is Station }
+    }
+
+    fun howManyUtilitiesOwned(): Int {
+        return this.properties.count { it is Utility }
     }
 
     fun howManyRollsSinceLastPenalisedForDoubles(): Int? {
@@ -109,8 +131,13 @@ data class Player(
         return count
     }
 
-    fun isSittingAtPosition( otherPosition: SeatingPosition ): Boolean {
-        return this.position == otherPosition
+    fun isStreetOwnedInAFullColourGroup( street: Street ): Boolean {
+        return street.colourGroup.numberInGroup ==
+           this.howManyOfColourGroupOwned( street.colourGroup )
+    }
+
+    fun justRolledADouble(): Boolean {
+        return this.lastDiceRoll().isDouble()
     }
 
     fun lastDiceRoll(): DiceRoll {
@@ -131,6 +158,10 @@ data class Player(
         return this.properties.contains( property )
     }
 
+    fun ownsAnyProperty(): Boolean {
+        return this.properties.size > 0
+    }
+
     fun penalisedForDoubleThrowing() {
         this.rollCountWhenPenalised.add( this.rollRecord.size )
     }
@@ -140,19 +171,57 @@ data class Player(
             .returnToDeck()
     }
 
+    fun totalNumberOfHouses(): Int {
+        return this.streets().sumBy {
+            it.getNumberOfHousesExcludingHotels()
+        }
+    }
+
+    fun totalNumberOfHotels(): Int {
+        return this.streets().count { it.hasHotel() }
+    }
+
+    // PRIVATE METHODS
+
+    private fun colourGroup( colourGroup: ColourGroup ): Set < Street > {
+        return this.streets().filter { it.colourGroup == colourGroup }.toSet()
+    }
+
+    private fun hasAnyDevelopmentInColourGroup( colourGroup: ColourGroup ): Boolean {
+        return this.colourGroup( colourGroup ).any { it.hasAnyDevelopment() }
+    }
+
+    private fun howManyOfColourGroupOwned( colourGroup: ColourGroup): Int {
+        return this.colourGroup( colourGroup ).size
+    }
+
     /**
      * Arbitrary decision to go last-in-first-out here
      */
-    private fun removeGetOutOfJailFreeCard(): Card {
+    private fun removeGetOutOfJailFreeCard(): GetOutOfJailFreeCard {
         return this.getOutOfJailFreeCards.removeFirst()
     }
 
-    fun saveGetOutOfJailFreeCard( card: Card ) {
-        this.getOutOfJailFreeCards.add( card )
+    private fun streets(): List < Street > {
+        return this.properties.filterIsInstance < Street >()
+    }
+
+    override fun equals( other: Any? ): Boolean {
+        return other != null &&
+            other is Player &&
+            other.name == this.name
     }
 
     override fun compareTo( other: Player ): Int {
         return this.position.compareTo( other.position )
+    }
+
+    override fun toString(): String {
+        return this.name
+    }
+
+    override fun hashCode(): Int {
+        return this.name.hashCode()
     }
 
 }

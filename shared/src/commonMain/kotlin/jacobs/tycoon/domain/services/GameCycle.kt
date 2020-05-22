@@ -1,21 +1,26 @@
 package jacobs.tycoon.domain.services
 
 import jacobs.tycoon.domain.Game
-import jacobs.tycoon.domain.actions.results.RollForMoveOutcome
-import jacobs.tycoon.domain.actions.results.RollForOrderOutcome
+import jacobs.tycoon.domain.actions.trading.Assets
+import jacobs.tycoon.domain.phases.results.RollForOrderOutcome
 import jacobs.tycoon.domain.actions.trading.TradeOffer
+import jacobs.tycoon.domain.phases.AcceptingFunds
 import jacobs.tycoon.domain.phases.AuctionProperty
 import jacobs.tycoon.domain.phases.BankruptcyProceedings
 import jacobs.tycoon.domain.phases.CardReading
 import jacobs.tycoon.domain.phases.CrownTheVictor
+import jacobs.tycoon.domain.phases.DealingWithMortgageInterestOnTransfer
 import jacobs.tycoon.domain.phases.GamePhase
 import jacobs.tycoon.domain.phases.MovingAPiece
 import jacobs.tycoon.domain.phases.NotTurnOfPlayerException
+import jacobs.tycoon.domain.phases.PayingFineOrTakingCard
+import jacobs.tycoon.domain.phases.PaymentDue
 import jacobs.tycoon.domain.phases.PhasePhactory
 import jacobs.tycoon.domain.phases.status.PhaseStatusVisitor
 import jacobs.tycoon.domain.phases.PotentialPurchase
-import jacobs.tycoon.domain.phases.PotentialRentCharge
+import jacobs.tycoon.domain.phases.rent.PotentialRentCharge
 import jacobs.tycoon.domain.phases.RollingForMove
+import jacobs.tycoon.domain.phases.RollingForMoveFromJail
 import jacobs.tycoon.domain.phases.RollingForOrder
 import jacobs.tycoon.domain.phases.TradeBeingConsidered
 import jacobs.tycoon.domain.phases.TurnBasedPhase
@@ -23,16 +28,35 @@ import jacobs.tycoon.domain.phases.TurnBasedPhaseVisitor
 import jacobs.tycoon.domain.phases.status.TurnStatus
 import jacobs.tycoon.domain.phases.status.TurnlessPhaseStatus
 import jacobs.tycoon.domain.phases.WrongPhaseException
+import jacobs.tycoon.domain.phases.results.JailOutcome
+import jacobs.tycoon.domain.phases.results.PayFineOrTakeChanceOutcome
+import jacobs.tycoon.domain.phases.results.RentChargeResult
+import jacobs.tycoon.domain.phases.results.RollForMoveResult
+import jacobs.tycoon.domain.players.Player
 import jacobs.tycoon.domain.players.SeatingPosition
+import jacobs.tycoon.domain.rules.MiscellaneousRules
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 
 class GameCycle( kodein: Kodein ) {
 
     private val listeners: MutableList < ( GamePhase ) -> Unit > = mutableListOf()
+    private val miscellaneousRules by kodein.instance < MiscellaneousRules >()
     private val phasePhactory by kodein.instance < PhasePhactory > ()
 
     // 1. PUBLIC API
+
+    fun dealWithRentCharge( result: RentChargeResult, game: Game ) {
+        if ( game.players.isPlayerInGame( result.occupyingPlayer ) == false ) return
+        val paymentDue = phasePhactory.paymentDue(
+            playerWithTurn = game.phaseStatus.playerWithTurn,
+            playingOwingMoney = result.occupyingPlayer,
+            amountDue = result.rentDue,
+            reason = "rent for ${ result.occupiedProperty }",
+            playerOwedMoney = result.propertyOwner
+        )
+        ( game.phaseStatus as TurnStatus ).doAsPriority( paymentDue )
+    }
 
    /**
     * Carry out actions within a (validated) phase, then go to next
@@ -64,6 +88,10 @@ class GameCycle( kodein: Kodein ) {
         }
     }
 
+    fun registerPhaseChangeListener( listener: ( GamePhase ) -> Unit ) {
+        this.listeners.add( listener )
+    }
+
     fun startNewTradingPhase( tradeOffer: TradeOffer, game: Game ): Boolean {
         val tradingPhase = phasePhactory.offerTrade( game.phaseStatus.playerWithTurn, tradeOffer )
         val turnBasedPhaseStatus = game.phaseStatus as? TurnStatus
@@ -72,8 +100,17 @@ class GameCycle( kodein: Kodein ) {
         return true
     }
 
-    fun registerPhaseChangeListener( listener: ( GamePhase ) -> Unit ) {
-        this.listeners.add( listener )
+    fun getPlayerToGoNext( game: Game ): Player {
+        if ( game.phaseStatus.playerWithTurn.justRolledADouble() &&
+            game.phaseStatus.playerWithTurn.location() != game.board.jailSquare
+        )
+            return game.phaseStatus.playerWithTurn
+        else
+            return game.players.nextActive( game.phaseStatus.playerWithTurn )
+    }
+
+    private fun numberOfTurnsHaveToChargeRent(): Int {
+        return miscellaneousRules.numberOfTurnsHaveToChargeRent
     }
 
     // 2. PRIVATE METHODS TO MANAGE PHASES
@@ -83,13 +120,9 @@ class GameCycle( kodein: Kodein ) {
         game.phaseStatus.accept( phaseStatusVisitor )
     }
 
-    private fun startNewTurn( nextPhase: TurnBasedPhase, game: Game ) {
-        game.phaseStatus = TurnStatus( nextPhase )
-        this.callListeners( nextPhase )
-    }
-
-    private fun callListeners( nextPhase: GamePhase ) {
-        this.listeners.forEach { it( nextPhase ) }
+    private fun callListeners( game: Game ) {
+        this.listeners.forEach { it( game.phaseStatus.current() ) }
+        println( "in phase ${ game.phaseStatus.current()::class }")
     }
 
     // 3. VISITOR TO PHASE_STATUS TO DETERMINE NEXT PHASE
@@ -100,21 +133,36 @@ class GameCycle( kodein: Kodein ) {
         private val gameCycle: GameCycle
     ) : PhaseStatusVisitor {
 
+        private var maybePotentialRentCharge: PotentialRentCharge? = null
+
         override fun visit( turnlessPhaseStatus: TurnlessPhaseStatus) {
-                // We must be a sign-up phase
+                // We must be in a sign-up phase
             val nextPhase = this.phasePhactory.startRollingForOrder( game.players.activeList() )
-            gameCycle.startNewTurn( nextPhase, game )
+            game.startNewTurn( TurnStatus( nextPhase ) )
         }
 
         override fun visit( turnStatus: TurnStatus ) {
-            val phaseVisitor = PhaseVisitor( turnStatus, game, phasePhactory, gameCycle )
-            turnStatus.currentTurnBasedPhase().accept( phaseVisitor )
-            if ( false == turnStatus.isThereAWaitingPhase() )
-                gameCycle.startNewTurn( this.getFirstPhaseOfNewTurn(), game )
+            this.moveAlongPhaseDependingOnCurrentPhase( turnStatus )
+            this.startNewTurnIfRequired( turnStatus )
+            gameCycle.callListeners( game )
+        }
+
+        private fun moveAlongPhaseDependingOnCurrentPhase( turnStatus: TurnStatus ) {
+            val phaseVisitor = PhaseVisitorToCompleteCurrentAndMoveToNext(
+                turnStatus, game, phasePhactory, gameCycle
+            )
+            turnStatus.acceptVisitToCurrentPhase( phaseVisitor )
+            this.maybePotentialRentCharge = phaseVisitor.maybePotentialRentCharge
+        }
+
+        private fun startNewTurnIfRequired( turnStatus: TurnStatus ) {
+            if ( turnStatus.isThereACurrentPhase() == false )
+                this.getFirstPhaseOfNewTurn()
+                    .also { this.startNewTurn( turnStatus, it ) }
         }
 
         private fun getFirstPhaseOfNewTurn(): TurnBasedPhase {
-            val nextPlayer = game.players.nextActive( game.phaseStatus.playerWithTurn )
+            val nextPlayer = this.gameCycle.getPlayerToGoNext( game )
             return when {
                 game.players.activeCount() == 1 ->
                     this.phasePhactory.crownTheVictor( nextPlayer )
@@ -124,39 +172,94 @@ class GameCycle( kodein: Kodein ) {
             }
         }
 
+        private fun startNewTurn( lastTurn: TurnStatus, nextPhase: TurnBasedPhase ) {
+            game.startNewTurn( TurnStatus( nextPhase, this.getPotentialRentCharges( lastTurn ) ) )
+        }
+
+        private fun getPotentialRentCharges( lastTurn: TurnStatus ): List < PotentialRentCharge > {
+            return lastTurn.potentialRentCharges
+                .apply { forEach { it.incrementTurns() } }
+                .filter { it.turnsBeenChargeable < gameCycle.numberOfTurnsHaveToChargeRent() }
+                .toMutableList()
+                .apply { maybePotentialRentCharge?.let { add( it ) } }
+        }
+
     }
 
     // 4. VISITOR TO PHASES TO DECIDE HOW TO DETERMINE NEXT PHASE FROM CURRENT PHASE
 
-    class PhaseVisitor (
+    class PhaseVisitorToCompleteCurrentAndMoveToNext (
         private val phaseStatus: TurnStatus,
         private val game: Game,
         private val phasePhactory: PhasePhactory,
         private val gameCycle: GameCycle
     ) : TurnBasedPhaseVisitor {
 
+        var maybePotentialRentCharge: PotentialRentCharge? = null
+
+        override fun visit( acceptingFunds: AcceptingFunds ) {
+            this.phaseStatus.completeCurrentPhaseAndDoAnyWaiting()
+        }
+
         override fun visit( auctionProperty: AuctionProperty ) {
-            this.phaseStatus.completePhase()
+            this.phaseStatus.completeCurrentPhaseAndDoAnyWaiting()
         }
 
         override fun visit( bankruptcyProceedings: BankruptcyProceedings ) {
-            this.phaseStatus.completePhase()
+            this.phaseStatus.completeCurrentPhaseAndDoAnyWaiting()
+            if ( bankruptcyProceedings.areAuctionsRequired() )
+                bankruptcyProceedings.forEachPropertyToBeAuctioned {
+                    phasePhactory.auctionProperty( bankruptcyProceedings.playerWithTurn, it )
+                        .doAsPriority()
+                }
         }
 
         override fun visit( cardReading: CardReading ) {
-            cardReading.card.action.invoke( this.phasePhactory, this.game, this.phaseStatus.playerWithTurn )
-                .doNext()
+            cardReading.card.action.invoke(
+                this.phasePhactory, this.phaseStatus.playerWithTurn
+            )
+                ?.completeAndDoAsPriority()
+                ?: this.phaseStatus.completeCurrentPhaseAndDoAnyWaiting()
         }
 
         override fun visit( crownTheVictor: CrownTheVictor ) {
             throw Error( "Game should have concluded after a victory" )
         }
 
+        override fun visit( dealingWithMortgageInterestOnTransfer: DealingWithMortgageInterestOnTransfer ) {
+            this.phaseStatus.completeCurrentPhaseAndDoAnyWaiting()
+        }
+
         override fun visit( movingAPiece: MovingAPiece ) {
             if ( movingAPiece.outcomeGenerator.isNextPhase )
-                movingAPiece.outcomeGenerator.nextPhaseLambda.invoke( this.phasePhactory ).doNext()
+                movingAPiece.outcomeGenerator.nextPhaseLambda.invoke(
+                    this.phasePhactory, this.gameCycle.getPlayerToGoNext( game )
+                )
+                    .completeAndDoAsPriority()
             else
-                this.phaseStatus.completePhase()
+                this.phaseStatus.completeCurrentPhaseAndDoAnyWaiting()
+            this.maybePotentialRentCharge = movingAPiece.outcomeGenerator.maybePotentialRentCharge
+        }
+
+        override fun visit( payingFineOrTakingCard: PayingFineOrTakingCard ) {
+            when ( payingFineOrTakingCard.outcome ) {
+                PayFineOrTakeChanceOutcome.PAY_FINE -> this.phaseStatus.completeCurrentPhaseAndDoAnyWaiting()
+                PayFineOrTakeChanceOutcome.TAKE_CHANCE -> this.visit( payingFineOrTakingCard.cardReading )
+            }
+        }
+
+        override fun visit( paymentDue: PaymentDue ) {
+            if ( false == paymentDue.haveAllPaymentsBeenMade() )
+                return
+            this.phaseStatus.completeCurrentPhaseAndDoAnyWaiting()
+            paymentDue.bankruptciesPending.forEach {
+                phasePhactory.bankruptcyProceedingsOwing(
+                    playerWithTurn = paymentDue.playerWithTurn,
+                    bankruptPlayer = it,
+                    creditor = paymentDue.playerOwedMoney
+                )
+                    .doAsPriority()
+            }
         }
 
         override fun visit( potentialPurchase: PotentialPurchase ) {
@@ -164,30 +267,55 @@ class GameCycle( kodein: Kodein ) {
                 this.phasePhactory.auctionProperty(
                     phaseStatus.playerWithTurn, potentialPurchase.targetProperty
                 )
-                    .doNext()
+                    .completeAndDoAsPriority()
             else
-                this.phaseStatus.completePhase()
-        }
-
-        override fun visit( potentialRentCharge: PotentialRentCharge ) {
-            when ( potentialRentCharge.result.outcome ) {
-                RollForMoveOutcome.BANKRUPTCY_PROCEEDINGS ->
-                    this.phasePhactory.bankruptcyProceedings(
-                        phaseStatus.playerWithTurn, potentialRentCharge.playerOccupyingProperty
-                    )
-                        .doNext()
-                else -> this.phaseStatus.completePhase()
-            }
+                this.phaseStatus.completeCurrentPhaseAndDoAnyWaiting()
         }
 
         override fun visit( rollingForMove: RollingForMove ) {
-            when ( rollingForMove.result.outcome ) {
-                RollForMoveOutcome.REMAIN_IN_JAIL -> phaseStatus.completePhase()
-                else -> this.phasePhactory.movingAPiece(
-                    playerWithTurn = rollingForMove.playerWithTurn,
-                    destinationSquare = rollingForMove.destinationSquare
-                ).doNext()
+            goToNextPhaseFromRollingForMoveOutcome( rollingForMove.playerWithTurn, rollingForMove.result )
+                .completeAndDoDuringThisTurn()
+        }
+
+        override fun visit( rollingForMoveFromJail: RollingForMoveFromJail) {
+            when ( rollingForMoveFromJail.result.jailOutcome ) {
+                JailOutcome.FORCED_TO_PAY_FINE -> {
+                    this.phasePhactory.paymentDueToBank(
+                        rollingForMoveFromJail.playerWithTurn,
+                        rollingForMoveFromJail.playerWithTurn,
+                        "jail fine",
+                        rollingForMoveFromJail.jailFine
+                    )
+                        .completeAndDoAsPriority()
+                    this.goToNextPhaseFromRollingForMoveOutcome(
+                        rollingForMoveFromJail.playerWithTurn,
+                        rollingForMoveFromJail.result.rollForMoveResult
+                    )
+                        .doPhaseDuringThisTurn()
+                }
+                JailOutcome.PAID_FINE_VOLUNTARILY ->
+                    phasePhactory.rollingForMove( rollingForMoveFromJail.playerWithTurn )
+                        .completeAndDoDuringThisTurn()
+                JailOutcome.REMAIN_IN_JAIL ->
+                    this.phaseStatus.completeCurrentPhaseAndDoAnyWaiting()
+                JailOutcome.ROLLED_A_DOUBLE ->
+                    this.goToNextPhaseFromRollingForMoveOutcome(
+                        rollingForMoveFromJail.playerWithTurn,
+                        rollingForMoveFromJail.result.rollForMoveResult
+                    )
+                        .completeAndDoDuringThisTurn()
+                JailOutcome.USED_CARD ->
+                    phasePhactory.rollingForMove( rollingForMoveFromJail.playerWithTurn )
+                        .completeAndDoDuringThisTurn()
             }
+        }
+
+        private fun goToNextPhaseFromRollingForMoveOutcome( playerWithTurn: Player,
+                                                            moveResult: RollForMoveResult ) : MovingAPiece {
+            return this.phasePhactory.movingAPiece(
+                playerWithTurn = playerWithTurn,
+                destinationSquare = moveResult.destinationSquare
+            )
         }
 
         override fun visit( rollingForOrder: RollingForOrder ) {
@@ -195,20 +323,50 @@ class GameCycle( kodein: Kodein ) {
                 RollForOrderOutcome.ROLLING ->
                     this.phasePhactory.continueRollingForOrder( rollingForOrder.rollResults )
                 RollForOrderOutcome.COMPLETE ->
-                        this.phasePhactory.rollingForMove( rollingForOrder.result.winner )
+                    this.phasePhactory.rollingForMove( rollingForOrder.result.winner )
                 RollForOrderOutcome.ROLL_OFF ->
                     this.phasePhactory.startRollingForOrder( rollingForOrder.result.playersTiedFirst )
             }
-                .let { gameCycle.startNewTurn( it, game ) }
+                .let { game.startNewTurn( TurnStatus( it ) ) }
         }
 
         override fun visit( tradeBeingConsidered: TradeBeingConsidered ) {
-            this.phaseStatus.completePhase()
+            this.phaseStatus.completeCurrentPhaseAndDoAnyWaiting()
+            if ( tradeBeingConsidered.answer == true ) {
+                this.payMortgageInterestOnAssets(
+                    tradeBeingConsidered.offer.offered, tradeBeingConsidered.offer.offerRecipient, tradeBeingConsidered.playerWithTurn
+                )
+                this.payMortgageInterestOnAssets(
+                    tradeBeingConsidered.offer.wanted, tradeBeingConsidered.offer.offeringPlayer, tradeBeingConsidered.playerWithTurn
+                )
+            }
         }
 
-        private fun TurnBasedPhase.doNext() {
-            phaseStatus.doNext( this )
-            gameCycle.callListeners( this )
+        private fun payMortgageInterestOnAssets( assets: Assets, payingPlayer: Player, playerWithTurn: Player ) {
+            assets.forEachMortgaged {
+                this.phasePhactory.dealWithMortgageOnTransfer(
+                    playerWithTurn = playerWithTurn,
+                    propertyOwner = payingPlayer,
+                    property = it
+                )
+                    .doAsPriority()
+            }
+        }
+
+        private fun TurnBasedPhase.completeAndDoAsPriority() {
+            phaseStatus.completeAndDoAsPriority( this )
+        }
+
+        private fun TurnBasedPhase.completeAndDoDuringThisTurn() {
+            phaseStatus.completeAndDoDuringThisTurn( this )
+        }
+
+        private fun TurnBasedPhase.doAsPriority() {
+            phaseStatus.doAsPriority( this )
+        }
+
+        private fun TurnBasedPhase.doPhaseDuringThisTurn() {
+            phaseStatus.doPhaseDuringThisTurn( this )
         }
 
     }

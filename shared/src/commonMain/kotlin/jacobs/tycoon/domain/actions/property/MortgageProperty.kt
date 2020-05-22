@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class MortgageProperty (
-    val property: Property
+    val properties: Collection < Property >
 ) : GameAction() {
 
     override fun < T > accept( visitor: ActionVisitor<T>): T {
@@ -20,7 +20,10 @@ class MortgageProperty (
     }
 
     override suspend fun execute( gameController: GameController ) {
-        gameController.game().mortgageProperty( property, actorPosition )
+        properties.all { eachProperty ->
+            gameController.mortgageProperty( eachProperty, actorPosition )
+        }
             .also { setExecutionResult( it ) }
+
     }
 }

@@ -23,6 +23,6 @@ abstract class CentreCellComponent : Component {
     }
 
     protected abstract fun getContent(): HyperScriptBuilder.Details.() -> Unit
-    protected abstract fun getStyleObject(): CentreCellStylesBase
+    abstract fun getStyleObject(): CentreCellStylesBase
 
 }

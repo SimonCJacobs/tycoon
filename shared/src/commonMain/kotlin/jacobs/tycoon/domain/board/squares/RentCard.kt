@@ -10,6 +10,10 @@ class RentCard (
     private val currency: Currency
 ) {
 
+    companion object {
+        val NULL = RentCard( emptyList(), Currency.NULL )
+    }
+
     fun maximumHouseCount(): Int {
         return rentList.size - 1
     }

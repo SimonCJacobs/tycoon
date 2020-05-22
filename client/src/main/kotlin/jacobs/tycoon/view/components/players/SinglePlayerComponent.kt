@@ -36,35 +36,48 @@ abstract class SinglePlayerComponent : Component {
     private fun getActionArea(): VNode {
         return m( Tag.div ) {
             children(
-                *getOwnTurnDisplays(),
-                *getAlwaysActionsIfInGame()
+                *getActionsEveryoneKnowsAbout(),
+                *getActionsKeptToSelfIfInGame()
             )
         }
     }
 
-    private fun getOwnTurnDisplays(): Array < VNode? > {
+    private fun getActionsEveryoneKnowsAbout(): Array < VNode? > {
+        val arrayActionsWhetherTurnOrNot = arrayOf(
+            if ( playerActionController.isThereABillToPay() ) getBillToPayDisplay() else null
+        ) +
+            if ( playerActionController.isThereAChanceToChargeRent() ) getChargeRentDisplay().toTypedArray()
+            else emptyArray()
         if ( playerActionController.isItOwnTurn() )
             return arrayOf(
+                if ( playerActionController.isPlayerRollingOutOfInJail() ) getJailEscapeDisplay() else null,
                 if ( playerActionController.isItTimeToRollTheDice() ) getDiceRollDisplay() else null,
+                if ( playerActionController.areThereFundsToAccept() ) getAcceptFundsDisplay() else null,
                 if ( playerActionController.isThereAChanceToBuyProperty() ) getPropertyPurchaseDisplay() else null,
-                if ( playerActionController.isThereAChanceToChargeRent() ) getChargeRentDisplay() else null,
-                if ( playerActionController.isThereACardToRead() ) getReadCardDisplay() else null
-            )
+                if ( playerActionController.isThereACardToRead() ) getReadCardDisplay() else null,
+                if ( playerActionController.payingFineOrTakingChance() ) getPayFineOrTakeChance() else null
+            ) + arrayActionsWhetherTurnOrNot
         else
-            return emptyArray()
+            return arrayActionsWhetherTurnOrNot
     }
 
-    private fun getAlwaysActionsIfInGame(): Array < VNode ? > {
+
+    private fun getActionsKeptToSelfIfInGame(): Array < VNode ? > {
         if ( playerActionController.isGameUnderway() )
-            return getAlwaysActions()
+            return getActionsKeptToSelf()
         else
             return emptyArray()
     }
 
-    protected abstract fun getChargeRentDisplay(): VNode?
+    protected abstract fun getAcceptFundsDisplay(): VNode
+    protected abstract fun getBillToPayDisplay(): VNode
+    protected abstract fun getChargeRentDisplay(): List < VNode >
     protected abstract fun getDiceRollDisplay(): VNode
+    protected abstract fun getJailEscapeDisplay(): VNode
     protected abstract fun getReadCardDisplay(): VNode
+    protected abstract fun getPayFineOrTakeChance(): VNode?
     protected abstract fun getPropertyPurchaseDisplay(): VNode
-    protected abstract fun getAlwaysActions(): Array < VNode? >
+
+    protected abstract fun getActionsKeptToSelf(): Array < VNode? >
 
 }

@@ -1,14 +1,18 @@
 package jacobs.tycoon.domain.board
 
 import jacobs.tycoon.domain.board.cards.CardSet
+import jacobs.tycoon.domain.board.cards.ShuffleOrders
 import jacobs.tycoon.domain.board.currency.Currency
 import jacobs.tycoon.domain.board.currency.CurrencyAmount
 import jacobs.tycoon.domain.board.squares.GoSquare
 import jacobs.tycoon.domain.board.squares.JailSquare
 import jacobs.tycoon.domain.board.squares.Square
+import jacobs.tycoon.domain.board.squares.Station
+import jacobs.tycoon.domain.board.squares.Street
 import jacobs.tycoon.domain.dice.DiceRoll
 import jacobs.tycoon.domain.pieces.PieceSet
 import jacobs.tycoon.domain.pieces.PlayingPiece
+import jacobs.tycoon.domain.rules.MiscellaneousRules
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 
@@ -17,15 +21,19 @@ abstract class Board {
 
     abstract val location: String
     @Transient lateinit var pieceSet: PieceSet
-    @Transient var squareList: List < Square > = emptyList() // Initialized only for serialization purposes
-        private set
+    abstract var squareList: List < Square > protected set
 
     abstract val currency: Currency
-    var housesToAHotel: Int = -1
-    abstract var goSquare: GoSquare
-    abstract var jailSquare: JailSquare
 
-    protected abstract val cardSets: List < CardSet >
+    abstract var goSquare: GoSquare protected set
+    abstract var jailSquare: JailSquare protected set
+    abstract var maryleboneStation: Station protected set
+    abstract var mayfair: Street protected set
+    abstract var oldKentRoad: Street protected set
+    abstract var pallMall: Street protected set
+    abstract var trafalgarSquare: Street protected set
+
+    protected abstract val cardSets: Map < String, CardSet >
 
     // Initialisation
 
@@ -33,30 +41,44 @@ abstract class Board {
      * Requires initialising and shuffling before use. Reason for doing this in a method rather than on construction is
      * to sidestep some anomalies that arise with the order of construction when deserializing.
      */
-    fun initialise( housesToAHotel: Int ) {
-        this.housesToAHotel = housesToAHotel
-        this.squareList = this.buildSquareList()
-    }
+    abstract fun initialise( gameRules: MiscellaneousRules )
 
-    fun applyShuffleOrders( shuffleOrders: List < List < Int > >  ) {
-        shuffleOrders.forEachIndexed {
-            index, list -> cardSets[ index ].applyShuffleOrder( list )
+    fun applyShuffleOrders( shuffleOrders: ShuffleOrders ): ShuffleOrders {
+        shuffleOrders.forEach {
+            cardSets.getValue( it.key ).applyShuffleOrder( it.value )
         }
+        return shuffleOrders
     }
 
-    fun shuffleCards(): List < List < Int > > {
-        return cardSets.map { it.shuffle() }
+    fun shuffleCards(): ShuffleOrders {
+        return cardSets.mapValues { it.value.shuffle() }
     }
 
     // Protected API
-
-    protected abstract fun buildSquareList(): List < Square >
 
     protected fun Int.toCurrency(): CurrencyAmount {
         return currency.ofAmount( this )
     }
 
     // Public API
+
+    fun cardSetNames(): Set < String > {
+        return cardSets.keys
+    }
+
+    inline fun < reified T : Square > getActualSquare( squareCopy: T ): T {
+        return squareList.find { actualSquare -> actualSquare == squareCopy } as T
+    }
+
+    inline fun < reified T : Square > getActualSquares( squareCollection: Collection < T > ): List < T > {
+        return squareCollection.map { squareCopy ->
+            squareList.find { actualSquare -> actualSquare == squareCopy } as T
+        }
+    }
+
+    fun getNamedCardSet( name: String ): CardSet {
+        return this.cardSets.getValue( name )
+    }
 
     fun getPieceCount(): Int {
         return this.pieceSet.count()
@@ -66,17 +88,22 @@ abstract class Board {
         return this.pieceSet.getPiecesOnSquare( square )
     }
 
-    fun squarePlusRoll(square: Square, diceRoll: DiceRoll ): Square {
-        val squareIndex = this.squareList.indexOf( square )
-        val newIndex = squareIndex + diceRoll.result
-        return this.squareList[ newIndex.rem( this.squareList.size ) ]
+    fun squareMinusSpaces( existingSquare: Square, numberOfSpaces: Int ): Square {
+        return squarePlusSpaces( existingSquare, squareList.size - numberOfSpaces )
+    }
+
+    fun squarePlusRoll( square: Square, diceRoll: DiceRoll ): Square {
+        return squarePlusSpaces( square, diceRoll.result )
     }
 
     fun startingSquare(): Square {
         return this.squareList.first()
     }
 
-    // Housekeeping
+    private fun squarePlusSpaces( square: Square, spaceCount: Int ): Square {
+        val newIndex = square.indexOnBoard + spaceCount
+        return this.squareList[ newIndex.rem( this.squareList.size ) ]
+    }
 
     override fun equals( other: Any? ): Boolean {
         return other != null && this::class == other::class

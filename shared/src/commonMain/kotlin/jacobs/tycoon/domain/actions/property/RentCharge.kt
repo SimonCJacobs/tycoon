@@ -3,11 +3,12 @@ package jacobs.tycoon.domain.actions.property
 import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.actions.ActionVisitor
 import jacobs.tycoon.domain.actions.GameAction
-import jacobs.tycoon.domain.actions.results.RentChargeResult
+import jacobs.tycoon.domain.board.squares.Property
+import jacobs.tycoon.domain.phases.results.RentChargeResult
 import kotlinx.serialization.Serializable
 
 @Serializable
-class RentCharge : GameAction() {
+class RentCharge( private val property: Property )  : GameAction() {
 
     var result = RentChargeResult.NULL
 
@@ -20,7 +21,7 @@ class RentCharge : GameAction() {
     }
 
     override suspend fun execute( gameController: GameController ) {
-        this.result = gameController.chargeRent( actorPosition )
+        this.result = gameController.chargeRent( property, actorPosition )
         this.executedSuccessfully()
     }
 }

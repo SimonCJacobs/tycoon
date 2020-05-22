@@ -23,4 +23,5 @@ class OfferTrade (
         gameController.offerTrade( tradeOffer, actorPosition )
             .also { setExecutionResult( it ) }
     }
+
 }

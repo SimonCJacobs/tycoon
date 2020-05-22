@@ -16,12 +16,24 @@ class PassiveSinglePlayerComponent(
     override val player: Player
 ) : SinglePlayerComponent() {
 
+    override fun getAcceptFundsDisplay(): VNode {
+        return this.getTextUpdate( "Accepting funds" )
+    }
+
+    override fun getBillToPayDisplay(): VNode {
+        return this.getTextUpdate( "Paying bill" )
+    }
+
     override fun getDiceRollDisplay(): VNode {
         return this.getTextUpdate( "Turn to roll" )
     }
 
-    override fun getChargeRentDisplay(): VNode? {
-        return null // Must keep silent!
+    override fun getJailEscapeDisplay(): VNode {
+        return this.getTextUpdate( "Considering jail options" )
+    }
+
+    override fun getChargeRentDisplay(): List < VNode > {
+        return emptyList()
     }
 
     override fun getPropertyPurchaseDisplay(): VNode {
@@ -32,7 +44,11 @@ class PassiveSinglePlayerComponent(
         return this.getTextUpdate( "Reading card" )
     }
 
-    override fun getAlwaysActions(): Array < VNode? > {
+    override fun getPayFineOrTakeChance(): VNode? {
+        return this.getTextUpdate( "Deciding whether to pay or take chance" )
+    }
+
+    override fun getActionsKeptToSelf(): Array < VNode? > {
         return arrayOf() // No actions for the passive player of course!
     }
 

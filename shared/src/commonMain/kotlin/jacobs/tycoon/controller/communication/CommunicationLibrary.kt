@@ -8,6 +8,7 @@ import jacobs.tycoon.domain.board.cards.cardsSerializerModule
 import jacobs.tycoon.domain.board.currency.currencySerializerModule
 import jacobs.tycoon.domain.board.squares.squareSerializerModule
 import jacobs.tycoon.domain.dice.diceRollSerializerModule
+import jacobs.tycoon.domain.phases.results.jailResultSerializerModule
 import jacobs.websockets.content.SerializationLibrary
 
 class CommunicationLibrary {
@@ -23,6 +24,7 @@ class CommunicationLibrary {
         serialModule( currencySerializerModule() )
         serialModule( diceRollSerializerModule() )
         serialModule( gameActionSerializerModule() )
+        serialModule( jailResultSerializerModule() )
         serialModule( pieceSetSerializerModule() )
         serialModule( squareSerializerModule() )
 

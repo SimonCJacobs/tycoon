@@ -14,15 +14,8 @@ class PlayerIdentifier ( kodein: Kodein ) {
     private val clientState by kodein.instance < ClientState > ()
     private val gameState by kodein.instance < GameState > ()
 
-
     fun getPlayerFromSeatingPosition( seatingPosition: SeatingPosition ): Player {
         return gameState.game().players.getPlayerAtPosition( seatingPosition )
-    }
-
-    fun getPlayerFromSocketId( socketId: SocketId ): Player {
-        return this.getPlayerFromSeatingPosition(
-            socketId.toPosition()
-        )
     }
 
     fun isPlayerUsingThisMachine(testPlayer: Player ): Boolean {
@@ -37,7 +30,18 @@ class PlayerIdentifier ( kodein: Kodein ) {
             ?: false
     }
 
+    fun < T > mapOtherPlayers( callback: ( Player ) -> T ): List < T > {
+        return this.gameState.game().players.playersToLeftExcluding( playerUsingThisMachine )
+            .map( callback )
+    }
+
     val playerUsingThisMachine: Player
         get() = this.getPlayerFromSocketId( clientState.socketNotNull )
+
+    private fun getPlayerFromSocketId(socketId: SocketId ): Player {
+        return this.getPlayerFromSeatingPosition(
+            socketId.toPosition()
+        )
+    }
 
 }

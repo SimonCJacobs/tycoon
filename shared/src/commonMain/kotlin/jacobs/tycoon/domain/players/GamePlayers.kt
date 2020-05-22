@@ -1,6 +1,7 @@
 package jacobs.tycoon.domain.players
 
 import jacobs.tycoon.domain.board.squares.Property
+import jacobs.tycoon.domain.board.squares.Square
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.services.wrapFromExcludingFirstMatch
 
@@ -33,6 +34,10 @@ class GamePlayers {
         this.playersAndIfInGame.put( player, false )
     }
 
+    fun getActualPlayer( player: Player ): Player {
+        return this.playersAndIfInGame.keys.find { actualPlayers -> actualPlayers == player }!!
+    }
+
     fun getByName( name: String ): Player? {
         return this.playersAndIfInGame.keys.firstOrNull { name == it.name }
     }
@@ -50,12 +55,12 @@ class GamePlayers {
         return this.playersAndIfInGame.keys.any { it.position == position }
     }
 
-    fun isPlayerStillInGame( player: Player ): Boolean {
-        return this.playersAndIfInGame.containsKey( player )
-    }
-
     fun isThereAPlayerOfName( name: String ): Boolean {
         return this.playersAndIfInGame.keys.any { name == it.name }
+    }
+
+    fun isPlayerInGame( player: Player ): Boolean {
+        return this.playersAndIfInGame.getValue( player )
     }
 
     fun nextActive( previousPlayer: Player ): Player {

@@ -1,11 +1,13 @@
 package jacobs.tycoon.domain
 
+import jacobs.tycoon.domain.actions.cards.PayFineOrTakeCardDecision
 import jacobs.tycoon.domain.actions.property.BuildingProject
-import jacobs.tycoon.domain.actions.results.MoveResult
-import jacobs.tycoon.domain.actions.results.ReadCardResult
-import jacobs.tycoon.domain.actions.results.RentChargeResult
-import jacobs.tycoon.domain.actions.results.RollForMoveResult
-import jacobs.tycoon.domain.actions.results.RollForOrderResult
+import jacobs.tycoon.domain.actions.property.MortgageOnTransferDecision
+import jacobs.tycoon.domain.phases.results.MoveResult
+import jacobs.tycoon.domain.phases.results.ReadCardResult
+import jacobs.tycoon.domain.phases.results.RentChargeResult
+import jacobs.tycoon.domain.phases.results.RollForMoveResult
+import jacobs.tycoon.domain.phases.results.RollForOrderResult
 import jacobs.tycoon.domain.actions.trading.TradeOffer
 import jacobs.tycoon.domain.bank.Bank
 import jacobs.tycoon.domain.board.Board
@@ -13,18 +15,23 @@ import jacobs.tycoon.domain.board.cards.Card
 import jacobs.tycoon.domain.board.currency.CurrencyAmount
 import jacobs.tycoon.domain.board.squares.Property
 import jacobs.tycoon.domain.board.squares.Square
-import jacobs.tycoon.domain.board.squares.Street
 import jacobs.tycoon.domain.dice.Dice
 import jacobs.tycoon.domain.dice.DiceRoll
+import jacobs.tycoon.domain.phases.AcceptingFunds
 import jacobs.tycoon.domain.phases.AuctionProperty
+import jacobs.tycoon.domain.phases.BankruptcyProceedings
 import jacobs.tycoon.domain.services.auction.AuctionPhase
 import jacobs.tycoon.domain.phases.CardReading
+import jacobs.tycoon.domain.phases.CrownTheVictor
+import jacobs.tycoon.domain.phases.DealingWithMortgageInterestOnTransfer
 import jacobs.tycoon.domain.phases.GamePhase
 import jacobs.tycoon.domain.phases.MovingAPiece
 import jacobs.tycoon.domain.phases.NotTurnOfPlayerException
+import jacobs.tycoon.domain.phases.PayingFineOrTakingCard
+import jacobs.tycoon.domain.phases.PaymentDue
 import jacobs.tycoon.domain.phases.status.PhaseStatus
 import jacobs.tycoon.domain.phases.PotentialPurchase
-import jacobs.tycoon.domain.phases.PotentialRentCharge
+import jacobs.tycoon.domain.phases.rent.PotentialRentCharge
 import jacobs.tycoon.domain.phases.RollingForMove
 import jacobs.tycoon.domain.phases.RollingForMoveFromJail
 import jacobs.tycoon.domain.phases.RollingForOrder
@@ -34,10 +41,13 @@ import jacobs.tycoon.domain.phases.TurnBasedPhase
 import jacobs.tycoon.domain.phases.status.TurnStatus
 import jacobs.tycoon.domain.phases.status.TurnlessPhaseStatus
 import jacobs.tycoon.domain.phases.WrongPhaseException
+import jacobs.tycoon.domain.phases.results.RollForMoveFromJailResult
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.domain.players.GamePlayers
 import jacobs.tycoon.domain.players.Player
 import jacobs.tycoon.domain.players.SeatingPosition
+import jacobs.tycoon.domain.rules.JailRules
+import jacobs.tycoon.domain.rules.MiscellaneousRules
 import jacobs.tycoon.domain.services.GameCycle
 import jacobs.tycoon.domain.services.auction.AuctionStatus
 import kotlin.reflect.KClass
@@ -48,7 +58,8 @@ import kotlin.reflect.KClass
  */
 class Game(
     val bank: Bank,
-    private val minimumNumberOfPlayers: Int
+    private val rules: MiscellaneousRules,
+    private val jailRules: JailRules
 ) {
 
     lateinit var board: Board
@@ -60,11 +71,28 @@ class Game(
      * *** 1. UPDATING GAME STATE API AS MAIN GAME ACTION ***
      */
 
+    fun acceptFunds( gameCycle: GameCycle, actorPosition: SeatingPosition ): Boolean {
+        return gameCycle.doOnTurnPhaseAndCycle < AcceptingFunds, Boolean > ( this, actorPosition ) {
+            this.acceptFunds()
+            true
+        }
+    }
+
     fun addPlayer( possibleNewPlayer: Player ): Boolean {
         if ( canGivenNewPlayerJoin( possibleNewPlayer ) )
             return players.addPlayer( possibleNewPlayer )
         else
             return false
+    }
+
+    fun attemptToPay( gameCycle: GameCycle, position: SeatingPosition ): Boolean {
+        return gameCycle.doInPhaseAndCycle < PaymentDue, Boolean > ( this ) {
+            val requestingPlayer = position.player()
+            if ( false == this.doesPlayerStillOweMoney( requestingPlayer ) )
+                throw NotTurnOfPlayerException( "Requesting player ${ requestingPlayer.name } does not owe money" )
+            this.attemptPayment( requestingPlayer )
+            true
+        }
     }
 
     fun bidFromPosition( amount: CurrencyAmount, actorPosition: SeatingPosition ): Boolean {
@@ -80,21 +108,24 @@ class Game(
         return true
     }
 
-    fun completePieceMove( gameCycle: GameCycle, position: SeatingPosition ): MoveResult {
-        return gameCycle.doOnTurnPhaseAndCycle < MovingAPiece, MoveResult > ( this, position ) {
-            this.carryOutMove( it )
+    fun carryOutBankruptcyProceedings( gameCycle: GameCycle ): Boolean {
+        return gameCycle.doInPhaseAndCycle < BankruptcyProceedings, Boolean > ( this ) {
+            this.carryOutProceedings( it )
+            true
         }
     }
 
-    fun chargeRent( gameCycle: GameCycle, actorPosition: SeatingPosition ): RentChargeResult {
-        return gameCycle.doInPhaseAndCycle < PotentialRentCharge, RentChargeResult > ( this ) {
-            val requestingPlayer = actorPosition.player()
-            if ( false == this.canPlayerChargeRent( requestingPlayer ) )
-                throw NotTurnOfPlayerException(
-                    "Requesting player ${ requestingPlayer.name } does not own the occupied property " +
-                        this.occupiedProperty.name
-                )
-            this.chargeRent( requestingPlayer )
+    fun chargeRent( gameCycle: GameCycle, property: Property, actorPosition: SeatingPosition ): RentChargeResult {
+        val rentCharge = getPotentialRentChargeOrNullGivenProperty( actorPosition.player(), property )
+            ?: throw NotTurnOfPlayerException( "Invalid rent charge attempt" )
+        val result = rentCharge.recordRentCharge( actorPosition.player() )
+        gameCycle.dealWithRentCharge( result, this )
+        return result
+    }
+
+    fun completePieceMove( gameCycle: GameCycle, position: SeatingPosition ): MoveResult {
+        return gameCycle.doOnTurnPhaseAndCycle < MovingAPiece, MoveResult > ( this, position ) {
+            this.carryOutMove( it )
         }
     }
 
@@ -126,18 +157,42 @@ class Game(
             return gameCycle.startNewTradingPhase( tradeOffer, this )
     }
 
+    fun payFineOrTakeCard( gameCycle: GameCycle, decision: PayFineOrTakeCardDecision,
+                           actorPosition: SeatingPosition ): Boolean {
+        return gameCycle.doOnTurnPhaseAndCycle < PayingFineOrTakingCard, Boolean > ( this, actorPosition ) {
+            this.carryOutDecision( decision )
+            true
+        }
+    }
+
+    fun payJailFineVoluntarily( gameCycle: GameCycle, seatingPosition: SeatingPosition ): Boolean {
+        return gameCycle.doOnTurnPhaseAndCycle < RollingForMoveFromJail, Boolean > ( this, seatingPosition ) {
+            this.payFine()
+            true
+        }
+    }
+
     fun payOffMortgage( property: Property, actorPosition: SeatingPosition ): Boolean {
         if ( false == property.isMortgaged() || actorPosition.player().owns( property ) == false )
             return false
         property.payOffMortgage()
-        actorPosition.player().debitFunds( property.mortgagePlusInterest() )
+        actorPosition.player().debitFunds( property.mortgagePlusInterest( bank.interestRate ) )
         return true
+    }
+
+    fun payOffMortgageOnTransfer( gameCycle: GameCycle, decision: MortgageOnTransferDecision, actorPosition: SeatingPosition ): Boolean {
+        return gameCycle.doInPhaseAndCycle < DealingWithMortgageInterestOnTransfer, Boolean > ( this ) {
+            if ( false == this.doesOwnProperty( actorPosition.getPlayer( it ) ) )
+                throw NotTurnOfPlayerException( "Not turn of ${ actorPosition.getPlayer( it ) } to pay off mortgage in transfer" )
+            this.dealWithMortgage( decision, it )
+            true
+        }
     }
 
     fun playGetOutOfJailFreeCard( actorPosition: SeatingPosition ): Boolean {
         return this.doInPhaseOrElse < RollingForMoveFromJail, Boolean > ( false ) {
             if ( actorPosition.player().hasGetOutOfJailFreeCard() ) {
-                this.usingGetOutOfJailFreeCard()
+                this.useGetOutOfJailFreeCard()
                 actorPosition.player().returnGetOutOfJailFreeCard()
                 true
             }
@@ -148,7 +203,7 @@ class Game(
 
     fun readCard( gameCycle: GameCycle, position: SeatingPosition ): ReadCardResult {
         return gameCycle.doOnTurnPhaseAndCycle < CardReading, ReadCardResult > ( this, position ) {
-            this.result
+            this.readCard()
         }
     }
 
@@ -176,6 +231,14 @@ class Game(
         }
     }
 
+    fun rollTheDiceFromJailForMove( gameCycle: GameCycle, position: SeatingPosition,
+                                    maybeDiceRoll: DiceRoll? ): RollForMoveFromJailResult {
+        return gameCycle.doOnTurnPhaseAndCycle < RollingForMoveFromJail, RollForMoveFromJailResult > ( this, position ) {
+            this.setDiceRoll( dice.roll( maybeDiceRoll ) )
+            this.decideResultOfDiceRoll( it )
+        }
+    }
+
     fun rollTheDiceForThrowingOrder( gameCycle: GameCycle, position: SeatingPosition,
                                     maybeDiceRoll: DiceRoll? = null ) : RollForOrderResult {
         return gameCycle.doOnTurnPhaseAndCycle < RollingForOrder, RollForOrderResult > ( this, position ) {
@@ -184,9 +247,11 @@ class Game(
         }
     }
 
-    fun sellProperties( streets: List < Street >, housesToSell: List < Int >,
-                        actorPosition: SeatingPosition): Boolean {
-        TODO( "do once can do buying!" )
+    fun sellProperties( project: BuildingProject ): Boolean {
+        if ( project.isValid() == false )
+            return false
+        project.carryOut()
+        return true
     }
 
     fun updateAuctionProceedings(auctionPhase: AuctionPhase) : Boolean {
@@ -195,10 +260,21 @@ class Game(
         }
     }
 
-    // 2. UPDATING GAME STATE FROM MID-PHASE ACTION TODO COULD SEPARATE THIS OUT
+    fun useGetOutOfJailFreeCard( gameCycle: GameCycle, seatingPosition: SeatingPosition ): Boolean {
+        return gameCycle.doOnTurnPhaseAndCycle < RollingForMoveFromJail, Boolean > ( this, seatingPosition ) {
+            this.useGetOutOfJailFreeCard()
+            true
+        }
+    }
+
+    // 2. UPDATING GAME STATE OTHERWISE
 
     fun moveAllPiecesToStartingSquare() {
         this.board.pieceSet.moveAllToSquare( this.board.startingSquare() )
+    }
+
+    fun startNewTurn( phaseStatus: TurnStatus ) {
+        this.phaseStatus = phaseStatus
     }
 
     // 3. INTERROGATING GAME STATE API TODO COULD SEPARATE THIS OUT
@@ -210,13 +286,23 @@ class Game(
 
     fun canGameStart(): Boolean {
         return doInPhaseOrElse < SignUp, Boolean > ( false ) {
-            players.countAll() >= minimumNumberOfPlayers
+            players.countAll() >= rules.minimumNumberOfPlayers
         }
     }
 
     fun canAnyNewPlayerJoin(): Boolean {
         return doInPhaseOrElse < SignUp, Boolean > ( false ) {
             players.countAll() < board.getPieceCount()
+        }
+    }
+
+    fun canPlayerChargeRent( player: Player ): Boolean {
+        return this.getPotentialRentChargeOrNull( player ) != null
+    }
+
+    fun getAmountOfPaymentDue(): CurrencyAmount {
+        return this.doInPhase < PaymentDue, CurrencyAmount > {
+            this.amountDue
         }
     }
 
@@ -230,12 +316,40 @@ class Game(
         return this.board.pieceSet.getAvailablePieces( players )
     }
 
+    fun getBankruptPlayer(): Player {
+        return this.doInPhase < BankruptcyProceedings, Player > {
+            this.bankruptPlayer
+        }
+    }
+
+    fun getPaymentReason(): String {
+        return this.doInPhase < PaymentDue, String > {
+            this.reason
+        }
+    }
+
     fun getCardBeingRead(): Card {
         return this.doInPhaseOrPastPhasesOfTurn < CardReading, Card > { this.card }
     }
 
+    fun getJailFine(): CurrencyAmount {
+        return jailRules.leaveJailFineAmount
+    }
+
     fun getLastRoll(): DiceRoll {
         return this.dice.lastRoll
+    }
+
+    fun getOfferBeingConsidered(): TradeOffer {
+        return doInPhase < TradeBeingConsidered, TradeOffer > {
+            this.offer
+        }
+    }
+
+    fun getTheWinner(): Player {
+        return doInPhase < CrownTheVictor, Player > {
+            this.playerWithTurn
+        }
     }
 
     fun haveDiceBeenRolled(): Boolean {
@@ -244,6 +358,12 @@ class Game(
 
     fun isGameUnderway(): Boolean {
         return false == ( this.isPhase < SignUp >() || this.isPhase < RollingForOrder >() )
+    }
+
+    fun isPaymentDueFromPlayer( player: Player): Boolean {
+        return doInPhaseOrElse < PaymentDue, Boolean > ( false ) {
+            this.doesPlayerStillOweMoney( player )
+        }
     }
 
     inline fun < reified T : GamePhase > isPhase(): Boolean {
@@ -262,8 +382,26 @@ class Game(
         return doInPhaseOrElse < MovingAPiece, Boolean > ( false ) { isSquareDropTarget( square ) }
     }
 
+    fun isTradeBeingConsideredBy( player: Player ): Boolean {
+        return doInPhaseOrElse < TradeBeingConsidered, Boolean > ( false ) {
+            this.isPlayerWhoReceivedOffer( player )
+        }
+    }
+
+    fun isTradeBeingConsideredBySomeoneOtherThan( player: Player ): Boolean {
+        return doInPhaseOrElse < TradeBeingConsidered, Boolean > ( false ) {
+            false == this.isPlayerWhoReceivedOffer( player )
+        }
+    }
+
     fun isTurnOfPlayer( testPlayer: Player ): Boolean {
         return this.phaseStatus.isItTurnOfPlayer( testPlayer )
+    }
+
+    fun propertiesOnWhichPlayerCanChargeRent( player: Player ): List < Property > {
+        val possibleRentCharges = ( this.phaseStatus as TurnStatus ).potentialRentCharges
+        return possibleRentCharges.filter { it.canPlayerChargeRentOnProperty( player ) }
+            .map { it.occupiedProperty }
     }
 
     // 4. HELPER METHODS
@@ -300,6 +438,27 @@ class Game(
         return turnStatus.getFirstPhaseOfType < T > ()
             ?.run { action() }
             ?: this.throwWrongPhaseException( T::class, phaseStatus.current()::class )
+    }
+
+    private fun < T > doWhenTurnBasedOrElse( elseReturn: T, action: TurnStatus.() -> T ): T {
+        val turnStatus = this.phaseStatus as? TurnStatus ?: return elseReturn
+        return turnStatus.action()
+    }
+
+    private fun getPotentialRentChargeOrNullGivenProperty( player: Player, property: Property ): PotentialRentCharge? {
+        return doWhenTurnBasedOrElse( null ) {
+            potentialRentCharges.firstOrNull {
+                it.canPlayerChargeRentOnGivenProperty( player, property )
+            }
+        }
+    }
+
+    private fun getPotentialRentChargeOrNull( player: Player ): PotentialRentCharge? {
+        return doWhenTurnBasedOrElse( null ) {
+            potentialRentCharges.firstOrNull {
+                it.canPlayerChargeRentOnProperty( player )
+            }
+        }
     }
 
     private fun throwWrongPhaseException( expected: KClass < out GamePhase >, actual: KClass < out GamePhase > ): Nothing {

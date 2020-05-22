@@ -8,11 +8,11 @@ class NullProperty : Property() {
 
     override val listPrice: CurrencyAmount = CurrencyAmount.NULL
 
-    override fun <T> accept( propertyVisitor: PropertyVisitor<T> ): T {
+    override fun < T > accept( propertyVisitor: PropertyVisitor < T > ): T {
         throw Error( "Not to be used" )
     }
 
-    override fun <T> accept(squareVisitor: SquareVisitor<T>): T {
+    override fun < T > accept( squareVisitor: SquareVisitor < T > ): T {
         throw Error( "Not to be used" )
     }
 

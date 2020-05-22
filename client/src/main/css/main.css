@@ -1,0 +1,47 @@
+.square {
+    border: 1.2px solid black;
+    text-align: center;
+}
+
+.drop-target {
+    background-color: yellow;
+}
+
+.drop-target * {
+    pointer-events: none;
+}
+
+.available-for-selection {
+    cursor: copy;
+    background-color: azure;
+}
+
+.available-for-selection * {
+    pointer-events: none;
+}
+
+.available-for-selection-secondary {
+    cursor: copy;
+    background-color: blanchedalmond;
+}
+
+.available-for-selection-secondary * {
+    pointer-events: none;
+}
+
+.selected {
+    background-color: blue;
+    cursor: alias;
+}
+
+.selected-secondary {
+    background-color: orange;
+    cursor: alias;
+}
+
+.unavailable-for-selection {
+    border: 0.3px dotted lightgrey;
+    cursor: not-allowed;
+    font-color: lightgrey;
+    font-style: italic;
+}

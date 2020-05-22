@@ -1,5 +1,6 @@
 package jacobs.tycoon.domain.board.squares
 
+import jacobs.tycoon.domain.board.Board
 import jacobs.tycoon.domain.board.cards.Card
 import jacobs.tycoon.domain.board.cards.CardSet
 import kotlinx.serialization.Serializable
@@ -8,15 +9,15 @@ import kotlinx.serialization.Serializable
 class CardSquare(
     override val indexOnBoard: Int,
     override val name: String,
-    private val cardSet: CardSet
+    private val cardSetName: String
 ) : ActionSquare() {
 
     override fun < T > accept( squareVisitor: SquareVisitor < T > ): T {
         return squareVisitor.visit( this )
     }
 
-    fun getNextCard(): Card {
-        return this.cardSet.drawCard()
+    fun getNextCard( board: Board ): Card {
+        return board.getNamedCardSet( cardSetName ).drawCard()
     }
 
 }

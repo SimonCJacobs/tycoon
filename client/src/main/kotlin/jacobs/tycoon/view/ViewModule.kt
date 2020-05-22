@@ -2,7 +2,7 @@ package jacobs.tycoon.view
 
 import jacobs.tycoon.view.components.board.BoardComponent
 import jacobs.tycoon.view.components.board.DiceComponent
-import jacobs.tycoon.view.components.board.SquareComponentFactory
+import jacobs.tycoon.view.components.board.squares.SquareComponentRepository
 import jacobs.tycoon.view.components.board.centre.CentreCellReposifactory
 import jacobs.tycoon.view.components.console.Console
 import jacobs.tycoon.view.components.pages.EntryPage
@@ -25,7 +25,7 @@ val viewModule = Kodein.Module( "view" ) {
     bind < BoardComponent >() with singleton { BoardComponent( kodein ) }
     bind < CentreCellReposifactory >() with singleton { CentreCellReposifactory( kodein ) }
     bind < DiceComponent >() with singleton { DiceComponent( kodein ) }
-    bind < SquareComponentFactory >() with singleton { SquareComponentFactory( kodein ) }
+    bind <SquareComponentRepository>() with singleton { SquareComponentRepository(kodein) }
 
     bind < Console >() with singleton { Console( kodein ) }
 

@@ -25,4 +25,8 @@ abstract class Square {
         return name.hashCode()
     }
 
+    override fun toString(): String {
+        return this.name
+    }
+
 }

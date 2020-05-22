@@ -1,5 +1,6 @@
 object Versions {
     const val assertJ = "3.11.1"
+    const val cssLoader = "3.5.3"
     const val javaBytecode = "11" // Limited by multiplatform test library, jvm part
     const val jUnit = "5.6.2"
     const val kodein = "6.5.5"

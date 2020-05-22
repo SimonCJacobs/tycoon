@@ -1,13 +1,13 @@
 package jacobs.tycoon.domain.board.squares
 
 import jacobs.tycoon.domain.board.currency.CurrencyAmount
+import jacobs.tycoon.domain.players.Player
 import kotlinx.serialization.Serializable
 
 @Serializable
 abstract class Property : Square() {
 
     companion object {
-        const val INTEREST_RATE = 0.1
         val NULL = NullProperty()
     }
 
@@ -17,12 +17,21 @@ abstract class Property : Square() {
 
     abstract fun < T > accept( propertyVisitor: PropertyVisitor < T > ): T
 
+    fun canBeMortgaged(): Boolean {
+        return this.mortgaged == false &&
+            ( this is Street == false || this.hasAnyDevelopment() == false )
+    }
+
     fun isMortgaged(): Boolean {
         return this.mortgaged
     }
 
-    fun mortgagePlusInterest(): CurrencyAmount {
-        return this.mortgagedValue() * ( 1 + INTEREST_RATE ).toFloat()
+    fun mortgageInterestAmount( bankInterestRate: Float ): CurrencyAmount {
+        return this.mortgagedValue() * bankInterestRate
+    }
+
+    fun mortgagePlusInterest( bankInterestRate: Float ): CurrencyAmount {
+        return this.mortgagedValue() + mortgageInterestAmount( bankInterestRate )
     }
 
     fun mortgagedValue(): CurrencyAmount {

@@ -3,7 +3,7 @@ package jacobs.tycoon.domain.actions.cards
 import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.actions.ActionVisitor
 import jacobs.tycoon.domain.actions.GameAction
-import jacobs.tycoon.domain.actions.results.ReadCardResult
+import jacobs.tycoon.domain.phases.results.ReadCardResult
 import kotlinx.serialization.Serializable
 
 @Serializable

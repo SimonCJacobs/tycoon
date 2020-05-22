@@ -1,6 +1,5 @@
 package jacobs.tycoon.domain.players
 
-import jacobs.tycoon.domain.board.currency.Currency
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.domain.rules.MiscellaneousRules
 import org.kodein.di.Kodein

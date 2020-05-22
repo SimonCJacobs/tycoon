@@ -6,6 +6,7 @@ import jacobs.tycoon.domain.phases.PhasePhactory
 import jacobs.tycoon.domain.players.PlayerFactory
 import jacobs.tycoon.domain.rules.JailRules
 import jacobs.tycoon.domain.rules.MiscellaneousRules
+import jacobs.tycoon.domain.rules.StandardMiscellaneousRules
 import jacobs.tycoon.domain.rules.StandardJailRules
 import jacobs.tycoon.domain.services.GameCycle
 import jacobs.tycoon.domain.services.GameFactory
@@ -19,11 +20,11 @@ fun domainModule(): Kodein.Module {
     return Kodein.Module( name = "domain" ) {
         /**
          * ActualGameExecutor is bound twice so that (i) GameController can access its non-interface methods,
-         * but also (ii) that it can still be bound via its interface. As it contains no dependencies or state
-         * at the time of writing (12.5.20), that is not a problem.
+         * but also (ii) that it can still be bound via its interface. To ensure that it is still a singleton,
+         * the [instance] binding is used
          */
         bind < ActualGameExecutor >() with instance( actualGameExecutor )
-        bind < GameExecutor >( tag = "actual" ) with  instance( actualGameExecutor )
+        bind < GameExecutor >( tag = "actual" ) with instance( actualGameExecutor )
 
         bind < GameController >() with singleton { GameController( kodein ) }
         bind < GameCycle > () with singleton { GameCycle( kodein ) }
@@ -34,6 +35,6 @@ fun domainModule(): Kodein.Module {
 
         bind < Currency >() with singleton { PoundsSterling() }
         bind < JailRules >() with singleton { StandardJailRules( kodein ) }
-        bind < MiscellaneousRules > () with singleton { MiscellaneousRules( kodein ) }
+        bind < MiscellaneousRules > () with singleton { StandardMiscellaneousRules( kodein ) }
     }
 }

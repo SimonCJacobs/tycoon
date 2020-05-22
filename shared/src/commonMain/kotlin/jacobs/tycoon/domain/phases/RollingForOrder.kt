@@ -1,8 +1,8 @@
 package jacobs.tycoon.domain.phases
 
 import jacobs.tycoon.domain.Game
-import jacobs.tycoon.domain.actions.results.RollForOrderResult
-import jacobs.tycoon.domain.actions.results.RollForOrderOutcome
+import jacobs.tycoon.domain.phases.results.RollForOrderResult
+import jacobs.tycoon.domain.phases.results.RollForOrderOutcome
 import jacobs.tycoon.domain.dice.DiceRoll
 import jacobs.tycoon.domain.players.Player
 

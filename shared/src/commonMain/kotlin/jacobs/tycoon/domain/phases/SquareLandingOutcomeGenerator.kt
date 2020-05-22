@@ -1,7 +1,7 @@
 package jacobs.tycoon.domain.phases
 
 import jacobs.tycoon.domain.Game
-import jacobs.tycoon.domain.actions.results.MoveOutcome
+import jacobs.tycoon.domain.phases.results.MoveOutcome
 import jacobs.tycoon.domain.board.squares.CardSquare
 import jacobs.tycoon.domain.board.squares.FreeParkingSquare
 import jacobs.tycoon.domain.board.squares.GoSquare
@@ -14,6 +14,7 @@ import jacobs.tycoon.domain.board.squares.Station
 import jacobs.tycoon.domain.board.squares.Street
 import jacobs.tycoon.domain.board.squares.TaxSquare
 import jacobs.tycoon.domain.board.squares.Utility
+import jacobs.tycoon.domain.phases.rent.PotentialRentCharge
 import jacobs.tycoon.domain.players.Player
 
 class SquareLandingOutcomeGenerator (
@@ -21,11 +22,16 @@ class SquareLandingOutcomeGenerator (
     private val playerWithTurn: Player
 ) : SquareVisitor < Unit > {
 
-    private var maybeNextPhaseLambda: ( PhasePhactory.() -> TurnBasedPhase )? = null
+    private var maybeNextPhaseLambda: ( PhasePhactory.( Player ) -> TurnBasedPhase )? = null
+    var maybePotentialRentCharge: PotentialRentCharge? = null
 
     val isNextPhase: Boolean
         get() = null != maybeNextPhaseLambda
-    val nextPhaseLambda: PhasePhactory.() -> TurnBasedPhase
+
+    /**
+     * The [Player] in the lambda is the player whose turn it is next
+     */
+    val nextPhaseLambda: PhasePhactory.( Player ) -> TurnBasedPhase
         get() = maybeNextPhaseLambda ?: throw Error ( "No implied next phase from square landing" )
 
     lateinit var outcome: MoveOutcome
@@ -44,7 +50,8 @@ class SquareLandingOutcomeGenerator (
     }
 
     override fun visit( square: GoToJailSquare ) {
-        this.maybeNextPhaseLambda = { this.movingAPieceNotViaGo( playerWithTurn, square ) }
+        val jailSquare = game.board.jailSquare
+        this.maybeNextPhaseLambda = { this.movingAPieceNotViaGo( playerWithTurn, jailSquare ) }
         this.outcome = MoveOutcome.GO_TO_JAIL
     }
 
@@ -65,8 +72,15 @@ class SquareLandingOutcomeGenerator (
     }
 
     override fun visit( square: TaxSquare ) {
-        playerWithTurn.debitFunds( square.getTaxCharge() )
         this.outcome = MoveOutcome.TAX
+        this.maybeNextPhaseLambda = {
+            paymentDueToBank(
+                playerWithTurn = playerWithTurn,
+                playerOwingMoney = playerWithTurn,
+                amountDue = square.getTaxCharge(),
+                reason = "tax"
+            )
+        }
     }
 
     override fun visit( square: Utility ) {
@@ -82,9 +96,7 @@ class SquareLandingOutcomeGenerator (
                 this.outcome = MoveOutcome.ON_OWN_PROPERTY
             }
             this.game.isPropertyOwned( property ) -> {
-                this.maybeNextPhaseLambda = {
-                    potentialRentCharge( playerWithTurn, game.players.nextActive( playerWithTurn), property )
-                }
+                this.maybePotentialRentCharge = PotentialRentCharge( playerWithTurn, property )
                 this.outcome = MoveOutcome.POTENTIAL_RENT
             }
             else -> {

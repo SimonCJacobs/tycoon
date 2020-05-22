@@ -3,7 +3,7 @@ package jacobs.tycoon.domain.actions.moving
 import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.actions.ActionVisitor
 import jacobs.tycoon.domain.actions.GameAction
-import jacobs.tycoon.domain.actions.results.RollForMoveResult
+import jacobs.tycoon.domain.phases.results.RollForMoveResult
 import jacobs.tycoon.domain.dice.DiceRoll
 import kotlinx.serialization.Serializable
 

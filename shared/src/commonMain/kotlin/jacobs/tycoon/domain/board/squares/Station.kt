@@ -13,6 +13,10 @@ class Station (
     private val singleStationRent: CurrencyAmount
 ) : OwnershipProperty() {
 
+    companion object {
+        val NULL = Station( -1, "", CurrencyAmount.NULL, CurrencyAmount.NULL )
+    }
+
     override fun < T > accept( propertyVisitor: PropertyVisitor < T > ): T {
         return propertyVisitor.visit( this )
     }

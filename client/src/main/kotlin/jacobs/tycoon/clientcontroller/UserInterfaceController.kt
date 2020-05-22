@@ -2,7 +2,10 @@ package jacobs.tycoon.clientcontroller
 
 import jacobs.tycoon.clientstate.ClientState
 import jacobs.tycoon.controller.communication.toPosition
+import jacobs.tycoon.domain.board.currency.Currency
+import jacobs.tycoon.domain.board.currency.CurrencyAmount
 import jacobs.tycoon.domain.phases.SignUp
+import jacobs.tycoon.domain.players.Player
 import jacobs.tycoon.services.PlayerIdentifier
 import jacobs.tycoon.state.GameState
 import kotlinx.coroutines.CoroutineScope
@@ -15,6 +18,10 @@ open class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.
     private val clientState by kodein.instance < ClientState > ()
     private val gameState by kodein.instance < GameState > ()
     private val playerIdentifier by kodein.instance <PlayerIdentifier> ()
+
+    fun getCurrency(): Currency {
+        return gameState.game().board.currency
+    }
 
     fun isClientWaitingForServer(): Boolean {
         return this.clientState.isWaitingForServer
@@ -38,8 +45,16 @@ open class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.
         )
     }
 
+    protected fun ownPlayer(): Player {
+        return playerIdentifier.playerUsingThisMachine
+    }
+
     fun userOfClientMachineHasSignedUpForGame(): Boolean {
         return this.playerIdentifier.hasUserOfThisMachineSignedUpForGame()
+    }
+
+    protected fun Int.toCurrency(): CurrencyAmount {
+        return CurrencyAmount( this, getCurrency() )
     }
 
 }

@@ -42,7 +42,7 @@ data class CurrencyAmount (
     }
 
     operator fun times( multiplier: Float ): CurrencyAmount {
-        return CurrencyAmount( this.amount * multiplier.roundToInt(), currency )
+        return CurrencyAmount( ( this.amount * multiplier ).roundToInt(), currency )
     }
 
     override fun toString(): String {

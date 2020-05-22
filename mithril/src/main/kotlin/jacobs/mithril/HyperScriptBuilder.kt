@@ -48,7 +48,7 @@ class HyperScriptBuilder(
     private fun Tag?.convert(): String? {
         return when( this ) {
             null -> null
-            Tag.textNode ->  "#"
+            Tag.textNode -> "#"
             else -> this.toString()
         }
     }

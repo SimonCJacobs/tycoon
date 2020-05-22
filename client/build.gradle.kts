@@ -18,6 +18,8 @@ dependencies {
     implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${ Versions.kotlinCoroutines }" )
 }
 
+var d: File? = null
+
 kotlin {
     target {
         browser {
@@ -27,7 +29,7 @@ kotlin {
                 keep( "ktor-ktor-io.\$\$importsForInline\$\$.ktor-ktor-io.io.ktor.utils.io" )
             }
             webpackTask {
-                this.mode = Mode.DEVELOPMENT
+                mode = Mode.DEVELOPMENT
             }
         }
     }
@@ -43,5 +45,12 @@ tasks {
                 "-Xopt-in=kotlin.js.ExperimentalJsExport"
             )
         }
+    }
+    register < Copy > ( "copyCss" ) {
+        from( "src/main/css" )
+        into( "build/distributions" )
+    }
+    assemble {
+        dependsOn( "copyCss" )
     }
 }

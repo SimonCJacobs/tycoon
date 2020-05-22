@@ -12,5 +12,4 @@ class VoiceSynthesiser {
         synthesiser.speak( utterance )
     }
 
-
 }

@@ -2,6 +2,7 @@ package jacobs.tycoon.domain.phases.status
 
 import jacobs.tycoon.domain.phases.GamePhase
 import jacobs.tycoon.domain.phases.NotTurnOfPlayerException
+import jacobs.tycoon.domain.phases.TurnBasedPhase
 import jacobs.tycoon.domain.players.Player
 
 /**
@@ -15,10 +16,12 @@ class TurnlessPhaseStatus(
     override val playerWithTurn: Player
         get() = throw NotTurnOfPlayerException( "Asking for turn when not a turn-based phase" )
 
-    private var complete = false
-
     override fun current(): GamePhase {
         return this.phase
+    }
+
+    override fun isCurrent( gamePhase: GamePhase ): Boolean {
+        return this.phase == gamePhase
     }
 
     override fun isItTurnOfPlayer( testPlayer: Player ): Boolean {

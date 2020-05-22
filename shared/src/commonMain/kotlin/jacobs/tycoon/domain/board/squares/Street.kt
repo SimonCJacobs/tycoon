@@ -12,10 +12,15 @@ class Street (
     override val name: String,
     override val listPrice: CurrencyAmount,
     val rentCard: RentCard,
-    @Transient val colourGroup: ColourGroup = ColourGroup.NULL
+    @Transient val colourGroup: ColourGroup = ColourGroup.NULL,
+    private val housesToAHotel: Int
 ) : OwnershipProperty() {
 
-    var numberOfHousesBuilt: Int = 0 // Here hotels are viewed as 5 houses
+    companion object {
+        val NULL = Street( -1, "", CurrencyAmount.NULL, RentCard.NULL, ColourGroup.NULL, 0 )
+    }
+
+    var numberOfHousesBuilt: Int = 0 // At this stage, hotels are considered to be more houses.
 
     override fun < T > accept( propertyVisitor: PropertyVisitor < T > ): T {
         return propertyVisitor.visit( this )
@@ -31,14 +36,38 @@ class Street (
 
     override fun calculateRent( owner: Player ): CurrencyAmount {
         return when {
-            owner.howManyOfColourGroupOwned( colourGroup ) < colourGroup.numberInGroup
-                -> rentCard.rentByHouseCount( 0 )
+            owner.isStreetOwnedInAFullColourGroup( this ) == false -> rentCard.rentByHouseCount( 0 )
             numberOfHousesBuilt == 0 -> rentCard.rentByHouseCount( 0 ) * 2
             numberOfHousesBuilt > rentCard.maximumHouseCount() ->
                 throw Error( "Too many houses. $numberOfHousesBuilt when maximum " +
                     rentCard.maximumHouseCount() )
             else -> rentCard.rentByHouseCount( numberOfHousesBuilt )
         }
+    }
+
+    fun getNumberOfHousesExcludingHotels(): Int {
+        if ( hasHotel() )
+            return 0
+        else
+            return numberOfHousesBuilt
+    }
+
+    fun hasAnyDevelopment(): Boolean {
+        return this.numberOfHousesBuilt > 0
+    }
+
+    fun hasHotel(): Boolean {
+        return this.housesToAHotel == numberOfHousesBuilt
+    }
+
+    fun hasOwnedDevelopment( expectedOwner: Player ): Boolean {
+        return expectedOwner.owns( this ) && this.hasAnyDevelopment()
+    }
+
+    fun hasScopeForDevelopmentBy( player: Player ): Boolean {
+        return player.owns( this ) &&
+            player.isStreetOwnedInAFullColourGroup( this ) &&
+            this.hasHotel() == false
     }
 
     fun sellHouses( soldHouseCount: Int ) {

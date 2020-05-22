@@ -1,23 +1,19 @@
 package jacobs.tycoon.domain.phases
 
 import jacobs.tycoon.domain.Game
-import jacobs.tycoon.domain.actions.results.RollForMoveOutcome
-import jacobs.tycoon.domain.actions.results.RollForMoveResult
-import jacobs.tycoon.domain.board.squares.JailSquare
-import jacobs.tycoon.domain.board.squares.Square
+import jacobs.tycoon.domain.phases.results.RollForMoveOutcome
+import jacobs.tycoon.domain.phases.results.RollForMoveResult
 import jacobs.tycoon.domain.players.Player
 import jacobs.tycoon.domain.rules.JailRules
-import jacobs.tycoon.domain.rules.StandardJailRules
 
 open class RollingForMove (
-    override val playerWithTurn: Player,
-    protected val jailRules: JailRules
-) : DiceRollingPhase () {
+    playerWithTurn: Player,
+    private val jailRules: JailRules
+) : RollingForMoveBase( playerWithTurn ) {
 
-    lateinit var destinationSquare: Square
-    lateinit var result: RollForMoveResult
+    var result: RollForMoveResult = RollForMoveResult.NULL
 
-    override fun accept(turnBasedPhaseVisitor: TurnBasedPhaseVisitor ) {
+    override fun accept( turnBasedPhaseVisitor: TurnBasedPhaseVisitor ) {
         turnBasedPhaseVisitor.visit( this )
     }
 
@@ -27,7 +23,7 @@ open class RollingForMove (
         return this.result
     }
 
-    protected open fun decideResultOfDiceRoll( game: Game ): RollForMoveResult {
+    private fun decideResultOfDiceRoll( game: Game ): RollForMoveResult {
         return when {
             this.shouldPlayerGoToJail() -> this.sendPlayerToJail( game )
             else -> this.waitForPlayerToMove( game )
@@ -41,21 +37,11 @@ open class RollingForMove (
     }
 
     private fun sendPlayerToJail( game: Game ): RollForMoveResult {
-        this.destinationSquare = game.board.jailSquare
         this.playerWithTurn.penalisedForDoubleThrowing()
         return RollForMoveResult(
             diceRoll = diceRoll,
-            destinationSquare = this.destinationSquare,
+            destinationSquare = game.board.jailSquare,
             outcome = RollForMoveOutcome.GO_TO_JAIL
-        )
-    }
-
-    protected fun waitForPlayerToMove( game: Game ): RollForMoveResult {
-        this.destinationSquare = game.board.squarePlusRoll( this.playerWithTurn.piece.square, diceRoll )
-        return RollForMoveResult(
-            diceRoll = diceRoll,
-            destinationSquare = destinationSquare,
-            outcome = RollForMoveOutcome.MOVE_TO_SQUARE
         )
     }
 

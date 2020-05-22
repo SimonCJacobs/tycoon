@@ -12,16 +12,16 @@ class SellBuildings (
     val housesToSell: List < Int >
 ): GameAction() {
 
-    override fun < T > accept( visitor: ActionVisitor<T>): T {
+    override fun < T > accept( visitor: ActionVisitor < T > ): T {
         return visitor.visit( this )
     }
 
-    override suspend fun duplicate(gameController: GameController) {
+    override suspend fun duplicate( gameController: GameController ) {
         this.execute( gameController )
     }
 
     override suspend fun execute( gameController: GameController ) {
-        gameController.game().sellProperties( streets, housesToSell, actorPosition )
+        gameController.sellProperties( streets, housesToSell, actorPosition )
             .also { setExecutionResult( it ) }
     }
 

@@ -16,14 +16,44 @@ class ActiveSinglePlayerComponent(
     override val player: Player
 ) : SinglePlayerComponent() {
 
+    override fun getAcceptFundsDisplay(): VNode {
+        return this.getButtonWithTextAndHandler( "Accept funds" ) {
+            playerActionController.acceptFunds()
+        }
+    }
+
     override fun getDiceRollDisplay(): VNode {
         return this.getButtonWithTextAndHandler( "Roll that dice!" ) {
             playerActionController.rollTheDice()
         }
     }
 
-    override fun getChargeRentDisplay(): VNode {
-        return getButtonWithTextAndHandler( "Charge rent" ) { playerActionController.chargeRent() }
+    override fun getChargeRentDisplay(): List < VNode > {
+        return playerActionController.mapOnPropertiesCanChargeRent { property ->
+            getButtonWithTextAndHandler( "Charge rent for $property" ) {
+                playerActionController.chargeRent( property )
+            }
+        }
+    }
+
+    override fun getJailEscapeDisplay(): VNode {
+        return m( Tag.div ) {
+            children(
+                getButtonWithTextAndHandler( "Pay ${ playerActionController.getJailFine() } fine" ) {
+                    playerActionController.payJailFine()
+                },
+                getPotentialGetOutOfJailFreeCardButton()
+            )
+        }
+    }
+
+    private fun getPotentialGetOutOfJailFreeCardButton(): VNode? {
+        if ( this.playerActionController.doesPlayerHaveGetOutOfJailFreeCard() )
+            return  getButtonWithTextAndHandler( "Use Get Out of Jail Free Card" ) {
+                playerActionController.useGetOutOfJailFreeCard()
+            }
+        else
+            return null
     }
 
     override fun getPropertyPurchaseDisplay(): VNode {
@@ -46,18 +76,34 @@ class ActiveSinglePlayerComponent(
         return getButtonWithTextAndHandler( "Read card" ) { playerActionController.readCard() }
     }
 
-    override fun getAlwaysActions(): Array < VNode? > {
+    override fun getPayFineOrTakeChance(): VNode {
+        return m( Tag.div ) {
+            children(
+                getButtonWithTextAndHandler( "Pay fine" ) { playerActionController.payFineNotTakeChance() },
+                getButtonWithTextAndHandler( "Take chance" ) { playerActionController.takeChance() }
+            )
+        }
+    }
+
+    override fun getActionsKeptToSelf(): Array < VNode? > {
         return arrayOf(
             this.getDealingOption()
         )
     }
 
+    override fun getBillToPayDisplay(): VNode {
+        return getButtonWithTextAndHandler( "Pay ${playerActionController.getBillReason()} ${ playerActionController.getBillAmount() }" ) { playerActionController.attemptToPay() }
+    }
+
     private fun getDealingOption(): VNode {
-        return getButtonWithTextAndHandler( "Do dealing" ) { playerActionController.startComposingDeal() }
+        if ( playerActionController.isPlayerComposingDeal() )
+            return getButtonWithTextAndHandler( "Hide dealing" ) { playerActionController.hideDealingCell() }
+        else
+            return getButtonWithTextAndHandler( "Do dealing" ) { playerActionController.startComposingDeal() }
     }
 
     @Suppress( "unused" )
-    private fun getButtonWithTextAndHandler(text: String, disabled: Boolean = false, handler: MouseEventHandler ): VNode {
+    private fun getButtonWithTextAndHandler( text: String, disabled: Boolean = false, handler: MouseEventHandler ): VNode {
         return m( Tag.button ) {
             attributes ( object {
                 val disabled = disabled

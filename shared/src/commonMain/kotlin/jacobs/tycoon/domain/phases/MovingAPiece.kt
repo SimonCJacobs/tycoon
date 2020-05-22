@@ -1,7 +1,7 @@
 package jacobs.tycoon.domain.phases
 
 import jacobs.tycoon.domain.Game
-import jacobs.tycoon.domain.actions.results.MoveResult
+import jacobs.tycoon.domain.phases.results.MoveResult
 import jacobs.tycoon.domain.board.currency.CurrencyAmount
 import jacobs.tycoon.domain.board.squares.Square
 import jacobs.tycoon.domain.players.Player
@@ -9,7 +9,7 @@ import jacobs.tycoon.domain.players.Player
 class MovingAPiece (
     override val playerWithTurn: Player,
     val destinationSquare: Square,
-    private val goCreditAmount: CurrencyAmount
+    private val goCreditAmount: CurrencyAmount? // [null] indicates no go credit
 ) : TurnBasedPhase {
 
     private var didPassGo: Boolean = false
@@ -42,8 +42,9 @@ class MovingAPiece (
     }
 
     private fun dealWithAnyPassingOfGo( didPassGo: Boolean ) {
-        if ( didPassGo )
-            this.playerWithTurn.creditFunds( this.goCreditAmount )
+        val goCreditAmount = this.goCreditAmount
+        if ( didPassGo && goCreditAmount != null )
+            this.playerWithTurn.creditFunds( goCreditAmount )
     }
 
     private fun generateOutcomeOfLandingOnSquare( game: Game ) {

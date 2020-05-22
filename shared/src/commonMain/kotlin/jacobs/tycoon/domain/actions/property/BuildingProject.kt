@@ -4,14 +4,15 @@ import jacobs.tycoon.domain.bank.Bank
 import jacobs.tycoon.domain.board.squares.Street
 import jacobs.tycoon.domain.players.Player
 
+//TODO: Auction for final houses!!
 class BuildingProject(
     private val streets: List < Street >,
-    private val newHouses: List < Int >, // Ignoring hotels here
+    private val houseChangeDistribution: List < Int >, // Ignoring hotels here
     private val player: Player,
     private val bank: Bank
 ) {
         // Ignoring hotels
-    private val newDistribution = newHouses.mapIndexed {
+    private val newDistribution = houseChangeDistribution.mapIndexed {
         index, houseCount -> houseCount + streets[ index ].numberOfHousesBuilt
     }
         // Now factoring in hotels
@@ -28,19 +29,20 @@ class BuildingProject(
     }
 
     fun carryOut() {
-        player.debitFunds( streets[ 0 ].colourGroup.costOfHouse() * newHouses.sum() )
-        streets.forEachIndexed { index, street -> street.buildHouses( newHouses[ index ] ) }
+        player.debitFunds( streets[ 0 ].colourGroup.costOfHouse() * houseChangeDistribution.sum() )
+        streets.forEachIndexed { index, street -> street.buildHouses( houseChangeDistribution[ index ] ) }
         bank.housesInStock = bank.housesInStock - totalHousesChange()
         bank.hotelsInStock = bank.hotelsInStock - totalHotelsChange()
     }
 
     fun isValid(): Boolean {
-        return this.streets.size == newHouses.size &&
+        return this.streets.size == houseChangeDistribution.size &&
             this.streets.isNotEmpty() &&
             this.areAllStreetsOfSameColourGroup() &&
+            this.player.isStreetOwnedInAFullColourGroup( this.streets [ 0 ] ) &&
             this.isDevelopmentEven() &&
-            this.doesActorOwnProperties() &&
             this.isDevelopmentWithinMaximumBuildingPerProperty() &&
+            this.isDevelopmentWithinMinimumBuildingPerProperty() &&
             this.canActorAffordTheDevelopment() &&
             this.doesTheBankHaveSufficientHousingStock()
     }
@@ -53,8 +55,8 @@ class BuildingProject(
         return newDistribution.max()!! - newDistribution.min()!! <= 1
     }
 
-    private fun doesActorOwnProperties(): Boolean {
-        return this.streets.all { player.owns( it ) }
+    private fun isDevelopmentWithinMinimumBuildingPerProperty(): Boolean {
+        return this.newDistribution.all { it >= 0 }
     }
 
     private fun isDevelopmentWithinMaximumBuildingPerProperty(): Boolean {
@@ -63,7 +65,7 @@ class BuildingProject(
 
     private fun canActorAffordTheDevelopment(): Boolean {
         val singleHouseCost = this.streets[ 0 ].colourGroup.costOfHouse()
-        val totalCost = singleHouseCost * this.newHouses.sum()
+        val totalCost = singleHouseCost * this.houseChangeDistribution.sum()
         return player.cashHoldings >= totalCost
     }
 
