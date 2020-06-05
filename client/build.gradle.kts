@@ -7,6 +7,7 @@ repositories {
 
 plugins {
     kotlin( "js" )
+    id( "jacobs.deployclient" )
 }
 
 dependencies {
@@ -35,6 +36,15 @@ kotlin {
     }
 }
 
+deployment {
+    domain = "monopolisation.grayv.co.uk"
+    region = software.amazon.awssdk.regions.Region.EU_WEST_2
+    secretsDirectory = rootProject.layout.projectDirectory.dir( "secrets" )
+    client {
+        files += arrayOf( "index.html", "main.css" )
+    }
+}
+
 tasks {
     withType( Kotlin2JsCompile::class ) {
         kotlinOptions {
@@ -52,5 +62,8 @@ tasks {
     }
     assemble {
         dependsOn( "copyCss" )
+    }
+    deploy {
+        dependsOn ( "copyCss" )
     }
 }

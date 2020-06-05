@@ -1,3 +1,4 @@
+import software.amazon.awssdk.regions.Region
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 repositories {
@@ -7,11 +8,14 @@ repositories {
 plugins {
     kotlin( "jvm" )
     application
+    id( "jacobs.deployserver" )
 }
 
 application {
     mainClassName = "jacobs.tycoon.MainKt"
 }
+
+version = "0.0.1"
 
 dependencies {
     implementation( kotlin( "stdlib-jdk8" ) )
@@ -41,5 +45,18 @@ tasks {
     }
     withType < Test > {
         useJUnitPlatform()
+    }
+}
+
+deployment {
+    domain = jacobs.json.JsonParser()
+        .parseSettings( rootDir.resolve( "settings" ).resolve( "production-settings.json" ) )
+        .socketHostname
+    region = Region.EU_WEST_2
+    secretsDirectory = rootProject.layout.projectDirectory.dir( "secrets" )
+    server {
+        hostedZoneId = "Z1ZBH69XY7O6JM"
+        privateKeyName = "primary"
+        securityGroupName = "StandardIO"
     }
 }
