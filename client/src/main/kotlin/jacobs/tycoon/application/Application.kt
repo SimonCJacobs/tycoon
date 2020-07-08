@@ -12,6 +12,9 @@ import org.kodein.di.erased.instance
 /**
  * TODO list:
  *
+ * *** BIG ONE IS TO HAVE A WAY OF AFFECTING GAME AND RESEETING IT ETC
+ * **** AND STOPPING NAVIGATION AWAY FROM PAGE
+ * **** TO ALLOW GAME TO BE PLAYABLE
  * * Cookie to reestablish connection (by tab?)
  * * Message to ensure cookies enabled (or whatever using)
  * * Warning when not connected
@@ -46,7 +49,7 @@ import org.kodein.di.erased.instance
  * * Selling
  * * Rent collection
  * * Tax
- * *
+ * * SHOULD YOU BE ALLOWED TO MORTGAGE DURING AN AUCTION? CAN'T AT PRESENT
  */
 class Application ( kodein: Kodein ) {
 
