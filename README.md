@@ -2,11 +2,12 @@
 
 A multiplayer online Monopoly game
 
-## In development
+## Running in development
 
-1. To start the server locally ```./gradlew :server:run```
-2. To start a 
+1. Start the server locally ```./gradlew :server:run```
+2. Open game by opening HTML file ```build/distributions/index.html``` in browser
 
 ## Running in production
 
-1. To start the server ```./gradlew :server:deploy```
+1. Start the server ```./gradlew :server:deploy```
+2. Navigate to ```monopolisation.grayv.co.uk```
