@@ -3,18 +3,14 @@ package jacobs.deploy.tasks
 import jacobs.deploy.aws.S3
 import jacobs.deploy.configuration.ClientConfiguration
 import org.gradle.api.file.DirectoryProperty
-import org.gradle.api.plugins.ApplicationPlugin
 import org.gradle.api.plugins.BasePluginConvention
 import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.bundling.Tar
 import org.gradle.kotlin.dsl.withType
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpack
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
-@Suppress( "LeakingThis" )
 open class DeployClient : Deploy() {
 
     @InputDirectory
@@ -30,7 +26,7 @@ open class DeployClient : Deploy() {
         .findByName( "browserProductionWebpack" )!!
 
     init {
-        webpackTask.mode = KotlinWebpackConfig.Mode.PRODUCTION
+        @Suppress( "LeakingThis" )
         dependsOn( webpackTask )
     }
 
@@ -40,6 +36,7 @@ open class DeployClient : Deploy() {
 
     @TaskAction
     override fun deploy() {
+        webpackTask.mode = KotlinWebpackConfig.Mode.PRODUCTION
         val s3 = S3 (
             bucket = deployConfiguration.get().domain,
             region = deployConfiguration.get().region,
