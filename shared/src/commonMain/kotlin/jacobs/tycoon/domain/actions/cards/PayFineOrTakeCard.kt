@@ -3,7 +3,9 @@ package jacobs.tycoon.domain.actions.cards
 import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.actions.ActionVisitor
 import jacobs.tycoon.domain.actions.GameAction
+import kotlinx.serialization.Serializable
 
+@Serializable
 class PayFineOrTakeCard(
     val decision: PayFineOrTakeCardDecision
 ) : GameAction() {
