@@ -3,6 +3,7 @@ package jacobs.tycoon.domain.actions
 import jacobs.tycoon.domain.actions.auction.AuctionBid
 import jacobs.tycoon.domain.actions.auction.AuctionNotification
 import jacobs.tycoon.domain.actions.auction.ConcludeAuction
+import jacobs.tycoon.domain.actions.cards.PayFineOrTakeCard
 import jacobs.tycoon.domain.actions.debt.CarryOutBankruptcyProceedings
 import jacobs.tycoon.domain.actions.cards.PlayGetOutOfJailFreeCard
 import jacobs.tycoon.domain.actions.cards.ReadCard
@@ -45,6 +46,7 @@ fun gameActionSerializerModule(): SerialModule {
             MortgageProperty::class with MortgageProperty.serializer()
             NewGame::class with NewGame.serializer()
             OfferTrade::class with OfferTrade.serializer()
+            PayFineOrTakeCard::class with PayFineOrTakeCard.serializer()
             PayJailFineVoluntarily::class with PayJailFineVoluntarily.serializer()
             PayOffMortgage::class with PayOffMortgage.serializer()
             PieceMoved::class with PieceMoved.serializer()
