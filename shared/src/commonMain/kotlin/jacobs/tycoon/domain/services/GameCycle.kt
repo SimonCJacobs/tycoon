@@ -163,13 +163,10 @@ class GameCycle( kodein: Kodein ) {
 
         private fun getFirstPhaseOfNewTurn(): TurnBasedPhase {
             val nextPlayer = this.gameCycle.getPlayerToGoNext( game )
-            return when {
-                game.players.activeCount() == 1 ->
-                    this.phasePhactory.crownTheVictor( nextPlayer )
-                nextPlayer.location() == game.board.jailSquare ->
+            return if ( nextPlayer.location() == game.board.jailSquare )
                     this.phasePhactory.rollingForMoveFromJail( nextPlayer )
-                else -> this.phasePhactory.rollingForMove( nextPlayer )
-            }
+                else
+                    this.phasePhactory.rollingForMove( nextPlayer )
         }
 
         private fun startNewTurn( lastTurn: TurnStatus, nextPhase: TurnBasedPhase ) {
@@ -206,12 +203,18 @@ class GameCycle( kodein: Kodein ) {
         }
 
         override fun visit( bankruptcyProceedings: BankruptcyProceedings ) {
-            this.phaseStatus.completeCurrentPhaseAndDoAnyWaiting()
-            if ( bankruptcyProceedings.areAuctionsRequired() )
-                bankruptcyProceedings.forEachPropertyToBeAuctioned {
-                    phasePhactory.auctionProperty( bankruptcyProceedings.playerWithTurn, it )
-                        .doAsPriority()
-                }
+            when {
+                this.game.players.activeCount() == 1 ->
+                    this.phaseStatus.completeAndDoAsPriority(
+                        this.phasePhactory.crownTheVictor( this.game.players.getSoleActivePlayer() )
+                    )
+                bankruptcyProceedings.areAuctionsRequired() ->
+                    bankruptcyProceedings.forEachPropertyOfBankruptPlayer {
+                        phasePhactory.auctionProperty( bankruptcyProceedings.playerWithTurn, it )
+                            .doAsPriority()
+                    }
+                else -> this.phaseStatus.completeCurrentPhaseAndDoAnyWaiting()
+            }
         }
 
         override fun visit( cardReading: CardReading ) {

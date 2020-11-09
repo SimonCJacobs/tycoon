@@ -33,7 +33,7 @@ class BankruptcyProceedingsTest {
                     attemptToPay( 0 )
                 }
             assertTrue( manager.game.isPhase < BankruptcyProceedings > (), "In bankruptcy proceedings" )
-            assertEquals( manager.getPlayer( 0 ), manager.game.getBankruptPlayer(),  "Ken is broke" )
+            assertEquals( manager.getPlayer( 0 ), manager.game.getBankruptPlayer(), "Ken is broke" )
         }
     }
 
@@ -54,7 +54,7 @@ class BankruptcyProceedingsTest {
     @Test
     fun billFromCardCanSendIntoBankruptcy() {
         return runBlockingMultiplatform {
-            val manager = aboutToGoBankruptOnCommunityChest()
+            val manager = aboutToGoBankruptOnCommunityChestInThreePlayerGame()
                 .apply {
                     doMove( 0 )
                     drawCard( 0 )
@@ -109,16 +109,8 @@ class BankruptcyProceedingsTest {
     @Test
     fun assetsPassToCreditor() {
         return runBlockingMultiplatform {
-            val manager = lowCashStateBuilderThreePlayer( 1000 )
+            val manager = triggerBankruptcyInThreePlayerGame()
                 .apply {
-                    rollAndBuy( 1 to 2, 0 )     // Alvin buys Whitechapel
-                    rollAndBuy( 3 to 2, 1 )     // Simon buys King's Cross
-                    rollAndBuy( 4 to 2, 2 )     // Theodore buys Angel
-                    getPlayer( 0 ).cashHoldings = inCurrency( 4 )       // Steal Alvin's money
-                    roll( 1 to 2, 0 )           // Put Alvin on Angel
-                    doMove( 0 )
-                    chargeRent( 6, 2 )             // Theodore charges rent
-                    attemptToPay( 0 )           // Alvin tries to pay
                     goToNextPhaseOfBankruptcy()
                 }
             assertTrue( manager.game.isPhase < RollingForMove > (), "Next turn" )
@@ -130,7 +122,7 @@ class BankruptcyProceedingsTest {
     @Test
     fun propertiesAreAuctionedWhenBankIsCreditor() {
         return runBlockingMultiplatform {
-            val manager = aboutToGoBankruptOnCommunityChest()
+            val manager = aboutToGoBankruptOnCommunityChestInThreePlayerGame()
                 .apply {
                     doMove( 0 )
                     drawCard( 0 )
@@ -142,13 +134,46 @@ class BankruptcyProceedingsTest {
     }
 
     @Test
-    fun winnerIsCrowned() {
+    fun bankruptPlayerRemovedFromGame() {
+        return runBlockingMultiplatform {
+            val manager = aboutToGoBankruptOnCommunityChestInThreePlayerGame()
+                .apply {
+                    doMove( 0 )
+                    drawCard( 0 )
+                    attemptToPay( 0 )
+                    goToNextPhaseOfBankruptcy()
+                }
+            assertEquals( manager.game.players.activeCount(), 2, "Two players remain in game" )
+        }
+    }
+
+    @Test
+    fun winnerIsCrownedInSimpleScenario() {
         return runBlockingMultiplatform {
             val manager = lowCashStateBuilderTwoPlayer( 99 )
                 .apply {
                     roll( 3 to 1, 0 )                       // Ken rolls onto income tax
                     doMove( 0 )                             // Ken moves
                     attemptToPay( 0 )
+                    goToNextPhaseOfBankruptcy()
+                }
+            assertTrue( manager.game.isPhase < CrownTheVictor > (), "There is a winner of the game" )
+            assertTrue( manager.game.isTurnOfPlayer( manager.getPlayer( 1 ) ), "Deidre wins the game" )
+        }
+    }
+
+    @Test
+    fun winnerIsCrownedWhenRentCharged() {
+        return runBlockingMultiplatform {
+            val manager = lowCashStateBuilderTwoPlayer( 151 )
+                .apply {
+                    rollAndBuy( 1 to 2, 0 )     // Ken buys Whitechapel
+                    rollAndBuy( 4 to 2, 1 )     // Deidre buys Angel
+                    getPlayer( 0 ).cashHoldings = inCurrency( 4 )       // Steal Ken's money
+                    roll( 1 to 2, 0 )           // Put Ken on Angel
+                    doMove( 0 )
+                    chargeRent( 6, 1 )          // Deidre charges rent
+                    attemptToPay( 0 )           // Ken tries to pay
                     goToNextPhaseOfBankruptcy()
                 }
             assertTrue( manager.game.isPhase < CrownTheVictor > (), "There is a winner of the game" )
@@ -173,7 +198,21 @@ class BankruptcyProceedingsTest {
         }
     }
 
-    private suspend fun aboutToGoBankruptOnCommunityChest(): GameStateManager {
+    private suspend fun triggerBankruptcyInThreePlayerGame(): GameStateManager {
+        return lowCashStateBuilderThreePlayer( 1000 )
+            .apply {
+                rollAndBuy( 1 to 2, 0 )     // Alvin buys Whitechapel
+                rollAndBuy( 3 to 2, 1 )     // Simon buys King's Cross
+                rollAndBuy( 4 to 2, 2 )     // Theodore buys Angel
+                getPlayer( 0 ).cashHoldings = inCurrency( 4 )       // Steal Alvin's money
+                roll( 1 to 2, 0 )           // Put Alvin on Angel
+                doMove( 0 )
+                chargeRent( 6, 2 )          // Theodore charges rent
+                attemptToPay( 0 )           // Alvin tries to pay
+            }
+    }
+
+    private suspend fun aboutToGoBankruptOnCommunityChestInThreePlayerGame(): GameStateManager {
         return lowCashStateBuilderThreePlayer( 151 )
             .apply {
                 rollAndBuy( 6 to 6, 0 )     // Alvin buys Electric Company

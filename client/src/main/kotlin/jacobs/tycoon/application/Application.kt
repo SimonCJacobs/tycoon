@@ -17,38 +17,30 @@ import org.kodein.di.erased.instance
  * **** TO ALLOW GAME TO BE PLAYABLE
  * * Cookie to reestablish connection (by tab?)
  * * Message to ensure cookies enabled (or whatever using)
+ *
+ * * THERE IS A BUG: auction does not show when chance card is being displayed
+ * * ANOTHER SMALL BUG: says "pounds" not pound when sold for £1 in auction
+ * * SHOULD PROBABLY HIGHLIGHT SOMEHOW WHOSE TURN IT IS AND WHAT THE NEXT ACTION IS
+ * * Trading screen isn't a perfect solution to the problem of showing who owns because takes properties off when
+ * ****** they have a house built on them
+ *
  * * Warning when not connected
  * * Client attempt to reestablish connection
  * * Add backdoor to alter game state
- * * encrypted communication
+ * * encrypted communication?
  * * malformeed requeest handling
  * * Need some end-to-end tests to make sure serialization has happened correctly on build.
- * *
  * * note when double chick it will crash the game as not in phase for second click if server not responded
- * by that point
- * * DROP NOT PERFECT WHEN PIECE ON SQUARE ALREADDY
- * * NEEED TO CLEARDOUBLE COUNT on visiting jail
- * NEED TO allow leaving jail!
- * * note somwhere xss is covered by mithril
- * * GAME
- * * Trading options
- * * Game winner
- * * Community/chest chance
- * * Game phases
- * * Dice roll
- * * Piece moving
- * * View rules
- * * Mortgaging
- * * Auctions
- * * Go £200
- * * Money
- * * Triple doubles
- * * Jail
- * * GOOJF
- * * Building
- * * Selling
- * * Rent collection
- * * Tax
+ * by that point ( is this right?)
+ * * DROP NOT PERFECT WHEN PIECE ON SQUARE ALREADDY ( is this right?)
+ * * note somehere xss is covered by mithril
+ * * Visible what places have houses
+ * * Much nicer board
+ * * Game winner?
+ * * Dice roll graphical?
+ * * Piece moving visible to other players?
+ * * View rules?
+ * * Jail in one place
  * * SHOULD YOU BE ALLOWED TO MORTGAGE DURING AN AUCTION? CAN'T AT PRESENT
  */
 class Application ( kodein: Kodein ) {
