@@ -51,6 +51,10 @@ class GamePlayers {
         return this.playersAndIfInGame.keys.first { it.position == position }
     }
 
+    fun getSoleActivePlayer(): Player {
+        return this.activeList().single()
+    }
+
     fun hasPlayerInPositionSignedUp( position: SeatingPosition ): Boolean {
         return this.playersAndIfInGame.keys.any { it.position == position }
     }
