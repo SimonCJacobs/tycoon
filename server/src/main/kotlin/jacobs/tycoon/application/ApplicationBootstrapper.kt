@@ -22,7 +22,7 @@ internal class ApplicationBootstrapper {
             import( applicationModule() )
             import( domainModule() )
             import( serverControllerModule() )
-            import(serverDomainModule())
+            import( serverDomainModule() )
             import( settingsModule() )
             import( sharedStateModule() )
         }

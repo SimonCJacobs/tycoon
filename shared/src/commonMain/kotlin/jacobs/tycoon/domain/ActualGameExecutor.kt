@@ -1,6 +1,8 @@
 package jacobs.tycoon.domain
 
 import jacobs.tycoon.domain.actions.GameAction
+import jacobs.tycoon.domain.phases.BadActionException
+import jacobs.tycoon.domain.phases.WrongPhaseException
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 
@@ -16,8 +18,11 @@ class ActualGameExecutor : GameExecutor {
         this.gameController = gameController
     }
 
-    override suspend fun execute( action: GameAction) {
-        action.execute( this.gameController )
+    override suspend fun execute( action: GameAction ) {
+        try { action.execute( this.gameController ) }
+        catch ( e: BadActionException ) {
+            println( "Bad action requested: ${ e.message }" )
+        }
     }
 
     override suspend fun startGame() {

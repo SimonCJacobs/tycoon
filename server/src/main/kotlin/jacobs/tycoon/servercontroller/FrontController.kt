@@ -13,7 +13,7 @@ internal class FrontController( kodein: Kodein ) {
 
     @Suppress( "RedundantSuspendModifier", "UNUSED_PARAMETER" )
     suspend fun dealWithNotification( requestObject: MessageContent ) {
-        // None at present (1.5.20)
+        // None expected at present (1.5.20)
     }
 
     suspend fun dealWithRequest( requestMessage: MessageContent, requestSocket: SocketId ): MessageContent {

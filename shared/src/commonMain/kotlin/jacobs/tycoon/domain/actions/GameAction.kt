@@ -25,8 +25,8 @@ abstract class GameAction {
         this.successful = true
     }
 
-    protected fun executedUnsuccessfully() {
-        this.executed = true
+    protected fun executionUnsuccessful() {
+        this.executed = false
         this.successful = false
     }
 

@@ -24,7 +24,7 @@ class BankruptcyProceedings(
             this.transferPropertiesToCreditor( creditor )
     }
 
-    fun forEachPropertyToBeAuctioned( callback: ( Property ) -> Unit ) {
+    fun forEachPropertyOfBankruptPlayer( callback: ( Property ) -> Unit ) {
         this.bankruptPlayer.forEachPropertyOwned( callback )
     }
 

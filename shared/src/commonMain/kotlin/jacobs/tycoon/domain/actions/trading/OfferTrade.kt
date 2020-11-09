@@ -15,7 +15,7 @@ class OfferTrade (
         return visitor.visit( this )
     }
 
-    override suspend fun duplicate(gameController: GameController) {
+    override suspend fun duplicate( gameController: GameController ) {
         this.execute( gameController )
     }
 

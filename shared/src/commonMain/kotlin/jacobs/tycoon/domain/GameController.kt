@@ -29,7 +29,7 @@ import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 
 /**
- * From this point on, external controls should be in place so that only one coroutine at a time
+ * From this point on, external controls will be in place so that only one coroutine at a time
  * accesses the code.
  *
  * This class acts as something of a façade to the [Game] class, but having access to the domain
@@ -37,9 +37,9 @@ import org.kodein.di.erased.instance
  */
 class GameController( kodein: Kodein ) {
 
-    private val gameCycle by kodein.instance <GameCycle> ()
+    private val gameCycle by kodein.instance < GameCycle > ()
     private val gameExecutor by kodein.instance < ActualGameExecutor > ()
-    private val gameFactory by kodein.instance <GameFactory> ()
+    private val gameFactory by kodein.instance < GameFactory > ()
     private val gameRules by kodein.instance < MiscellaneousRules > ()
     private val gameState by kodein.instance < GameState > ()
     private val playerFactory by kodein.instance < PlayerFactory > ()

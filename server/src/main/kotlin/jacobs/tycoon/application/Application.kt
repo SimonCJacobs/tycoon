@@ -10,8 +10,8 @@ class Application ( kodein: Kodein ) {
 
     private val socketServer by kodein.instance < SocketServer > ()
     private val gameController by kodein.instance < GameController > ()
-    private val gameExecutorWrapper by kodein.instance <GameExecutor> ( tag = "wrapper" )
-    private val gameInitialiser by kodein.instance <GameInitialiser>()
+    private val gameExecutorWrapper by kodein.instance < GameExecutor > ( tag = "wrapper" )
+    private val gameInitialiser by kodein.instance < GameInitialiser > ()
     private val updateEngine by kodein.instance < UpdateEngine > ()
 
     suspend fun run() {

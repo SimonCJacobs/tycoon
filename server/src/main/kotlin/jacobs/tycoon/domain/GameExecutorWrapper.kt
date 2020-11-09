@@ -37,7 +37,7 @@ class GameExecutorWrapper( kodein: Kodein ) : GameExecutor {
      */
     override suspend fun startGame() {
         this.gameExecutor.startGame()
-        this.execute(NewGame())
+        this.execute( NewGame() )
     }
 
 }
