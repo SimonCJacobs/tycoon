@@ -24,6 +24,12 @@ import org.kodein.di.erased.instance
  * * Trading screen isn't a perfect solution to the problem of showing who owns because takes properties off when
  * ****** they have a house built on them
  *
+ * * Auction outcome seems to give three messages in actionlog
+ * * Suggests can mortgage with houses on property
+ * * NO GAME OPTION FOR MORTGAGE INTEREST PAYMENT ON TRANSFER
+ ** ALLOWED CASH TO GO TO ZERO ON PURCHASE, THEN ALLOWED BID OF £1!!
+ *
+ *
  * * Warning when not connected
  * * Client attempt to reestablish connection
  * * Add backdoor to alter game state
