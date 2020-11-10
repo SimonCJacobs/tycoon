@@ -9,5 +9,6 @@ A multiplayer online Monopoly game
 
 ## Running in production
 
-1. Start the server ```./gradlew :server:deploy```
-2. Navigate to ```monopolisation.grayv.co.uk```
+1. If necessary, deploy updated client-side build ```./gradlew :client:deploy```
+2. Start the server ```./gradlew :server:deploy```
+3. Navigate to ```monopolisation.grayv.co.uk``` in a browser
