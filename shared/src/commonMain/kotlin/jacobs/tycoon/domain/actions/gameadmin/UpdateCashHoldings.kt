@@ -3,16 +3,17 @@ package jacobs.tycoon.domain.actions.gameadmin
 import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.actions.ActionVisitor
 import jacobs.tycoon.domain.actions.GameAction
-import jacobs.tycoon.domain.pieces.PlayingPiece
+import jacobs.tycoon.domain.board.currency.CurrencyAmount
+import jacobs.tycoon.domain.players.Player
 import kotlinx.serialization.Serializable
 
 @Serializable
-class AddPlayer (
-    val playerName: String,
-    val playingPiece: PlayingPiece
+class UpdateCashHoldings (
+    val player: Player,
+    val newCashAmount: CurrencyAmount
 ) : GameAction() {
 
-    override fun < T > accept( visitor: ActionVisitor<T>): T {
+    override fun < T > accept( visitor: ActionVisitor < T > ): T {
         return visitor.visit( this )
     }
 
@@ -21,8 +22,9 @@ class AddPlayer (
     }
 
     override suspend fun execute( gameController: GameController ) {
-        gameController.addPlayer( playerName, playingPiece, actorPosition )
-            .also { this.setExecutionResult( it ) }
+        val actualPlayer = gameController.game().players.getActualPlayer( player )
+        gameController.updateCashHoldings( actualPlayer, newCashAmount )
+        this.executedSuccessfully()
     }
 
 }

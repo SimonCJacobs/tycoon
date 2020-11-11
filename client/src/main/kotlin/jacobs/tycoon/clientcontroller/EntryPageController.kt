@@ -1,16 +1,21 @@
 package jacobs.tycoon.clientcontroller
 
+import jacobs.mithril.Mithril
+import jacobs.tycoon.clientstate.ClientState
 import jacobs.tycoon.clientstate.EntryPageState
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.state.GameState
 import kotlinx.coroutines.launch
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
+import kotlin.browser.window
 
 class EntryPageController( kodein: Kodein ) : UserInterfaceController( kodein ) {
 
+    private val clientState by kodein.instance < ClientState > ()
     private val entryPageState by kodein.instance < EntryPageState > ()
     private val gameState by kodein.instance < GameState > ()
+    private val mithril = Mithril()
     private val outgoingRequestController by kodein.instance < OutgoingRequestController > ()
 
     fun getAvailablePieces(): List < PlayingPiece > {
@@ -25,10 +30,22 @@ class EntryPageController( kodein: Kodein ) : UserInterfaceController( kodein ) 
     }
 
     fun onEntryPageButtonClick() {
-        if ( this.gameState.game().canAnyNewPlayerJoin() )
-            this.runServerAddPlayerProcess( entryPageState.playerNameInProgress, entryPageState.selectedPiece!! )
-        else
-            this.entryPageState.showNoGameEntry = true
+        when {
+            this.isInAdminMode() -> this.accessAdminScreenIfUsernameCorrect( entryPageState.playerNameInProgress )
+            this.gameState.game().canAnyNewPlayerJoin() ->
+                this.runServerAddPlayerProcess( entryPageState.playerNameInProgress, entryPageState.selectedPiece!! )
+            else -> this.entryPageState.showNoGameEntry = true
+        }
+    }
+
+    private fun accessAdminScreenIfUsernameCorrect( username: String ) {
+        launch {
+            if ( outgoingRequestController.makeAdminEntryRequest( username ) ) {
+                clientState.authorisedToAdministrate = true
+                mithril.redraw()
+            }
+            clientState.isWaitingForServer = false
+        }
     }
 
     private fun runServerAddPlayerProcess( playerName: String, playingPiece: PlayingPiece ) {

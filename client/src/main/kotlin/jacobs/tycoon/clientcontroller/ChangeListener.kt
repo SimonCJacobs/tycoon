@@ -10,7 +10,7 @@ class ChangeListener (kodein: Kodein ) {
 
     private val gameCycle by kodein.instance < GameCycle >()
 
-    private val actionListeners: MutableList < ( GameAction ) -> Unit > = mutableListOf()
+    private val actionListeners: MutableList < (GameAction ) -> Unit > = mutableListOf()
     private val phaseChangeListeners: MutableList < ( GamePhase ) -> Unit > = mutableListOf()
 
 
@@ -31,7 +31,7 @@ class ChangeListener (kodein: Kodein ) {
 
     // REGISTRATION FUNCTIONS
 
-    fun registerActionListener( listener: ( GameAction ) -> Unit ) {
+    fun registerActionListener( listener: (GameAction ) -> Unit ) {
         this.actionListeners.add( listener )
     }
 

@@ -1,5 +1,6 @@
 package jacobs.tycoon.servercontroller
 
+import jacobs.tycoon.application.ApplicationExecutorImpl
 import jacobs.tycoon.controller.communication.Request
 import jacobs.tycoon.domain.GameExecutor
 import jacobs.websockets.SocketId
@@ -9,6 +10,7 @@ import org.kodein.di.erased.instance
 
 internal class FrontController( kodein: Kodein ) {
 
+    private val applicationExecutor by kodein.instance < ApplicationExecutorImpl > ()
     private val gameExecutor by kodein.instance < GameExecutor > ( tag = "wrapper" )
 
     @Suppress( "RedundantSuspendModifier", "UNUSED_PARAMETER" )
@@ -18,7 +20,7 @@ internal class FrontController( kodein: Kodein ) {
 
     suspend fun dealWithRequest( requestMessage: MessageContent, requestSocket: SocketId ): MessageContent {
         val request = requestMessage as Request
-        val requestDispatcher = RequestDispatcher( request, requestSocket, gameExecutor )
+        val requestDispatcher = RequestDispatcher( request, requestSocket, applicationExecutor, gameExecutor )
         return requestDispatcher.dispatch()
     }
 

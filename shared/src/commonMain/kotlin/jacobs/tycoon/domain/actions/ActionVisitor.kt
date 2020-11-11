@@ -14,6 +14,7 @@ import jacobs.tycoon.domain.actions.gameadmin.CompleteSignUp
 import jacobs.tycoon.domain.actions.gameadmin.NewGame
 import jacobs.tycoon.domain.actions.gameadmin.SetBoard
 import jacobs.tycoon.domain.actions.gameadmin.SetPieces
+import jacobs.tycoon.domain.actions.gameadmin.UpdateCashHoldings
 import jacobs.tycoon.domain.actions.jail.PayJailFineVoluntarily
 import jacobs.tycoon.domain.actions.jail.RollForMoveFromJail
 import jacobs.tycoon.domain.actions.jail.UseGetOutOfJailFreeCard
@@ -59,5 +60,6 @@ interface ActionVisitor < T > {
     fun visit( sellBuildings: SellBuildings ): T
     fun visit( setBoard: SetBoard ): T
     fun visit( setPieces: SetPieces ): T
+    fun visit( updateCashHoldings: UpdateCashHoldings ): T
     fun visit( useGetOutOfJailFreeCard: UseGetOutOfJailFreeCard ): T
 }

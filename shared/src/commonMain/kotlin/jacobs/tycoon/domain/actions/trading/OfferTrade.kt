@@ -3,7 +3,6 @@ package jacobs.tycoon.domain.actions.trading
 import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.actions.ActionVisitor
 import jacobs.tycoon.domain.actions.GameAction
-import jacobs.tycoon.domain.players.Player
 import kotlinx.serialization.Serializable
 
 @Serializable

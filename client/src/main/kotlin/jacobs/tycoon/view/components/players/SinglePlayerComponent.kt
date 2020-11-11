@@ -74,9 +74,9 @@ abstract class SinglePlayerComponent : Component {
     protected abstract fun getChargeRentDisplay(): List < VNode >
     protected abstract fun getDiceRollDisplay(): VNode
     protected abstract fun getJailEscapeDisplay(): VNode
-    protected abstract fun getReadCardDisplay(): VNode
     protected abstract fun getPayFineOrTakeChance(): VNode?
     protected abstract fun getPropertyPurchaseDisplay(): VNode
+    protected abstract fun getReadCardDisplay(): VNode
 
     protected abstract fun getActionsKeptToSelf(): Array < VNode? >
 

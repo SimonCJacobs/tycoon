@@ -21,6 +21,7 @@ import jacobs.tycoon.domain.actions.moving.RollForMove
 import jacobs.tycoon.domain.actions.moving.RollForOrderAction
 import jacobs.tycoon.domain.actions.gameadmin.SetBoard
 import jacobs.tycoon.domain.actions.gameadmin.SetPieces
+import jacobs.tycoon.domain.actions.gameadmin.UpdateCashHoldings
 import jacobs.tycoon.domain.actions.jail.PayJailFineVoluntarily
 import jacobs.tycoon.domain.actions.jail.RollForMoveFromJail
 import jacobs.tycoon.domain.actions.jail.UseGetOutOfJailFreeCard
@@ -204,7 +205,7 @@ class ActionWriter( kodein: Kodein ) : ActionProcessor < String >, ActionVisitor
     }
 
     override fun visit( rollForMoveFromJail: RollForMoveFromJail ): String? {
-        return "jail. writing to do"
+        return "Jail, oh jail, oh jaaaaaaaaaaill"
     }
 
     override fun visit( sellBuildings: SellBuildings ): String {
@@ -218,6 +219,10 @@ class ActionWriter( kodein: Kodein ) : ActionProcessor < String >, ActionVisitor
 
     override fun visit( setPieces: SetPieces): String {
         return "Using \"${ setPieces.pieceSet.name }\" piece set"
+    }
+
+    override fun visit( updateCashHoldings: UpdateCashHoldings ): String {
+        return "Cash of ${ updateCashHoldings.player.name } updated to ${ updateCashHoldings.newCashAmount }"
     }
 
     override fun visit( useGetOutOfJailFreeCard: UseGetOutOfJailFreeCard ): String? {

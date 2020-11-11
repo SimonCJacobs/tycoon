@@ -4,7 +4,7 @@ import jacobs.tycoon.domain.actions.GameAction
 import kotlinx.serialization.Serializable
 
 @Serializable
-class ActionRequest (
+class GameActionRequest (
     val action: GameAction
 ) : Request {
 

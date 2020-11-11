@@ -3,7 +3,6 @@ package jacobs.tycoon.domain.actions.jail
 import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.actions.ActionVisitor
 import jacobs.tycoon.domain.actions.GameAction
-import jacobs.tycoon.domain.phases.results.RollForMoveResult
 import jacobs.tycoon.domain.dice.DiceRoll
 import jacobs.tycoon.domain.phases.results.RollForMoveFromJailResult
 import kotlinx.serialization.Serializable

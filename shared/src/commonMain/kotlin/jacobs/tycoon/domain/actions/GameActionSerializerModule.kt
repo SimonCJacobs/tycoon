@@ -14,6 +14,7 @@ import jacobs.tycoon.domain.actions.gameadmin.CompleteSignUp
 import jacobs.tycoon.domain.actions.gameadmin.NewGame
 import jacobs.tycoon.domain.actions.gameadmin.SetBoard
 import jacobs.tycoon.domain.actions.gameadmin.SetPieces
+import jacobs.tycoon.domain.actions.gameadmin.UpdateCashHoldings
 import jacobs.tycoon.domain.actions.jail.PayJailFineVoluntarily
 import jacobs.tycoon.domain.actions.jail.RollForMoveFromJail
 import jacobs.tycoon.domain.actions.jail.UseGetOutOfJailFreeCard
@@ -61,6 +62,7 @@ fun gameActionSerializerModule(): SerialModule {
             SellBuildings::class with SellBuildings.serializer()
             SetBoard::class with SetBoard.serializer()
             SetPieces::class with SetPieces.serializer()
+            UpdateCashHoldings::class with UpdateCashHoldings.serializer()
             UseGetOutOfJailFreeCard::class with UseGetOutOfJailFreeCard.serializer()
         }
     }

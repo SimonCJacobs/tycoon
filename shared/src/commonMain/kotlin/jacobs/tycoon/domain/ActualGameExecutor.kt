@@ -2,9 +2,6 @@ package jacobs.tycoon.domain
 
 import jacobs.tycoon.domain.actions.GameAction
 import jacobs.tycoon.domain.phases.BadActionException
-import jacobs.tycoon.domain.phases.WrongPhaseException
-import org.kodein.di.Kodein
-import org.kodein.di.erased.instance
 
 /**
  * Essentially providing a single entry point to the domain and state so that this can be restricted to one

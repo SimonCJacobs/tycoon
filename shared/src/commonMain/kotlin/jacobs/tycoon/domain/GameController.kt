@@ -12,11 +12,13 @@ import jacobs.tycoon.domain.phases.results.RollForOrderResult
 import jacobs.tycoon.domain.actions.trading.TradeOffer
 import jacobs.tycoon.domain.board.Board
 import jacobs.tycoon.domain.board.cards.ShuffleOrders
+import jacobs.tycoon.domain.board.currency.CurrencyAmount
 import jacobs.tycoon.domain.board.squares.Property
 import jacobs.tycoon.domain.board.squares.Street
 import jacobs.tycoon.domain.dice.DiceRoll
 import jacobs.tycoon.domain.phases.results.RollForMoveFromJailResult
 import jacobs.tycoon.domain.pieces.PlayingPiece
+import jacobs.tycoon.domain.players.Player
 import jacobs.tycoon.domain.players.PlayerFactory
 import jacobs.tycoon.domain.players.SeatingPosition
 import jacobs.tycoon.domain.rules.MiscellaneousRules
@@ -179,12 +181,16 @@ class GameController( kodein: Kodein ) {
             return board.shuffleCards()
     }
 
-    fun useGetOutOfJailFreeCard( seatingPosition: SeatingPosition ): Boolean {
-        return game().useGetOutOfJailFreeCard( gameCycle, seatingPosition )
-    }
-
     fun startGame() {
         this.gameState.setGame( this.gameFactory.newGame() )
+    }
+
+    fun updateCashHoldings( player: Player, newCashAmount: CurrencyAmount ) {
+        player.cashHoldings = newCashAmount
+    }
+
+    fun useGetOutOfJailFreeCard( seatingPosition: SeatingPosition ): Boolean {
+        return game().useGetOutOfJailFreeCard( gameCycle, seatingPosition )
     }
 
 }

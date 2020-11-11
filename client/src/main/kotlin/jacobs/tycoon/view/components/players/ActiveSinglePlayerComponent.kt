@@ -92,7 +92,9 @@ class ActiveSinglePlayerComponent(
     }
 
     override fun getBillToPayDisplay(): VNode {
-        return getButtonWithTextAndHandler( "Pay ${playerActionController.getBillReason()} ${ playerActionController.getBillAmount() }" ) { playerActionController.attemptToPay() }
+        return getButtonWithTextAndHandler(
+            "Pay ${ playerActionController.getBillReason() } ${ playerActionController.getBillAmount() }"
+        ) { playerActionController.attemptToPay() }
     }
 
     private fun getDealingOption(): VNode {

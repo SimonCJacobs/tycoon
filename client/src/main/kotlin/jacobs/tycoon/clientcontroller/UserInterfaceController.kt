@@ -12,12 +12,14 @@ import kotlinx.coroutines.CoroutineScope
 import org.kodein.di.Kodein
 import org.kodein.di.direct
 import org.kodein.di.erased.instance
+import kotlin.browser.window
 
-open class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.direct.instance() {
+open class UserInterfaceController ( kodein: Kodein ) : CoroutineScope by kodein.direct.instance() {
 
+    private val adminPath by kodein.instance < String > ( tag = "adminPath" )
     private val clientState by kodein.instance < ClientState > ()
     private val gameState by kodein.instance < GameState > ()
-    private val playerIdentifier by kodein.instance <PlayerIdentifier> ()
+    private val playerIdentifier by kodein.instance < PlayerIdentifier > ()
 
     fun getCurrency(): Currency {
         return gameState.game().board.currency
@@ -27,8 +29,16 @@ open class UserInterfaceController( kodein: Kodein ) : CoroutineScope by kodein.
         return this.clientState.isWaitingForServer
     }
 
+    fun isInAdminMode(): Boolean {
+        return window.location.href.contains( this.adminPath )
+    }
+
     fun hasGameBeenInitialised(): Boolean {
         return this.gameState.hasGame()
+    }
+
+    fun isAuthorisedToAdminstrate(): Boolean {
+        return this.isInAdminMode() && this.clientState.authorisedToAdministrate
     }
 
     fun isGameUnderway(): Boolean {

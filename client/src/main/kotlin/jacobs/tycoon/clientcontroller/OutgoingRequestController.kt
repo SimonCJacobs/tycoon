@@ -1,8 +1,12 @@
 package jacobs.tycoon.clientcontroller
 
 import jacobs.tycoon.clientstate.ClientState
-import jacobs.tycoon.controller.communication.ActionRequest
+import jacobs.tycoon.controller.communication.GameActionRequest
 import jacobs.tycoon.controller.communication.Request
+import jacobs.tycoon.controller.communication.application.AccessAdminModeRequest
+import jacobs.tycoon.controller.communication.application.ApplicationAction
+import jacobs.tycoon.controller.communication.application.ApplicationRequest
+import jacobs.tycoon.controller.communication.application.UpdateCashHoldingsRequest
 import jacobs.tycoon.domain.actions.gameadmin.AddPlayer
 import jacobs.tycoon.domain.actions.gameadmin.CompleteSignUp
 import jacobs.tycoon.domain.actions.GameAction
@@ -25,7 +29,6 @@ import jacobs.tycoon.domain.actions.property.Build
 import jacobs.tycoon.domain.actions.property.MortgageProperty
 import jacobs.tycoon.domain.actions.property.PayOffMortgage
 import jacobs.tycoon.domain.actions.property.SellBuildings
-import jacobs.tycoon.domain.actions.trading.Assets
 import jacobs.tycoon.domain.actions.trading.OfferTrade
 import jacobs.tycoon.domain.actions.trading.RespondToTradeOffer
 import jacobs.tycoon.domain.actions.trading.TradeOffer
@@ -49,7 +52,7 @@ class OutgoingRequestController( kodein: Kodein ) {
     }
 
     suspend fun addPlayer( playerName: String, playingPiece: PlayingPiece ): Boolean {
-        return this.sendActionRequest(AddPlayer(playerName, playingPiece))
+        return this.sendActionRequest( AddPlayer(playerName, playingPiece) )
     }
 
     suspend fun attemptToPay(): Boolean {
@@ -70,6 +73,10 @@ class OutgoingRequestController( kodein: Kodein ) {
 
     suspend fun completeGameSignUp(): Boolean {
         return this.sendActionRequest( CompleteSignUp() )
+    }
+
+    suspend fun makeAdminEntryRequest( username: String ): Boolean {
+        return this.sendApplicationActionRequest( AccessAdminModeRequest( username ) )
     }
 
     suspend fun makeBid( bidAmount: CurrencyAmount ): Boolean {
@@ -128,12 +135,20 @@ class OutgoingRequestController( kodein: Kodein ) {
         return this.sendActionRequest( MortgageProperty( properties ) )
     }
 
+    suspend fun updateCashHoldingsRequest( player: Player, newCashHoldings: CurrencyAmount ): Boolean {
+        return this.sendApplicationActionRequest( UpdateCashHoldingsRequest( player, newCashHoldings ) )
+    }
+
     suspend fun useGetOutOfJailFreeCard(): Boolean {
         return this.sendActionRequest( UseGetOutOfJailFreeCard() )
     }
 
     private suspend fun sendActionRequest( action: GameAction ): Boolean {
-        return this.sendYesNoRequest( ActionRequest( action ) )
+        return this.sendYesNoRequest( GameActionRequest( action ) )
+    }
+
+    private suspend fun sendApplicationActionRequest( action: ApplicationAction ): Boolean {
+        return this.sendYesNoRequest( ApplicationRequest( action ) )
     }
 
     private suspend fun sendYesNoRequest( request: Request ): Boolean {

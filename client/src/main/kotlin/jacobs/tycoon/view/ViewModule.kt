@@ -5,6 +5,7 @@ import jacobs.tycoon.view.components.board.DiceComponent
 import jacobs.tycoon.view.components.board.squares.SquareComponentRepository
 import jacobs.tycoon.view.components.board.centre.CentreCellReposifactory
 import jacobs.tycoon.view.components.console.Console
+import jacobs.tycoon.view.components.pages.AdminPage
 import jacobs.tycoon.view.components.pages.EntryPage
 import jacobs.tycoon.view.components.pages.MainPage
 import jacobs.tycoon.view.components.pages.NoEntryPage
@@ -34,7 +35,7 @@ val viewModule = Kodein.Module( "view" ) {
     bind < PieceComponentFactory >() with singleton { PieceComponentFactory( kodein ) }
     bind < PieceDisplayStrategy >() with singleton { ClassicPieceEmojiDisplayStrategy() }
 
-
+    bind < AdminPage >() with singleton { AdminPage( kodein ) }
     bind < EntryPage >() with singleton { EntryPage( kodein ) }
     bind < MainPage >() with singleton { MainPage( kodein ) }
     bind < NoEntryPage >() with singleton { NoEntryPage() }

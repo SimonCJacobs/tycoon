@@ -41,7 +41,7 @@ deployment {
     region = software.amazon.awssdk.regions.Region.EU_WEST_2
     secretsDirectory = rootProject.layout.projectDirectory.dir( "secrets" )
     client {
-        files += arrayOf( "index.html", "main.css" )
+        files += arrayOf( "index.html", "admin.html", "main.css" )
     }
 }
 
@@ -60,10 +60,15 @@ tasks {
         from( "src/main/css" )
         into( "build/distributions" )
     }
+    register < Copy > ( "createAdminHTML" ) {
+        from( "src/main/resources/index.html" )
+        into( "build/distributions" )
+        rename( "index.html", "admin.html" )
+    }
     assemble {
-        dependsOn( "copyCss" )
+        dependsOn( "copyCss", "createAdminHTML" )
     }
     deploy {
-        dependsOn ( "copyCss" )
+        dependsOn ( "copyCss", "createAdminHTML" )
     }
 }

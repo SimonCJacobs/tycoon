@@ -13,14 +13,14 @@ import org.w3c.dom.HTMLInputElement
 
 class EntryPage( kodein: Kodein ) : Page {
 
+    private val controller by kodein.instance < EntryPageController > ()
     private val pageState by kodein.instance < EntryPageState > ()
-    private val uiController by kodein.instance < EntryPageController > ()
 
     override fun view(): VNode {
-        return if ( this.uiController.isClientWaitingForServer() )
-            this.displayWaitingScreen()
-        else
-            this.getPlayerEntryForm()
+        return when {
+            this.controller.isClientWaitingForServer() -> this.displayWaitingScreen()
+            else -> this.getPlayerEntryForm()
+        }
     }
 
     private fun displayWaitingScreen(): VNode {
@@ -78,8 +78,8 @@ class EntryPage( kodein: Kodein ) : Page {
     }
 
     private fun getPieceDropdown(): VNode {
-        pageState.pieceOptionList = this.uiController.getAvailablePieces()
-        pageState.selectedPiece = this.uiController.getSelectedPiece( pageState.pieceOptionList )
+        pageState.pieceOptionList = this.controller.getAvailablePieces()
+        pageState.selectedPiece = this.controller.getSelectedPiece( pageState.pieceOptionList )
         return m( Tag.select ) {
             eventHandlers {
                 onInputExt = selectedIndex { pageState.selectedPiece = pageState.pieceOptionList[ it ] }
@@ -108,7 +108,7 @@ class EntryPage( kodein: Kodein ) : Page {
                 val type = "button"
             } )
             eventHandlers {
-                onclick = { uiController.onEntryPageButtonClick() }
+                onclick = { controller.onEntryPageButtonClick() }
             }
             content( "Play the game already!" )
         }

@@ -10,7 +10,9 @@ import org.kodein.di.erased.singleton
 
 internal fun applicationModule(): Kodein.Module {
     return Kodein.Module( "application" ) {
+        bind < AdministrationProperties > () with singleton { AdministrationProperties() }
         bind < Application > () with singleton { Application( kodein ) }
+        bind < ApplicationExecutorImpl > () with singleton { ApplicationExecutorImpl( kodein ) }
         bind < CoroutineScope > () with instance( CoroutineScope( Dispatchers.IO ) )
         bind < SocketServer > () with singleton { SocketServer( kodein ) }
             // Eager to allow it to break dependency loop with SocketServer on instantiation

@@ -25,9 +25,9 @@ class ClientState {
     /**
      * Dealing
      */
-    var dealType: DealType = DealType.COMPOSING_TRADE
     var cashOffered: CurrencyAmount = CurrencyAmount.NULL
     var cashWanted: CurrencyAmount = CurrencyAmount.NULL
+    var dealType: DealType = DealType.COMPOSING_TRADE
     var getOutOfJailFreeCardsOffered: Int = 0
     var getOutOfJailFreeCardsWanted: Int = 0
     var housesToBuild: MutableMap < Street, Int > = mutableMapOf()
@@ -36,5 +36,10 @@ class ClientState {
     var playerIntendingToDealWith: Player? = null
     var propertiesSelectedForDeal: Map < DealType, MutableList < Property > > =
             DealType.values().associate { Pair( it, mutableListOf < Property > () ) }
+
+    /**
+     * Admin
+     */
+    var authorisedToAdministrate = false
 
 }

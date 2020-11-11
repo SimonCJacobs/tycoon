@@ -7,18 +7,18 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 abstract class GameAction {
+
+    var actorPosition: SeatingPosition = SeatingPosition.UNINITIALISED
     var executed = false
     var successful = false
-
-    fun setPositionOfActor( position: SeatingPosition ) {
-        this.actorPosition = position
-    }
 
     abstract fun < T > accept( visitor: ActionVisitor < T > ): T
     abstract suspend fun duplicate( gameController: GameController )
     abstract suspend fun execute( gameController: GameController )
 
-    var actorPosition: SeatingPosition = SeatingPosition.UNINITIALISED
+    fun setPositionOfActor( position: SeatingPosition ) {
+        this.actorPosition = position
+    }
 
     protected fun executedSuccessfully() {
         this.executed = true
@@ -34,4 +34,5 @@ abstract class GameAction {
         this.executed = true
         this.successful = result
     }
+
 }

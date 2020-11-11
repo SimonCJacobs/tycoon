@@ -9,8 +9,10 @@ import org.kodein.di.erased.singleton
 
 fun clientControllerModule(): Kodein.Module {
     return Kodein.Module( "clientController" ) {
+        bind < AdminController > () with singleton { AdminController( kodein ) }
         bind < AuctionController > () with eagerSingleton { AuctionController( kodein ) }
         bind < BoardController > () with singleton { BoardController( kodein ) }
+        bind < ChangeListener > () with singleton { ChangeListener( kodein ) }
         bind < DealController > () with singleton { DealController( kodein ) }
         bind < DiceController > () with singleton { DiceController( kodein ) }
         bind < EntryPageController > () with singleton { EntryPageController( kodein ) }
@@ -21,7 +23,6 @@ fun clientControllerModule(): Kodein.Module {
         bind < PlayerActionController > () with
             factory { player: Player -> PlayerActionController( kodein, player ) }
         bind < SquareController > () with singleton { SquareController( kodein ) }
-        bind < ChangeListener > () with singleton { ChangeListener( kodein ) }
         bind < StateSynchroniser > () with singleton { StateSynchroniser( kodein ) }
         bind < UserInterfaceController > () with singleton { UserInterfaceController( kodein ) }
     }

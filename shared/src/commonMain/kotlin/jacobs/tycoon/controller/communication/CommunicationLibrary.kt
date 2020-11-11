@@ -1,5 +1,7 @@
 package jacobs.tycoon.controller.communication
 
+import jacobs.tycoon.controller.communication.application.ApplicationRequest
+import jacobs.tycoon.controller.communication.application.applicationActionSerializerModule
 import jacobs.tycoon.domain.board.boardSerializerModule
 import jacobs.tycoon.domain.pieces.pieceSetSerializerModule
 import jacobs.tycoon.domain.actions.GameActionCollection
@@ -15,10 +17,12 @@ class CommunicationLibrary {
 
     val serializationLibrary = SerializationLibrary.build {
 
-        ActionRequest::class serializedBy ActionRequest.serializer()
+        ApplicationRequest::class serializedBy ApplicationRequest.serializer()
         ClientWelcomeMessage::class serializedBy ClientWelcomeMessage.serializer()
         GameActionCollection::class serializedBy GameActionCollection.serializer()
+        GameActionRequest::class serializedBy GameActionRequest.serializer()
 
+        serialModule( applicationActionSerializerModule() )
         serialModule( boardSerializerModule() )
         serialModule( cardsSerializerModule() )
         serialModule( currencySerializerModule() )
