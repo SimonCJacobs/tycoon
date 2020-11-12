@@ -30,8 +30,8 @@ class RollingForMoveFromJail(
         return this.result
     }
 
-    fun payFine(): RollForMoveFromJailResult {
-        if ( playerWithTurn.cashHoldings < jailRules.leaveJailFineAmount )
+    fun payFine( game: Game ): RollForMoveFromJailResult {
+        if ( game.canPlayerPayJailFine( playerWithTurn ) )
             throw Error( "Should not be permitted to pay fine if not have funds to do so" )
         playerWithTurn.debitFunds( jailRules.leaveJailFineAmount )
         return NonDiceJailResult( JailOutcome.PAID_FINE_VOLUNTARILY )

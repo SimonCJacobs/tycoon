@@ -167,7 +167,7 @@ class Game(
 
     fun payJailFineVoluntarily( gameCycle: GameCycle, seatingPosition: SeatingPosition ): Boolean {
         return gameCycle.doOnTurnPhaseAndCycle < RollingForMoveFromJail, Boolean > ( this, seatingPosition ) {
-            this.payFine()
+            this.payFine( this@Game )
             true
         }
     }
@@ -298,6 +298,12 @@ class Game(
 
     fun canPlayerChargeRent( player: Player ): Boolean {
         return this.getPotentialRentChargeOrNull( player ) != null
+    }
+
+    fun canPlayerPayJailFine( player: Player ): Boolean {
+        return doInPhase < RollingForMoveFromJail, Boolean > {
+            player.cashHoldings < jailRules.leaveJailFineAmount
+        }
     }
 
     fun getAmountOfPaymentDue(): CurrencyAmount {

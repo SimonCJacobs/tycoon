@@ -12,7 +12,7 @@ import org.kodein.di.erased.instance
 class PlayerComponentFactory( kodein: Kodein ) {
 
     private val controllerProvider: ( Player ) -> PlayerActionController
-        by kodein.factory < Player, PlayerActionController  >()
+        by kodein.factory < Player, PlayerActionController > ()
     private val gameState by kodein.instance < GameState > ()
     private val pieceDisplayStrategy by kodein.instance < PieceDisplayStrategy > ()
     private val playerIdentifier by kodein.instance < PlayerIdentifier > ()

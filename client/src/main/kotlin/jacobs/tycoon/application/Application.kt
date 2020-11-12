@@ -28,11 +28,10 @@ import org.kodein.di.erased.instance
  * * Suggests can mortgage with houses on property
  * * NO GAME OPTION FOR MORTGAGE INTEREST PAYMENT ON TRANSFER
  ** ALLOWED CASH TO GO TO ZERO ON PURCHASE, THEN ALLOWED BID OF £1!!
- *
+ ** why does pressing enter on name field cause refresh?
  *
  * * Warning when not connected
  * * Client attempt to reestablish connection
- * * Add backdoor to alter game state
  * * encrypted communication?
  * * malformeed requeest handling
  * * Need some end-to-end tests to make sure serialization has happened correctly on build.

@@ -39,7 +39,10 @@ class ActiveSinglePlayerComponent(
     override fun getJailEscapeDisplay(): VNode {
         return m( Tag.div ) {
             children(
-                getButtonWithTextAndHandler( "Pay ${ playerActionController.getJailFine() } fine" ) {
+                getButtonWithTextAndHandler(
+                    "Pay ${ playerActionController.getJailFine() } fine",
+                    disabled = ( false == gameState.game().canPlayerPayJailFine( player ) )
+                ) {
                     playerActionController.payJailFine()
                 },
                 getPotentialGetOutOfJailFreeCardButton()
@@ -105,7 +108,11 @@ class ActiveSinglePlayerComponent(
     }
 
     @Suppress( "unused" )
-    private fun getButtonWithTextAndHandler( text: String, disabled: Boolean = false, handler: MouseEventHandler ): VNode {
+    private fun getButtonWithTextAndHandler(
+        text: String,
+        disabled: Boolean = false,
+        handler: MouseEventHandler
+    ): VNode {
         return m( Tag.button ) {
             attributes ( object {
                 val disabled = disabled
