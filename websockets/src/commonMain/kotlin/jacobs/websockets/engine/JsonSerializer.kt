@@ -45,7 +45,7 @@ internal class JsonSerializer( kodein: Kodein ) {
         return json.parse( PolymorphicSerializer( MessageContent::class ), serializedContent )
     }
 
-    fun serializeContent( content: MessageContent): String {
+    fun serializeContent( content: MessageContent ): String {
         return json.stringify( PolymorphicSerializer( MessageContent::class ), content )
     }
 

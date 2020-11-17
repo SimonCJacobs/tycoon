@@ -7,7 +7,6 @@ import jacobs.tycoon.domain.phases.BankruptcyProceedings
 import jacobs.tycoon.domain.phases.CardReading
 import jacobs.tycoon.domain.phases.CrownTheVictor
 import jacobs.tycoon.domain.players.Player
-import jacobs.tycoon.services.PlayerIdentifier
 import jacobs.tycoon.state.GameState
 import kotlinx.coroutines.launch
 import org.kodein.di.Kodein
@@ -17,7 +16,6 @@ class BoardController( kodein: Kodein ) : UserInterfaceController( kodein ) {
 
     private val gameState by kodein.instance < GameState > ()
     private val outgoingRequestController by kodein.instance < OutgoingRequestController > ()
-    private val playerIdentifier by kodein.instance < PlayerIdentifier > ()
 
     fun board(): Board {
         return this.gameState.game().board
@@ -56,11 +54,15 @@ class BoardController( kodein: Kodein ) : UserInterfaceController( kodein ) {
     }
 
     fun isTradeBeingConsidered(): Boolean {
-        return gameState.game().isTradeBeingConsideredBy( playerIdentifier.playerUsingThisMachine )
+        return playerIdentifier.doIfAPlayerOnThisMachineOrFalse {
+            gameState.game().isTradeBeingConsideredBy( it )
+        }
     }
 
     fun isTradeBeingConsideredBySomeoneElse(): Boolean {
-        return gameState.game().isTradeBeingConsideredBySomeoneOtherThan( playerIdentifier.playerUsingThisMachine )
+        return playerIdentifier.doIfAPlayerOnThisMachineOrFalse {
+            gameState.game().isTradeBeingConsideredBySomeoneOtherThan( it )
+        }
     }
 
 }

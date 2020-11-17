@@ -137,7 +137,7 @@ class GameCycle( kodein: Kodein ) {
 
         override fun visit( turnlessPhaseStatus: TurnlessPhaseStatus) {
                 // We must be in a sign-up phase
-            val nextPhase = this.phasePhactory.startRollingForOrder( game.players.activeList() )
+            val nextPhase = this.phasePhactory.startRollingForOrder( game.players.activeOrderedList() )
             game.startNewTurn( TurnStatus( nextPhase ) )
         }
 

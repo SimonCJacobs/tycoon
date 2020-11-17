@@ -2,12 +2,13 @@ package jacobs.tycoon.domain.actions.cards
 
 import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.actions.ActionVisitor
-import jacobs.tycoon.domain.actions.GameAction
+import jacobs.tycoon.domain.actions.PositionalGameAction
 import jacobs.tycoon.domain.phases.results.ReadCardResult
+import jacobs.tycoon.domain.players.SeatingPosition
 import kotlinx.serialization.Serializable
 
 @Serializable
-class ReadCard : GameAction() {
+class ReadCard( override val playerPosition: SeatingPosition ) : PositionalGameAction() {
 
     var result: ReadCardResult = ReadCardResult.NULL
 
@@ -20,7 +21,7 @@ class ReadCard : GameAction() {
     }
 
     override suspend fun execute( gameController: GameController ) {
-        this.result = gameController.readCard( actorPosition )
+        this.result = gameController.readCard( playerPosition )
         this.executedSuccessfully()
     }
 

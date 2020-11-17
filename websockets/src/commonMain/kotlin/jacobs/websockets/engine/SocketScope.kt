@@ -6,8 +6,7 @@ import org.kodein.di.bindings.ScopeRegistry
 import org.kodein.di.bindings.StandardScopeRegistry
 
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi
-internal class SocketScope : Scope < SocketContext >
-{
+internal class SocketScope : Scope < SocketContext > {
 
     private val registries: MutableMap < SocketContext, ScopeRegistry > = mutableMapOf()
 

@@ -1,6 +1,7 @@
 package jacobs.tycoon.application
 
 import jacobs.tycoon.controller.communication.ClientWelcomeMessage
+import jacobs.tycoon.domain.players.SeatingPosition
 import jacobs.tycoon.state.GameHistory
 import jacobs.websockets.SocketId
 import kotlinx.coroutines.delay
@@ -41,7 +42,7 @@ class UpdateEngine ( kodein: Kodein ) {
     }
 
     private fun sendWelcomeMessage( socket: SocketId ) {
-        val welcomeMessage = ClientWelcomeMessage( "Welcome to the game :)", socket )
+        val welcomeMessage = ClientWelcomeMessage( "Welcome to the game :)" )
         this.socketServer.notifySocketAtIndex( socket, welcomeMessage )
     }
 

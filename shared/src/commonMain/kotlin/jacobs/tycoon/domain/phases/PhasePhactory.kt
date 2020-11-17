@@ -123,11 +123,10 @@ class PhasePhactory( kodein: Kodein ) {
         return RollingForMoveFromJail( playerToRollNext, jailRules )
     }
 
-    fun startRollingForOrder( playerCollection: Collection < Player > ): RollingForOrder {
-        val players = playerCollection.sorted()
+    fun startRollingForOrder( playerCollection: List < Player > ): RollingForOrder {
         return RollingForOrder(
-            playerWithTurn = players.first(),
-            rollResults = players.associateWith { null }.toMutableMap()
+            playerWithTurn = playerCollection.first(),
+            rollResults = playerCollection.associateWith { null }.toMutableMap()
         )
     }
 

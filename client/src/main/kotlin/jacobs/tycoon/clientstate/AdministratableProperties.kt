@@ -2,6 +2,16 @@ package jacobs.tycoon.clientstate
 
 class AdministratableProperties {
 
-    var newCashHoldings: Int = 1000
+    init {
+        this.resetCashSettingProperties()
+    }
+
+    fun resetCashSettingProperties() {
+        this.newCashHoldings = ""
+        this.updatingCash = false
+    }
+
+    lateinit var newCashHoldings: String
+    var updatingCash: Boolean = false
 
 }

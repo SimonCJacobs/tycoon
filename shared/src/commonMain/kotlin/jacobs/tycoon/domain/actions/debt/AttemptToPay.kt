@@ -2,11 +2,12 @@ package jacobs.tycoon.domain.actions.debt
 
 import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.actions.ActionVisitor
-import jacobs.tycoon.domain.actions.GameAction
+import jacobs.tycoon.domain.actions.PositionalGameAction
+import jacobs.tycoon.domain.players.SeatingPosition
 import kotlinx.serialization.Serializable
 
 @Serializable
-class AttemptToPay : GameAction() {
+class AttemptToPay( override val playerPosition: SeatingPosition ) : PositionalGameAction() {
 
     override fun < T > accept( visitor: ActionVisitor < T > ): T {
         return visitor.visit( this )
@@ -17,7 +18,7 @@ class AttemptToPay : GameAction() {
     }
 
     override suspend fun execute( gameController: GameController ) {
-        gameController.attemptToPay( actorPosition )
+        gameController.attemptToPay( playerPosition )
             .also { setExecutionResult( it ) }
     }
 }

@@ -11,6 +11,7 @@ import jacobs.tycoon.domain.board.currency.currencySerializerModule
 import jacobs.tycoon.domain.board.squares.squareSerializerModule
 import jacobs.tycoon.domain.dice.diceRollSerializerModule
 import jacobs.tycoon.domain.phases.results.jailResultSerializerModule
+import jacobs.tycoon.domain.players.SeatingPosition
 import jacobs.websockets.content.SerializationLibrary
 
 class CommunicationLibrary {
@@ -18,9 +19,12 @@ class CommunicationLibrary {
     val serializationLibrary = SerializationLibrary.build {
 
         ApplicationRequest::class serializedBy ApplicationRequest.serializer()
+        BinaryGameActionRequest::class serializedBy BinaryGameActionRequest.serializer()
         ClientWelcomeMessage::class serializedBy ClientWelcomeMessage.serializer()
         GameActionCollection::class serializedBy GameActionCollection.serializer()
-        GameActionRequest::class serializedBy GameActionRequest.serializer()
+        GameActionRequestWithResponse::class serializedBy GameActionRequestWithResponse.serializer()
+
+        SeatingPosition::class serializedBy SeatingPosition.serializer()
 
         serialModule( applicationActionSerializerModule() )
         serialModule( boardSerializerModule() )

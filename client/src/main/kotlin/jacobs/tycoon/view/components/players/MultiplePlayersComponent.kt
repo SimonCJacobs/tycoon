@@ -7,8 +7,7 @@ import jacobs.tycoon.domain.players.Player
 import org.js.mithril.VNode
 
 class MultiplePlayersComponent(
-    private val playerToExclude: Player,
-    private val playerComponentFactory: PlayerComponentFactory
+    private val componentReposifactory: PlayerComponentReposifactory
 ) : Component {
 
     @Suppress( "unused" )
@@ -20,10 +19,7 @@ class MultiplePlayersComponent(
                     val justifyContent = "space-around"
                 }
             } )
-            children(
-                playerComponentFactory.getOrderedSinglePlayerComponentsExcluding( playerToExclude )
-                    .map { m( it ) }
-            )
+            children( componentReposifactory.getMultiplePlayerSubComponents().map { m( it ) } )
         }
     }
 

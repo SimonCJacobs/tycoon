@@ -12,7 +12,7 @@ import org.kodein.di.erased.instance
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi
 class OutgoingFrameProducer( kodein: Kodein) {
 
-    private val coroutineScope by kodein.instance <CoroutineScope> ()
+    private val coroutineScope by kodein.instance < CoroutineScope > ()
     private val messageLoopDelay by kodein.instance < Long > ( tag = "outgoing" )
 
     private val outgoingFrameQueue: ArrayDeque < Frame > = ArrayDeque()

@@ -11,14 +11,13 @@ class MainPageController( kodein: Kodein ): UserInterfaceController( kodein ) {
 
     private val gameState by kodein.instance < GameState > ()
     private val outgoingRequestController by kodein.instance < OutgoingRequestController > ()
-    private val playerIdentifier by kodein.instance < PlayerIdentifier > ()
 
     fun canGameStart(): Boolean {
         return this.gameState.game().canGameStart()
     }
 
-    fun getOwnPlayer(): Player {
-        return playerIdentifier.playerUsingThisMachine
+    fun getOwnPlayer(): Player? {
+        return playerIdentifier.maybePlayerUsingThisMachine
     }
 
     fun startGame() {

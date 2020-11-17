@@ -4,13 +4,13 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
 import org.kodein.di.Kodein
 import org.kodein.di.erased.bind
+import org.kodein.di.erased.instance
 import org.kodein.di.erased.singleton
-import org.w3c.dom.Element
-import kotlin.browser.document
 
-fun applicationModule(): Kodein.Module {
+fun applicationModule( mode: ApplicationMode ): Kodein.Module {
     return Kodein.Module( "application" ) {
         bind < Application >() with singleton { Application( kodein ) }
+        bind < ApplicationMode >() with instance( mode )
         bind < CoroutineScope >() with singleton { MainScope() }
     }
 }

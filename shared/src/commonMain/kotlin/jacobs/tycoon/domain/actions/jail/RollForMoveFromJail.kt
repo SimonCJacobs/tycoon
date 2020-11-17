@@ -2,13 +2,16 @@ package jacobs.tycoon.domain.actions.jail
 
 import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.actions.ActionVisitor
-import jacobs.tycoon.domain.actions.GameAction
+import jacobs.tycoon.domain.actions.PositionalGameAction
 import jacobs.tycoon.domain.dice.DiceRoll
 import jacobs.tycoon.domain.phases.results.RollForMoveFromJailResult
+import jacobs.tycoon.domain.players.SeatingPosition
 import kotlinx.serialization.Serializable
 
 @Serializable
-class RollForMoveFromJail : GameAction() {
+class RollForMoveFromJail(
+    override val playerPosition: SeatingPosition
+) : PositionalGameAction() {
 
     var result: RollForMoveFromJailResult = RollForMoveFromJailResult.NULL
 
@@ -26,7 +29,7 @@ class RollForMoveFromJail : GameAction() {
 
     private fun rollForMoveFromJailGivenDiceRoll( gameController: GameController,
                   maybeDiceRoll: DiceRoll? = null ) : RollForMoveFromJailResult {
-        val returnValue = gameController.rollTheDiceFromJailForMove( actorPosition, maybeDiceRoll )
+        val returnValue = gameController.rollTheDiceFromJailForMove( playerPosition, maybeDiceRoll )
         this.executedSuccessfully()
         return returnValue
     }

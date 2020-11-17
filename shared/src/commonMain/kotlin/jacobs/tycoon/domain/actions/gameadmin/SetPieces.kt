@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 class SetPieces ( val pieceSet: PieceSet ) : GameAction() {
 
-    override fun < T > accept( visitor: ActionVisitor<T>): T {
+    override fun < T > accept( visitor: ActionVisitor < T > ): T {
         return visitor.visit( this )
     }
 

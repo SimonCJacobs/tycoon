@@ -5,6 +5,7 @@ import jacobs.tycoon.domain.actions.gameadmin.AddPlayer
 import jacobs.tycoon.domain.actions.cards.ReadCard
 import jacobs.tycoon.domain.actions.gameadmin.CompleteSignUp
 import jacobs.tycoon.domain.actions.GameAction
+import jacobs.tycoon.domain.actions.PositionalGameAction
 import jacobs.tycoon.domain.actions.auction.AuctionBid
 import jacobs.tycoon.domain.actions.auction.AuctionNotification
 import jacobs.tycoon.domain.actions.auction.ConcludeAuction
@@ -229,8 +230,8 @@ class ActionWriter( kodein: Kodein ) : ActionProcessor < String >, ActionVisitor
         return "You're out of jail free, ${ useGetOutOfJailFreeCard.playerName() }"
     }
 
-    private fun GameAction.playerName(): String {
-        return playerIdentifier.getPlayerFromSeatingPosition( this.actorPosition ).name
+    private fun PositionalGameAction.playerName(): String {
+        return playerIdentifier.getPlayerFromSeatingPosition( this.playerPosition ).name
     }
 
     private fun Collection < Property >.nameList(): String {

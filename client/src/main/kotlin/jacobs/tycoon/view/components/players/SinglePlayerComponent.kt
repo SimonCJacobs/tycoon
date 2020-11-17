@@ -1,5 +1,6 @@
 package jacobs.tycoon.view.components.players
 
+import jacobs.mithril.HyperScriptBuilder
 import jacobs.mithril.Tag
 import org.js.mithril.Component
 import jacobs.mithril.m
@@ -22,15 +23,25 @@ abstract class SinglePlayerComponent : Component {
                 m( Tag.h4 ) {
                     content( player.name )
                 },
-                m( Tag.h5 ) {
-                    content( player.cashHoldings.toString() )
-                },
+                cashHoldingsNode(),
                 m( Tag.h6 ) {
                     child( m( pieceDisplayStrategy.getPieceDisplayComponent( player.piece ) ) )
                 },
                 getActionArea()
             )
         }
+    }
+
+    protected open fun HyperScriptBuilder.Details.cashHoldingsNode(): VNode {
+        return cashHoldingsWrapper { content( getCashHoldingsString() ) }
+    }
+
+    protected fun cashHoldingsWrapper( content: HyperScriptBuilder.Details.() -> Unit ): VNode {
+        return m( Tag.h5 ) { content() }
+    }
+
+    protected fun getCashHoldingsString(): String {
+        return player.cashHoldings.toString()
     }
 
     private fun getActionArea(): VNode {

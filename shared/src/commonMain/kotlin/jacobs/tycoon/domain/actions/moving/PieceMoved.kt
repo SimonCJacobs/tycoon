@@ -2,12 +2,13 @@ package jacobs.tycoon.domain.actions.moving
 
 import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.actions.ActionVisitor
-import jacobs.tycoon.domain.actions.GameAction
+import jacobs.tycoon.domain.actions.PositionalGameAction
 import jacobs.tycoon.domain.phases.results.MoveResult
+import jacobs.tycoon.domain.players.SeatingPosition
 import kotlinx.serialization.Serializable
 
 @Serializable
-class PieceMoved : GameAction() {
+class PieceMoved( override val playerPosition: SeatingPosition ) : PositionalGameAction() {
 
     var result = MoveResult.NULL
 
@@ -20,7 +21,7 @@ class PieceMoved : GameAction() {
     }
 
     override suspend fun execute( gameController: GameController ) {
-        this.result = gameController.completePieceMove( this.actorPosition )
+        this.result = gameController.completePieceMove( this.playerPosition )
         this.executedSuccessfully()
     }
 

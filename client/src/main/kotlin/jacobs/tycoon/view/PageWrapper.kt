@@ -1,6 +1,7 @@
 package jacobs.tycoon.view
 
 import jacobs.mithril.m
+import jacobs.tycoon.application.ApplicationMode
 import jacobs.tycoon.clientcontroller.UserInterfaceController
 import jacobs.tycoon.view.components.pages.AdminPage
 import jacobs.tycoon.view.components.pages.EntryPage
@@ -30,7 +31,6 @@ class PageWrapper( kodein: Kodein ) : Component {
     private fun getCurrentPage(): Page {
         return when {
             this.uiController.isAuthorisedToAdminstrate() -> this.adminPage
-            this.uiController.isInAdminMode() -> this.entryPage
             this.uiController.hasGameBeenInitialised() == false -> this.splashPage
             this.uiController.userOfClientMachineHasSignedUpForGame() == false && this.uiController.isSignUpPhase()
                 -> this.entryPage

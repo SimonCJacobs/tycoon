@@ -1,81 +1,95 @@
 package jacobs.tycoon.domain.players
 
 import jacobs.tycoon.domain.board.squares.Property
-import jacobs.tycoon.domain.board.squares.Square
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.services.wrapFromExcludingFirstMatch
+import kotlin.random.Random
 
 class GamePlayers {
 
-    private val playersAndIfInGame: MutableMap < Player, Boolean > = mutableMapOf()
+    private val playerStatuses: MutableMap < Player, PlayerStatus > = mutableMapOf()
 
     fun activeCount(): Int {
-        return this.activeList().size
+        return this.activeOrderedList().size
     }
 
-    fun addPlayer( player: Player ): Boolean {
-        this.playersAndIfInGame.put( player, true )
-        return true
+    fun addPlayer( player: Player ): SeatingPosition {
+        val newPosition = this.getNextSeatingPosition()
+        val newStatus = PlayerStatus( newPosition )
+        this.playerStatuses.put( player, newStatus )
+        return newPosition
     }
 
-    fun activeList(): List < Player > {
-        return this.playersAndIfInGame.filterValues { it }.keys.sorted()
+    fun activeOrderedList(): List < Player > {
+        return this.playerStatuses.entries
+            .sortedBy { it.value.position }
+            .filter { it.value.isInGame }
+            .map { it.key }
     }
 
     fun countAll(): Int {
-        return this.playersAndIfInGame.size
+        return this.playerStatuses.size
     }
 
     fun doesAnyoneOwnProperty( property: Property ): Boolean {
-        return this.playersAndIfInGame.keys.any { it.owns( property ) }
+        return this.playerStatuses.keys.any { it.owns( property ) }
     }
 
     fun eliminatePlayerFromGame( player: Player ) {
-        this.playersAndIfInGame.put( player, false )
+        this.playerStatuses.getValue( player ).isInGame = false
     }
 
     fun getActualPlayer( player: Player ): Player {
-        return this.playersAndIfInGame.keys.find { actualPlayers -> actualPlayers == player }!!
+        return this.playerStatuses.keys.find { actualPlayers -> actualPlayers == player }!!
     }
 
     fun getByName( name: String ): Player? {
-        return this.playersAndIfInGame.keys.firstOrNull { name == it.name }
+        return this.playerStatuses.keys.firstOrNull { name == it.name }
     }
 
     fun getPiecesInUse(): Set < PlayingPiece > {
-        return this.activeList().map { it.piece }
+        return this.activeOrderedList().map { it.piece }
             .toSet()
     }
 
     fun getPlayerAtPosition( position: SeatingPosition ): Player {
-        return this.playersAndIfInGame.keys.first { it.position == position }
+        return this.playerStatuses.entries.first { it.value.position == position }.key
     }
 
     fun getSoleActivePlayer(): Player {
-        return this.activeList().single()
+        return this.activeOrderedList().single()
     }
 
     fun hasPlayerInPositionSignedUp( position: SeatingPosition ): Boolean {
-        return this.playersAndIfInGame.keys.any { it.position == position }
+        return this.playerStatuses.entries.any { it.value.position == position }
     }
 
     fun isThereAPlayerOfName( name: String ): Boolean {
-        return this.playersAndIfInGame.keys.any { name == it.name }
+        return this.playerStatuses.keys.any { name == it.name }
     }
 
     fun isPlayerInGame( player: Player ): Boolean {
-        return this.playersAndIfInGame.getValue( player )
+        return this.playerStatuses.getValue( player ).isInGame
     }
 
     fun nextActive( previousPlayer: Player ): Player {
         val wrappedEntriesWithoutPrevious =
-            this.playersAndIfInGame.entries.toList()
+            this.playerStatuses.entries.sortedBy { it.value.position }
                 .wrapFromExcludingFirstMatch { previousPlayer == it.key }
-        return wrappedEntriesWithoutPrevious.first { it.value }.key
+        return wrappedEntriesWithoutPrevious.first().key
     }
 
     fun playersToLeftExcluding( excludedPlayer: Player ): List < Player > {
-        return this.activeList().wrapFromExcludingFirstMatch { it == excludedPlayer }
+        return this.activeOrderedList().wrapFromExcludingFirstMatch { it == excludedPlayer }
+    }
+
+    private fun getNextSeatingPosition(): SeatingPosition {
+        val newPositionIndex =
+            if ( this.playerStatuses.isEmpty() )
+                0
+            else
+                this.playerStatuses.values.map { it.position }.max()!!.index + 1
+        return SeatingPosition( newPositionIndex )
     }
 
 }

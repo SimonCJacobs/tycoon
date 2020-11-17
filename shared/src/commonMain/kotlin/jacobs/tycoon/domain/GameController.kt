@@ -56,24 +56,27 @@ class GameController( kodein: Kodein ) {
 
     // REGULAR PUBLIC API
 
-    fun acceptFunds( actorPosition: SeatingPosition ): Boolean {
-        return game().acceptFunds( gameCycle, actorPosition )
+    fun acceptFunds( playerPosition: SeatingPosition ): Boolean {
+        return game().acceptFunds( gameCycle, playerPosition )
     }
 
-    fun addPlayer( name: String, piece: PlayingPiece, position: SeatingPosition ): Boolean {
-        val newPlayerObject = this.playerFactory.getNew( name, piece, position )
-        return this.game().addPlayer( newPlayerObject )
+    fun addPlayer( name: String, piece: PlayingPiece ): SeatingPosition? {
+        return this.game().addPlayer(
+            name = name,
+            playingPiece = piece,
+            factory = playerFactory
+        )
     }
 
     fun attemptToPay( position: SeatingPosition ): Boolean {
         return game().attemptToPay( gameCycle, position )
     }
 
-    fun build( streets: List < Street >, newHouses: List < Int >, actorPosition: SeatingPosition ): Boolean {
+    fun build( streets: List < Street >, newHouses: List < Int >, playerPosition: SeatingPosition ): Boolean {
         val buildingProject = BuildingProject(
             streets = game().board.getActualSquares( streets ),
             houseChangeDistribution = newHouses,
-            player = actorPosition.getPlayer( game() ),
+            player = playerPosition.getPlayer( game() ),
             bank = game().bank
         )
         return game().build( buildingProject )
@@ -83,8 +86,8 @@ class GameController( kodein: Kodein ) {
         return game().carryOutBankruptcyProceedings( gameCycle )
     }
 
-    fun chargeRent( property: Property, actorPosition: SeatingPosition ): RentChargeResult {
-        return this.game().chargeRent( gameCycle, property, actorPosition )
+    fun chargeRent( property: Property, playerPosition: SeatingPosition ): RentChargeResult {
+        return this.game().chargeRent( gameCycle, property, playerPosition )
     }
 
     fun completePieceMove( position: SeatingPosition ): MoveResult {
@@ -111,28 +114,28 @@ class GameController( kodein: Kodein ) {
         return game().updateAuctionProceedings( newPhase )
     }
 
-    fun mortgageProperty( property: Property, actorPosition: SeatingPosition): Boolean {
-        return game().mortgageProperty( game().board.getActualSquare( property ), actorPosition )
+    fun mortgageProperty( property: Property, playerPosition: SeatingPosition): Boolean {
+        return game().mortgageProperty( game().board.getActualSquare( property ), playerPosition )
     }
 
-    fun offerTrade( tradeOffer: TradeOffer, actorPosition: SeatingPosition ): Boolean {
-        return this.game().offerTrade( gameCycle, tradeOffer.actual( game() ), actorPosition )
+    fun offerTrade( tradeOffer: TradeOffer, playerPosition: SeatingPosition ): Boolean {
+        return this.game().offerTrade( gameCycle, tradeOffer.actual( game() ), playerPosition )
     }
 
-    fun payFineOrTakeCard( decision: PayFineOrTakeCardDecision, actorPosition: SeatingPosition ): Boolean {
-        return game().payFineOrTakeCard( gameCycle, decision, actorPosition )
+    fun payFineOrTakeCard( decision: PayFineOrTakeCardDecision, playerPosition: SeatingPosition ): Boolean {
+        return game().payFineOrTakeCard( gameCycle, decision, playerPosition )
     }
 
     fun payJailFine( seatingPosition: SeatingPosition ): Boolean {
         return this.game().payJailFineVoluntarily( gameCycle, seatingPosition )
     }
 
-    fun payOffMortgage( property: Property, actorPosition: SeatingPosition ): Boolean {
-        return this.game().payOffMortgage( game().board.getActualSquare( property ), actorPosition )
+    fun payOffMortgage( property: Property, playerPosition: SeatingPosition ): Boolean {
+        return this.game().payOffMortgage( game().board.getActualSquare( property ), playerPosition )
     }
 
-    fun payOffMortgageOnTransfer( decision: MortgageOnTransferDecision, actorPosition: SeatingPosition ): Boolean {
-        return game().payOffMortgageOnTransfer( gameCycle, decision, actorPosition )
+    fun payOffMortgageOnTransfer( decision: MortgageOnTransferDecision, playerPosition: SeatingPosition ): Boolean {
+        return game().payOffMortgageOnTransfer( gameCycle, decision, playerPosition )
     }
 
     fun readCard( position: SeatingPosition ): ReadCardResult {
@@ -143,30 +146,30 @@ class GameController( kodein: Kodein ) {
         game().respondToPropertyOffer( gameCycle, decidedToBuy, position )
     }
 
-    fun respondToTradeOffer( response: Boolean, actorPosition: SeatingPosition ): Boolean {
-        return game().respondToTradeOffer( gameCycle, response, actorPosition )
+    fun respondToTradeOffer( response: Boolean, playerPosition: SeatingPosition ): Boolean {
+        return game().respondToTradeOffer( gameCycle, response, playerPosition )
     }
 
-    fun rollTheDiceFromJailForMove( actorPosition: SeatingPosition, maybeDiceRoll: DiceRoll? )
+    fun rollTheDiceFromJailForMove( playerPosition: SeatingPosition, maybeDiceRoll: DiceRoll? )
             : RollForMoveFromJailResult {
-        return game().rollTheDiceFromJailForMove( gameCycle, actorPosition, maybeDiceRoll )
+        return game().rollTheDiceFromJailForMove( gameCycle, playerPosition, maybeDiceRoll )
     }
 
-    fun rollTheDiceForMove( actorPosition: SeatingPosition, maybeDiceRoll: DiceRoll? ): RollForMoveResult {
-        return game().rollTheDiceForMove( gameCycle, actorPosition, maybeDiceRoll )
+    fun rollTheDiceForMove( playerPosition: SeatingPosition, maybeDiceRoll: DiceRoll? ): RollForMoveResult {
+        return game().rollTheDiceForMove( gameCycle, playerPosition, maybeDiceRoll )
     }
 
-    fun rollTheDiceForThrowingOrder( actorPosition: SeatingPosition, maybeDiceRoll: DiceRoll? )
+    fun rollTheDiceForThrowingOrder( playerPosition: SeatingPosition, maybeDiceRoll: DiceRoll? )
             : RollForOrderResult {
-        return gameState.game().rollTheDiceForThrowingOrder( this.gameCycle, actorPosition, maybeDiceRoll )
+        return gameState.game().rollTheDiceForThrowingOrder( this.gameCycle, playerPosition, maybeDiceRoll )
     }
 
-    fun sellProperties( streets: List < Street >, housesToSell: List < Int >, actorPosition: SeatingPosition)
+    fun sellProperties( streets: List < Street >, housesToSell: List < Int >, playerPosition: SeatingPosition)
             : Boolean {
         val buildingProject = BuildingProject(
             streets = game().board.getActualSquares( streets ),
             houseChangeDistribution = housesToSell,
-            player = actorPosition.getPlayer( game() ),
+            player = playerPosition.getPlayer( game() ),
             bank = game().bank
         )
         return game().sellProperties( buildingProject )

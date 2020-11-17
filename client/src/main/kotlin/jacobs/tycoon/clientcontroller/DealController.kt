@@ -9,7 +9,6 @@ import jacobs.tycoon.domain.board.squares.Square
 import jacobs.tycoon.domain.board.squares.Street
 import jacobs.tycoon.domain.players.Player
 import jacobs.tycoon.domain.rules.MiscellaneousRules
-import jacobs.tycoon.services.PlayerIdentifier
 import jacobs.tycoon.state.GameState
 import jacobs.tycoon.view.components.board.squares.PrimarySelectableDisplay
 import jacobs.tycoon.view.components.board.squares.SelectableSecondaryDisplay
@@ -25,7 +24,6 @@ class DealController ( kodein: Kodein ) : UserInterfaceController( kodein ){
     private val gameState by kodein.instance < GameState > ()
     private val miscellaneousRules by kodein.instance < MiscellaneousRules > ()
     private val outgoingRequestController by kodein.instance < OutgoingRequestController > ()
-    private val playerIdentifier by kodein.instance < PlayerIdentifier > ()
 
     // OUTGOING REQUEST API
 
@@ -46,21 +44,23 @@ class DealController ( kodein: Kodein ) : UserInterfaceController( kodein ){
 
     fun offerTrade() {
         val selectedSquares = clientState.propertiesSelectedForDeal.getValue( DealType.COMPOSING_TRADE )
-        val offer = TradeOffer(
-            offered = Assets(
-                selectedSquares.filter { it.canBeOffered() },
-                clientState.cashOffered,
-                clientState.getOutOfJailFreeCardsOffered
-            ),
-            wanted = Assets(
-                selectedSquares.filter { it.canBeTradedByCounterparty() },
-                clientState.cashWanted,
-                clientState.getOutOfJailFreeCardsWanted
-            ),
-            offeringPlayer = playerIdentifier.playerUsingThisMachine,
-            offerRecipient = clientState.playerIntendingToDealWith!!
-        )
-        launch { outgoingRequestController.offerTrade( offer ) }
+        playerIdentifier.doIfAPlayerOnThisMachine { offeringPlayer ->
+            val offer = TradeOffer(
+                offered = Assets(
+                    selectedSquares.filter { it.canBeOffered() },
+                    clientState.cashOffered,
+                    clientState.getOutOfJailFreeCardsOffered
+                ),
+                wanted = Assets(
+                    selectedSquares.filter { it.canBeTradedByCounterparty() },
+                    clientState.cashWanted,
+                    clientState.getOutOfJailFreeCardsWanted
+                ),
+                offeringPlayer = offeringPlayer,
+                offerRecipient = clientState.playerIntendingToDealWith!!
+            )
+            launch { outgoingRequestController.offerTrade( offer ) }
+        }
     }
 
     fun payOffMortgages() {
@@ -172,7 +172,9 @@ class DealController ( kodein: Kodein ) : UserInterfaceController( kodein ){
     }
 
     fun getMaxCardsCanOffer(): Int {
-        return playerIdentifier.playerUsingThisMachine.howManyGetOutOfJailFreeCards()
+        return playerIdentifier.doIfAPlayerOnThisMachine( 0 ) {
+            it.howManyGetOutOfJailFreeCards()
+        }
     }
 
     fun getMaxCardsCanWant(): Int {
@@ -286,7 +288,7 @@ class DealController ( kodein: Kodein ) : UserInterfaceController( kodein ){
      */
 
     private fun Property.canBeOffered(): Boolean {
-        return playerIdentifier.playerUsingThisMachine.canTrade( this )
+        return playerIdentifier.doIfAPlayerOnThisMachineOrFalse { player -> player.canTrade( this ) }
     }
 
     private fun Property.canBeTradedByCounterparty(): Boolean {
@@ -300,11 +302,15 @@ class DealController ( kodein: Kodein ) : UserInterfaceController( kodein ){
     }
 
     private fun Street.hasOwnedDevelopment(): Boolean {
-        return this.hasOwnedDevelopment( playerIdentifier.playerUsingThisMachine )
+        return playerIdentifier.doIfAPlayerOnThisMachineOrFalse {
+            this.hasOwnedDevelopment( it )
+        }
     }
 
     private fun Street.hasScopeForDevelopment(): Boolean {
-        return this.hasScopeForDevelopmentBy( playerIdentifier.playerUsingThisMachine )
+        return playerIdentifier.doIfAPlayerOnThisMachineOrFalse {
+            hasScopeForDevelopmentBy( it )
+        }
     }
 
     private fun Property.mortgagedCanBePaidOffHere(): Boolean {
@@ -312,7 +318,7 @@ class DealController ( kodein: Kodein ) : UserInterfaceController( kodein ){
     }
 
     private fun Property.isOwnedByThisPlayer(): Boolean {
-        return playerIdentifier.playerUsingThisMachine.owns( this )
+        return playerIdentifier.doIfAPlayerOnThisMachineOrFalse { player -> player.owns( this ) }
     }
 
 }

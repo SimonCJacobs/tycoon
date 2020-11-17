@@ -11,7 +11,7 @@ import org.kodein.di.erased.instance
 @ExperimentalCoroutinesApi @ExperimentalStdlibApi
 internal class WebSocketImpl ( kodein: Kodein ) : WebSocket {
 
-    private val closeHandler by kodein.instance < CloseRequestHandler >()
+    private val closeHandler by kodein.instance < CloseRequestHandler > ()
     private val outgoingCommunicationDispatcher by kodein.instance < OutgoingCommunicationDispatcher > ()
 
     override fun close() {

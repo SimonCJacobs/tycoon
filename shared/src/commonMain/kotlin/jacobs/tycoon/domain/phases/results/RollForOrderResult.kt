@@ -9,7 +9,7 @@ data class RollForOrderResult (
     val diceRoll: DiceRoll,
     val nextPhase: RollForOrderOutcome,
     val winner: Player = Player.NULL,
-    val playersTiedFirst: Set < Player > = emptySet()
+    val playersTiedFirst: List < Player > = emptyList()
 ) {
 
     companion object {

@@ -37,10 +37,10 @@ class GameExecutorWrapperTest {
     fun `Executes underlying update call when setting Board`() {
         runBlocking {
             val dummyController = mock( GameExecutor::class.java )
-            val londonBoardAction = SetBoard(LondonBoard(PoundsSterling()))
+            val londonBoardAction = SetBoard( LondonBoard( PoundsSterling() ) )
             mockitoWhen( dummyController.execute( londonBoardAction ) )
                 .then {
-                    londonBoardAction.executed = true
+                    londonBoardAction.setExecutionResult( true )
                     londonBoardAction
                 }
             val instance = getTestInstance( dummyController )
@@ -58,7 +58,7 @@ class GameExecutorWrapperTest {
             val pieceSetAction = SetPieces(ClassicPieces())
             mockitoWhen( dummyController.execute( pieceSetAction ) )
                 .then {
-                    pieceSetAction.executed = true
+                    pieceSetAction.setExecutionResult( true )
                     pieceSetAction
                 }
             val instance = getTestInstance( dummyController )

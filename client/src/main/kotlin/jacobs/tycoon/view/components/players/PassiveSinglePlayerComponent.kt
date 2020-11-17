@@ -9,7 +9,7 @@ import jacobs.tycoon.state.GameState
 import jacobs.tycoon.view.components.pieces.PieceDisplayStrategy
 import org.js.mithril.VNode
 
-class PassiveSinglePlayerComponent(
+open class PassiveSinglePlayerComponent(
     override val gameState: GameState,
     override val pieceDisplayStrategy: PieceDisplayStrategy,
     override val playerActionController: PlayerActionController,

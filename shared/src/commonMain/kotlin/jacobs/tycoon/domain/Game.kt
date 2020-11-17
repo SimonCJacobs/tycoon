@@ -45,6 +45,7 @@ import jacobs.tycoon.domain.phases.results.RollForMoveFromJailResult
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.domain.players.GamePlayers
 import jacobs.tycoon.domain.players.Player
+import jacobs.tycoon.domain.players.PlayerFactory
 import jacobs.tycoon.domain.players.SeatingPosition
 import jacobs.tycoon.domain.rules.JailRules
 import jacobs.tycoon.domain.rules.MiscellaneousRules
@@ -71,18 +72,19 @@ class Game(
      * *** 1. UPDATING GAME STATE API AS MAIN GAME ACTION ***
      */
 
-    fun acceptFunds( gameCycle: GameCycle, actorPosition: SeatingPosition ): Boolean {
-        return gameCycle.doOnTurnPhaseAndCycle < AcceptingFunds, Boolean > ( this, actorPosition ) {
+    fun acceptFunds( gameCycle: GameCycle, playerPosition: SeatingPosition ): Boolean {
+        return gameCycle.doOnTurnPhaseAndCycle < AcceptingFunds, Boolean > ( this, playerPosition ) {
             this.acceptFunds()
             true
         }
     }
 
-    fun addPlayer( possibleNewPlayer: Player ): Boolean {
-        if ( canGivenNewPlayerJoin( possibleNewPlayer ) )
-            return players.addPlayer( possibleNewPlayer )
-        else
-            return false
+    fun addPlayer( name: String, playingPiece: PlayingPiece, factory: PlayerFactory ): SeatingPosition? {
+        val possibleNewPlayer = factory.getNew( name, playingPiece )
+        return if ( canGivenNewPlayerJoin( possibleNewPlayer ) )
+                players.addPlayer( possibleNewPlayer )
+            else
+                null
     }
 
     fun attemptToPay( gameCycle: GameCycle, position: SeatingPosition ): Boolean {
@@ -95,9 +97,9 @@ class Game(
         }
     }
 
-    fun bidFromPosition( amount: CurrencyAmount, actorPosition: SeatingPosition ): Boolean {
+    fun bidFromPosition( amount: CurrencyAmount, playerPosition: SeatingPosition ): Boolean {
         return doInPhase < AuctionProperty, Boolean > {
-            this.makeBid( amount, actorPosition.player() )
+            this.makeBid( amount, playerPosition.player() )
         }
     }
 
@@ -115,10 +117,10 @@ class Game(
         }
     }
 
-    fun chargeRent( gameCycle: GameCycle, property: Property, actorPosition: SeatingPosition ): RentChargeResult {
-        val rentCharge = getPotentialRentChargeOrNullGivenProperty( actorPosition.player(), property )
+    fun chargeRent( gameCycle: GameCycle, property: Property, playerPosition: SeatingPosition ): RentChargeResult {
+        val rentCharge = getPotentialRentChargeOrNullGivenProperty( playerPosition.player(), property )
             ?: throw NotTurnOfPlayerException( "Invalid rent charge attempt" )
-        val result = rentCharge.recordRentCharge( actorPosition.player() )
+        val result = rentCharge.recordRentCharge( playerPosition.player() )
         gameCycle.dealWithRentCharge( result, this )
         return result
     }
@@ -142,24 +144,24 @@ class Game(
         }
     }
 
-    fun mortgageProperty( property: Property, actorPosition: SeatingPosition ): Boolean {
-        if ( property.isMortgaged() || actorPosition.player().owns( property ) == false )
+    fun mortgageProperty( property: Property, playerPosition: SeatingPosition ): Boolean {
+        if ( property.isMortgaged() || playerPosition.player().owns( property ) == false )
             return false
         property.takeOutMortgage()
-        actorPosition.player().creditFunds( property.mortgagedValue() )
+        playerPosition.player().creditFunds( property.mortgagedValue() )
         return true
     }
 
-    fun offerTrade( gameCycle: GameCycle, tradeOffer: TradeOffer, actorPosition: SeatingPosition ): Boolean {
-        if ( actorPosition.player() != tradeOffer.offeringPlayer )
+    fun offerTrade( gameCycle: GameCycle, tradeOffer: TradeOffer, playerPosition: SeatingPosition ): Boolean {
+        if ( playerPosition.player() != tradeOffer.offeringPlayer )
             return false
         else
             return gameCycle.startNewTradingPhase( tradeOffer, this )
     }
 
     fun payFineOrTakeCard( gameCycle: GameCycle, decision: PayFineOrTakeCardDecision,
-                           actorPosition: SeatingPosition ): Boolean {
-        return gameCycle.doOnTurnPhaseAndCycle < PayingFineOrTakingCard, Boolean > ( this, actorPosition ) {
+                           playerPosition: SeatingPosition ): Boolean {
+        return gameCycle.doOnTurnPhaseAndCycle < PayingFineOrTakingCard, Boolean > ( this, playerPosition ) {
             this.carryOutDecision( decision )
             true
         }
@@ -172,28 +174,32 @@ class Game(
         }
     }
 
-    fun payOffMortgage( property: Property, actorPosition: SeatingPosition ): Boolean {
-        if ( false == property.isMortgaged() || actorPosition.player().owns( property ) == false )
+    fun payOffMortgage( property: Property, playerPosition: SeatingPosition ): Boolean {
+        return this.payOffMortgage( property, playerPosition.player() )
+    }
+
+    fun payOffMortgage( property: Property, player: Player ): Boolean {
+        if ( false == property.isMortgaged() || player.owns( property ) == false )
             return false
         property.payOffMortgage()
-        actorPosition.player().debitFunds( property.mortgagePlusInterest( bank.interestRate ) )
+        player.debitFunds( property.mortgagePlusInterest( bank.interestRate ) )
         return true
     }
 
-    fun payOffMortgageOnTransfer( gameCycle: GameCycle, decision: MortgageOnTransferDecision, actorPosition: SeatingPosition ): Boolean {
+    fun payOffMortgageOnTransfer( gameCycle: GameCycle, decision: MortgageOnTransferDecision, playerPosition: SeatingPosition ): Boolean {
         return gameCycle.doInPhaseAndCycle < DealingWithMortgageInterestOnTransfer, Boolean > ( this ) {
-            if ( false == this.doesOwnProperty( actorPosition.getPlayer( it ) ) )
-                throw NotTurnOfPlayerException( "Not turn of ${ actorPosition.getPlayer( it ) } to pay off mortgage in transfer" )
+            if ( false == this.doesOwnProperty( playerPosition.getPlayer( it ) ) )
+                throw NotTurnOfPlayerException( "Not turn of ${ playerPosition.getPlayer( it ) } to pay off mortgage in transfer" )
             this.dealWithMortgage( decision, it )
             true
         }
     }
 
-    fun playGetOutOfJailFreeCard( actorPosition: SeatingPosition ): Boolean {
+    fun playGetOutOfJailFreeCard( playerPosition: SeatingPosition ): Boolean {
         return this.doInPhaseOrElse < RollingForMoveFromJail, Boolean > ( false ) {
-            if ( actorPosition.player().hasGetOutOfJailFreeCard() ) {
+            if ( playerPosition.player().hasGetOutOfJailFreeCard() ) {
                 this.useGetOutOfJailFreeCard()
-                actorPosition.player().returnGetOutOfJailFreeCard()
+                playerPosition.player().returnGetOutOfJailFreeCard()
                 true
             }
             else
@@ -214,10 +220,10 @@ class Game(
     }
 
     fun respondToTradeOffer( gameCycle: GameCycle, response: Boolean,
-                             actorPosition: SeatingPosition ): Boolean {
+                             playerPosition: SeatingPosition ): Boolean {
         return gameCycle.doInPhaseAndCycle < TradeBeingConsidered, Boolean > ( this ) {
-            if ( false == this.isPlayerWhoReceivedOffer( actorPosition.player() ) )
-                throw NotTurnOfPlayerException( "${ actorPosition.player() } can't respond to the offer"  )
+            if ( false == this.isPlayerWhoReceivedOffer( playerPosition.player() ) )
+                throw NotTurnOfPlayerException( "${ playerPosition.player() } can't respond to the offer"  )
             this.respondToTrade( response )
             true
         }

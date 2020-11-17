@@ -4,7 +4,7 @@ import jacobs.websockets.content.MessageContent
 
 internal class MessageIdRepository {
 
-    private val unansweredMessages: MutableMap < MessageIdentifier, (MessageContent) -> Unit > = mutableMapOf()
+    private val unansweredMessages: MutableMap < MessageIdentifier, ( MessageContent ) -> Unit > = mutableMapOf()
 
     fun logOutgoingMessage( message: Message, responseCallback: (MessageContent) -> Unit ) {
         this.unansweredMessages.put( message.id, responseCallback )

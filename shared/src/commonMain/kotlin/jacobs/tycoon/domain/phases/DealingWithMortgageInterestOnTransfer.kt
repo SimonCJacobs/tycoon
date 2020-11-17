@@ -38,7 +38,7 @@ class DealingWithMortgageInterestOnTransfer (
     }
 
     private fun payOffEntireMortgage( game: Game ) {
-        game.payOffMortgage( property, propertyOwner.position )
+        game.payOffMortgage( property, propertyOwner )
     }
 
 }

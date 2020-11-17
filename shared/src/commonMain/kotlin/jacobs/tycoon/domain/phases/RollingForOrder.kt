@@ -13,7 +13,7 @@ class RollingForOrder (
 
     lateinit var result: RollForOrderResult
 
-    override fun accept(turnBasedPhaseVisitor: TurnBasedPhaseVisitor ) {
+    override fun accept( turnBasedPhaseVisitor: TurnBasedPhaseVisitor ) {
         turnBasedPhaseVisitor.visit( this )
     }
 
@@ -51,9 +51,10 @@ class RollingForOrder (
         )
     }
 
-    private fun getPlayersWithMaximumRoll(): Set < Player > {
+    private fun getPlayersWithMaximumRoll(): List < Player > {
         return this.rollResults.values.filterNotNull().map { it.result }.max()
             .let { maxValue -> this.rollResults.filterValues { it?.result == maxValue }.keys }
+            .toList()
     }
 
     private fun getWinner(): Player {

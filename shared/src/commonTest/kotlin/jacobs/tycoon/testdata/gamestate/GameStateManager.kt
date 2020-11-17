@@ -87,32 +87,33 @@ class GameStateManager private constructor( kodein: Kodein ) {
     val game: Game
         get() = gameState.game()
 
-    var nextSeatingPosition = 0
+    private val playerPositions: MutableList < SeatingPosition > = mutableListOf()
 
     // RUNNING GAME METHODS
 
     suspend fun player( name: String, pieceName: String ) {
-        this.executor.execute(
-            AddPlayer(name, gameState.game().board.pieceSet.getPieceByName(pieceName)!!)
-                .apply { setPositionOfActor( SeatingPosition( nextSeatingPosition++ ) ) }
-        )
+        AddPlayer( name, gameState.game().board.pieceSet.getPieceByName( pieceName )!! )
+            .apply {
+                executor.execute( this )
+                playerPositions.add( this.assignedPosition )
+            }
     }
 
     suspend fun completeSignUp() {
-        this.executor.execute(CompleteSignUp())
+        this.executor.execute( CompleteSignUp() )
     }
 
-    suspend fun rollForMove( roll: Pair < Int, Int >, position: Int ) {
-        RollForOrderAction()
+    suspend fun rollForMove( roll: Pair < Int, Int >, playerNumber: Int ) {
+        RollForOrderAction( playerNumber.toPosition() )
             .apply {
                 result = RollForOrderResult( DiceRollFixed( roll.first, roll.second ), RollForOrderOutcome.ROLLING )
-                requestFromPosition( position )
+                request()
             }
     }
 
     suspend fun goToRollForMove() {
         completeSignUp()
-        ( 0 until nextSeatingPosition  ).forEach {
+        playerPositions.indices.forEach {
             rollForMove(
                 ( if ( it < 6 ) 6 - it else 1 ) to ( if ( it < 6 ) 6 else 11 - it ), // Going down 12, 11, 10, ...
                 it
@@ -124,9 +125,9 @@ class GameStateManager private constructor( kodein: Kodein ) {
      * To be used when players playing the game in order of seating position ( as occurs with [goToRollForMove] )
      */
     suspend fun roll( diceRoll: Pair < Int, Int >, playerNumber: Int ) {
-        RollForMove()
+        RollForMove( playerNumber.toPosition() )
             .apply { result = RollForMoveResult.ofRollOnly( DiceRollFixed( diceRoll ) ) }
-            .requestFromPosition( playerNumber )
+            .request()
     }
 
     suspend fun rollFromJail( diceRoll: Pair < Int, Int >, playerNumber: Int ) {
@@ -134,17 +135,17 @@ class GameStateManager private constructor( kodein: Kodein ) {
             rollForMoveResult = RollForMoveResult.ofRollOnly( DiceRollFixed( diceRoll ) ),
             jailOutcome = JailOutcome.FORCED_TO_PAY_FINE // This field should not be used by game
         )
-        RollForMoveFromJail()
+        RollForMoveFromJail( playerNumber.toPosition() )
             .apply { result = dummyResult }
-            .requestFromPosition( playerNumber )
+            .request()
     }
 
     suspend fun doMove( playerNumber: Int ) {
-        PieceMoved().requestFromPosition( playerNumber )
+        PieceMoved( playerNumber.toPosition() ).request()
     }
 
     suspend fun respondToPropertyOffer( yesNo: Boolean, playerNumber: Int ) {
-        RespondToPropertyOffer( yesNo ).requestFromPosition( playerNumber )
+        RespondToPropertyOffer( yesNo, playerNumber.toPosition() ).request()
     }
 
     /**
@@ -157,32 +158,32 @@ class GameStateManager private constructor( kodein: Kodein ) {
     }
 
     suspend fun chargeRent( propertyNumber: Int, playerNumber: Int ) {
-        RentCharge( propertyAtIndex( propertyNumber ) ).requestFromPosition( playerNumber )
+        RentCharge( propertyAtIndex( propertyNumber ), playerNumber.toPosition() ).request()
     }
 
     suspend fun drawCard( playerNumber: Int ): String {
-        return ReadCard().run {
-            requestFromPosition( playerNumber )
+        return ReadCard( playerNumber.toPosition() ).run {
+            request()
             result.cardText
         }
     }
 
     suspend fun attemptToPay( playerNumber: Int ) {
-        AttemptToPay().requestFromPosition( playerNumber )
+        AttemptToPay( playerNumber.toPosition() ).request()
     }
 
     suspend fun makeBid( amount: Int, playerNumber: Int ) {
-        AuctionBid(amount.toCurrency()).requestFromPosition( playerNumber )
+        AuctionBid( amount.toCurrency(), playerNumber.toPosition() ).request()
     }
 
     // TRADING
 
     suspend fun offerTrade( tradeOffer: TradeOffer, playerNumber: Int ) {
-        OfferTrade( tradeOffer ).requestFromPosition( playerNumber )
+        OfferTrade( tradeOffer, playerNumber.toPosition() ).request()
     }
 
     suspend fun acceptTrade( playerNumber: Int ) {
-        RespondToTradeOffer( true ).requestFromPosition( playerNumber )
+        RespondToTradeOffer( true, playerNumber.toPosition() ).request()
     }
 
     suspend fun offerCashForProperty( cashAmount: Int, propertyIndex: Int, targetPlayerIndex: Int,
@@ -205,34 +206,34 @@ class GameStateManager private constructor( kodein: Kodein ) {
     // JAIL
 
     suspend fun payJailFine( playerNumber: Int ) {
-        PayJailFineVoluntarily().requestFromPosition( playerNumber )
+        PayJailFineVoluntarily( playerNumber.toPosition() ).request()
     }
 
     suspend fun useGOOJFCard( playerNumber: Int ) {
-        UseGetOutOfJailFreeCard().requestFromPosition( playerNumber )
+        UseGetOutOfJailFreeCard( playerNumber.toPosition() ).request()
     }
 
     // MORTGAGING
 
     suspend fun mortgagePropertyAtIndex( propertyNumber: Int, playerNumber: Int ) {
-        MortgageProperty( listOf( this.propertyAtIndex( propertyNumber ) ) )
-            .requestFromPosition( playerNumber )
+        MortgageProperty( listOf( this.propertyAtIndex( propertyNumber ) ), playerNumber.toPosition() )
+            .request()
     }
 
     suspend fun payOffMortgageOnPropertyAtIndex( propertyNumber: Int, playerNumber: Int ) {
-        PayOffMortgage( listOf( this.propertyAtIndex( propertyNumber ) ) )
-            .requestFromPosition( playerNumber )
+        PayOffMortgage( listOf( this.propertyAtIndex( propertyNumber ) ), playerNumber.toPosition() )
+            .request()
     }
 
     suspend fun payMortgageOnTrade( decision: MortgageOnTransferDecision, playerNumber: Int  ) {
-        DealWithMortgageOnTransfer( decision ).requestFromPosition( playerNumber )
+        DealWithMortgageOnTransfer( decision, playerNumber.toPosition() ).request()
     }
 
     // BUILDING
 
     suspend fun build( propertyIndices: List < Int >, houseCounts: List < Int >, playerIndex: Int ) {
-        Build( propertyIndices.map { propertyAtIndex( it ) as Street }, houseCounts )
-            .requestFromPosition( playerIndex )
+        Build( propertyIndices.map { propertyAtIndex( it ) as Street }, houseCounts, playerIndex.toPosition() )
+            .request()
     }
 
     // INFORMATION ON STATE
@@ -263,13 +264,6 @@ class GameStateManager private constructor( kodein: Kodein ) {
         }
     }
 
-    private suspend fun < T : GameAction > T.requestFromPosition( index: Int ) {
-        this.apply {
-            actorPosition = index.toPosition()
-            duplicate( gameController)
-        }
-    }
-
     fun inCurrency( value: Int ): CurrencyAmount {
         return value.toCurrency()
     }
@@ -287,7 +281,7 @@ class GameStateManager private constructor( kodein: Kodein ) {
     }
 
     private fun Int.toPosition(): SeatingPosition {
-        return SeatingPosition( this )
+        return playerPositions[ this ]
     }
 
 }

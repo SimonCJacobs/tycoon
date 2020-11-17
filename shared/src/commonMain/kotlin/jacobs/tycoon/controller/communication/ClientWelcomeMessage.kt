@@ -6,6 +6,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class ClientWelcomeMessage(
-    val message: String,
-    val socket: SocketId
+    val message: String
 ) : MessageContent

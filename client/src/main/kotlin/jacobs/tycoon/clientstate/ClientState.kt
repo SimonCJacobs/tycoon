@@ -5,6 +5,7 @@ import jacobs.tycoon.domain.board.squares.Property
 import jacobs.tycoon.domain.board.squares.Street
 import jacobs.tycoon.domain.pieces.PlayingPiece
 import jacobs.tycoon.domain.players.Player
+import jacobs.tycoon.domain.players.SeatingPosition
 import jacobs.websockets.SocketId
 
 class ClientState {
@@ -13,9 +14,11 @@ class ClientState {
      * Server
      */
     var isWaitingForServer = true
-    var maybeSocket: SocketId? = null
-    val socketNotNull: SocketId
-        get() = maybeSocket!!
+
+    /**
+     * Game
+     */
+    var seatingPosition: SeatingPosition? = null
 
     /**
      * Drag and drop

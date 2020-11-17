@@ -7,32 +7,30 @@ import jacobs.tycoon.clientcontroller.MainPageController
 import jacobs.tycoon.view.components.board.BoardComponent
 import jacobs.tycoon.view.components.board.DiceComponent
 import jacobs.tycoon.view.components.console.Console
-import jacobs.tycoon.view.components.players.PlayerComponentFactory
+import jacobs.tycoon.view.components.players.PlayerComponentReposifactory
 import org.js.mithril.Component
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 
-class MainPage ( kodein: Kodein ) : Page {
+open class MainPage ( kodein: Kodein ) : Page {
 
     private val boardComponent by kodein.instance < BoardComponent > ()
     private val diceComponent by kodein.instance < DiceComponent > ()
     private val gameConsole by kodein.instance < Console > ()
     private val mainPageController by kodein.instance < MainPageController > ()
-    private val playerComponentFactory by kodein.instance < PlayerComponentFactory > ()
+    private val playerComponentFactory by kodein.instance < PlayerComponentReposifactory > ()
 
-    private val otherPlayersComponent = this.getOtherPlayersComponent()
-    private val ownPlayerComponent = this.getOwnPlayerComponent()
+    private val otherPlayersComponent: Component = getOtherPlayersComponent()
+    private val ownPlayerComponent: Component? = getOwnPlayerComponent()
 
     private fun getOtherPlayersComponent(): Component {
-        return this.playerComponentFactory.getMultiplePlayersComponentByExclusion(
-            this.mainPageController.getOwnPlayer()
-        )
+        return this.playerComponentFactory.getMultiplePlayersComponentsExcludingPresent()
     }
 
-    private fun getOwnPlayerComponent(): Component {
-        return this.playerComponentFactory.getSinglePlayerComponent(
-            this.mainPageController.getOwnPlayer()
-        )
+    private fun getOwnPlayerComponent(): Component? {
+        return this.mainPageController.getOwnPlayer() ?.let {
+            this.playerComponentFactory.getSinglePlayerComponent( it )
+        }
     }
 
     override fun view() : VNode {
@@ -71,7 +69,7 @@ class MainPage ( kodein: Kodein ) : Page {
                 }
             } )
             children(
-                m( ownPlayerComponent ),
+                ownPlayerComponent?.let { m( it ) },
                 m( diceComponent )
             )
         }

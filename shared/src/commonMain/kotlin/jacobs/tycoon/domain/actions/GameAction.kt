@@ -2,37 +2,36 @@ package jacobs.tycoon.domain.actions
 
 import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.players.SeatingPosition
-import jacobs.tycoon.state.GameState
 import kotlinx.serialization.Serializable
 
 @Serializable
 abstract class GameAction {
 
-    var actorPosition: SeatingPosition = SeatingPosition.UNINITIALISED
-    var executed = false
-    var successful = false
+    val executed: Boolean
+        get() = executedField
+    val successful: Boolean
+        get() = successfulField
+
+    private var executedField = false
+    private var successfulField = false
 
     abstract fun < T > accept( visitor: ActionVisitor < T > ): T
     abstract suspend fun duplicate( gameController: GameController )
     abstract suspend fun execute( gameController: GameController )
 
-    fun setPositionOfActor( position: SeatingPosition ) {
-        this.actorPosition = position
-    }
-
     protected fun executedSuccessfully() {
-        this.executed = true
-        this.successful = true
+        this.executedField = true
+        this.successfulField = true
     }
 
     protected fun executionUnsuccessful() {
-        this.executed = false
-        this.successful = false
+        this.executedField = false
+        this.successfulField = false
     }
 
-    protected fun setExecutionResult( result: Boolean ) {
-        this.executed = true
-        this.successful = result
+    fun setExecutionResult( result: Boolean ) {
+        this.executedField = true
+        this.successfulField = result
     }
 
 }

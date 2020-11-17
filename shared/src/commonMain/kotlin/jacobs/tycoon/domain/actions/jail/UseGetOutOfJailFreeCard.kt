@@ -2,11 +2,14 @@ package jacobs.tycoon.domain.actions.jail
 
 import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.actions.ActionVisitor
-import jacobs.tycoon.domain.actions.GameAction
+import jacobs.tycoon.domain.actions.PositionalGameAction
+import jacobs.tycoon.domain.players.SeatingPosition
 import kotlinx.serialization.Serializable
 
 @Serializable
-class UseGetOutOfJailFreeCard : GameAction() {
+class UseGetOutOfJailFreeCard(
+    override val playerPosition: SeatingPosition
+) : PositionalGameAction() {
 
     override fun < T > accept( visitor: ActionVisitor < T > ): T {
         return visitor.visit( this )
@@ -17,7 +20,7 @@ class UseGetOutOfJailFreeCard : GameAction() {
     }
 
     override suspend fun execute( gameController: GameController ) {
-        gameController.useGetOutOfJailFreeCard( actorPosition )
+        gameController.useGetOutOfJailFreeCard( playerPosition )
             .also { setExecutionResult( it ) }
     }
 

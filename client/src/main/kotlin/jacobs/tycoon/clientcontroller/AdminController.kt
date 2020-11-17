@@ -14,8 +14,12 @@ class AdminController ( kodein: Kodein ) : UserInterfaceController( kodein ) {
     private val outgoingRequestController by kodein.instance < OutgoingRequestController > ()
     private val state by kodein.instance < AdminState > ()
 
-    fun getPlayerProperties( player: Player ): AdministratableProperties {
-        return this.state.players.getValue( player )
+    fun isUpdatingCash( player: Player ): Boolean {
+        return playerProperties( player ).updatingCash
+    }
+
+    fun proposedNewCashHoldings( player: Player ): String {
+        return playerProperties( player ).newCashHoldings
     }
 
     fun recordNewPlayerIfNecessary( player: Player ) {
@@ -23,11 +27,26 @@ class AdminController ( kodein: Kodein ) : UserInterfaceController( kodein ) {
             state.players.put( player, AdministratableProperties() )
     }
 
+    fun recordProposedNewCashHoldings( player: Player, newCashString: String ) {
+        playerProperties( player ).newCashHoldings = newCashString
+    }
+
+    fun toggleUpdatingCash( player: Player ) {
+        playerProperties( player ).updatingCash = ( playerProperties( player ).updatingCash == false )
+    }
+
     fun updateCashHoldings( player: Player ) {
         val newCashHoldings = gameRules.currency.ofAmount(
-            this.getPlayerProperties( player ).newCashHoldings
+            this.playerProperties( player ).newCashHoldings.toInt()
         )
-        launch { outgoingRequestController.updateCashHoldingsRequest( player, newCashHoldings ) }
+        launch {
+            outgoingRequestController.updateCashHoldingsRequest( player, newCashHoldings )
+            playerProperties( player ).resetCashSettingProperties()
+        }
+    }
+
+    private fun playerProperties( player: Player ): AdministratableProperties {
+        return this.state.players.getValue( player )
     }
 
 }

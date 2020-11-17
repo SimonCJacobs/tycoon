@@ -9,11 +9,10 @@ class PlayerFactory ( kodein: Kodein ) {
 
     private val miscellaneousRules by kodein.instance < MiscellaneousRules > ()
 
-    fun getNew( name: String, piece: PlayingPiece, position: SeatingPosition ): Player {
+    fun getNew( name: String, piece: PlayingPiece ): Player {
         return Player(
             name = name,
             piece = piece,
-            position = position,
             cashHoldings = miscellaneousRules.initialCashCount
         )
     }

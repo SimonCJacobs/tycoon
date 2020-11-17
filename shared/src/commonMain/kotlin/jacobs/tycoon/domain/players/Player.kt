@@ -18,15 +18,13 @@ import kotlinx.serialization.Transient
 data class Player(
     val name: String,
     val piece: PlayingPiece,
-    val position: SeatingPosition,
     var cashHoldings: CurrencyAmount
-) : Comparable < Player > {
+) {
 
     companion object {
         val NULL = Player(
             name = "",
             piece = PlayingPiece.NULL,
-            position = SeatingPosition.UNINITIALISED,
             cashHoldings = CurrencyAmount.NULL
         )
     }
@@ -210,10 +208,6 @@ data class Player(
         return other != null &&
             other is Player &&
             other.name == this.name
-    }
-
-    override fun compareTo( other: Player ): Int {
-        return this.position.compareTo( other.position )
     }
 
     override fun toString(): String {

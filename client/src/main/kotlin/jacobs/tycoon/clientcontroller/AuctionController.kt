@@ -9,7 +9,6 @@ import jacobs.tycoon.domain.phases.AuctionProperty
 import jacobs.tycoon.domain.services.auction.AuctionPhase
 import jacobs.tycoon.domain.services.auction.AuctionStatus
 import jacobs.tycoon.domain.services.auction.BidWarning
-import jacobs.tycoon.services.PlayerIdentifier
 import jacobs.tycoon.services.speechsynthesis.VoiceSynthesiser
 import jacobs.tycoon.state.GameState
 import jacobs.tycoon.view.components.pieces.PieceDisplayStrategy
@@ -26,7 +25,6 @@ class AuctionController ( kodein: Kodein ) : UserInterfaceController( kodein ) {
     private val gameState by kodein.instance < GameState > ()
     private val outgoingRequestController by kodein.instance < OutgoingRequestController > ()
     private val pieceDisplayStrategy by kodein.instance < PieceDisplayStrategy  > ()
-    private val playerIdentifier by kodein.instance < PlayerIdentifier > ()
     private val voiceSynthesiser by kodein.instance < VoiceSynthesiser > ()
 
     init {
@@ -108,13 +106,16 @@ class AuctionController ( kodein: Kodein ) : UserInterfaceController( kodein ) {
     }
 
     private fun isBidValid(): Boolean {
-        return status().validateBid(
-            auctionState.bidBeingConsidered, playerIdentifier.playerUsingThisMachine
-        )
-            .let {
-                auctionState.bidWarning = it.warning
-                it.isValid
-            }
+        return playerIdentifier.doIfAPlayerOnThisMachineOrFalse { player ->
+            status().validateBid(
+                auctionState.bidBeingConsidered,
+                player
+            )
+                .let {
+                    auctionState.bidWarning = it.warning
+                    it.isValid
+                }
+        }
     }
 
     fun isWarning(): Boolean {

@@ -103,12 +103,16 @@ class PlayerActionController(
     }
 
     fun isThereAChanceToChargeRent(): Boolean {
-        return this.gameState.game().canPlayerChargeRent( this.ownPlayer() )
+        return playerIdentifier.doIfAPlayerOnThisMachineOrFalse {
+            this.gameState.game().canPlayerChargeRent( it )
+        }
     }
 
     fun < T > mapOnPropertiesCanChargeRent( callback: ( Property ) -> T ): List < T > {
-        return this.gameState.game().propertiesOnWhichPlayerCanChargeRent( this.ownPlayer() )
-            .map( callback )
+        return playerIdentifier.doIfAPlayerOnThisMachine( emptyList() ) {
+            this.gameState.game().propertiesOnWhichPlayerCanChargeRent( it )
+                .map( callback )
+        }
     }
 
     fun payingFineOrTakingChance(): Boolean {

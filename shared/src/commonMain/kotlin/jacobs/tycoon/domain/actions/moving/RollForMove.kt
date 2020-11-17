@@ -2,13 +2,14 @@ package jacobs.tycoon.domain.actions.moving
 
 import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.actions.ActionVisitor
-import jacobs.tycoon.domain.actions.GameAction
+import jacobs.tycoon.domain.actions.PositionalGameAction
 import jacobs.tycoon.domain.phases.results.RollForMoveResult
 import jacobs.tycoon.domain.dice.DiceRoll
+import jacobs.tycoon.domain.players.SeatingPosition
 import kotlinx.serialization.Serializable
 
 @Serializable
-class RollForMove : GameAction() {
+class RollForMove( override val playerPosition: SeatingPosition ) : PositionalGameAction() {
 
     var result = RollForMoveResult.NULL
 
@@ -26,7 +27,7 @@ class RollForMove : GameAction() {
 
     private fun rollForMoveGivenDiceRoll( gameController: GameController, maybeDiceRoll: DiceRoll? = null )
             : RollForMoveResult {
-        val returnValue = gameController.rollTheDiceForMove( actorPosition, maybeDiceRoll )
+        val returnValue = gameController.rollTheDiceForMove( playerPosition, maybeDiceRoll )
         this.executedSuccessfully()
         return returnValue
     }

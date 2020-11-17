@@ -2,13 +2,17 @@ package jacobs.tycoon.domain.actions.property
 
 import jacobs.tycoon.domain.GameController
 import jacobs.tycoon.domain.actions.ActionVisitor
-import jacobs.tycoon.domain.actions.GameAction
+import jacobs.tycoon.domain.actions.PositionalGameAction
 import jacobs.tycoon.domain.board.squares.Property
 import jacobs.tycoon.domain.phases.results.RentChargeResult
+import jacobs.tycoon.domain.players.SeatingPosition
 import kotlinx.serialization.Serializable
 
 @Serializable
-class RentCharge( private val property: Property )  : GameAction() {
+class RentCharge(
+    private val property: Property,
+    override val playerPosition: SeatingPosition
+) : PositionalGameAction() {
 
     var result = RentChargeResult.NULL
 
@@ -21,7 +25,7 @@ class RentCharge( private val property: Property )  : GameAction() {
     }
 
     override suspend fun execute( gameController: GameController ) {
-        this.result = gameController.chargeRent( property, actorPosition )
+        this.result = gameController.chargeRent( property, playerPosition )
         this.executedSuccessfully()
     }
 }
