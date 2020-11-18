@@ -31,8 +31,12 @@ open class UserInterfaceController ( kodein: Kodein ) : CoroutineScope by kodein
         return this.gameState.hasGame()
     }
 
+    fun isAdminMode(): Boolean {
+        return this.mode == ApplicationMode.ADMIN
+    }
+
     fun isAuthorisedToAdminstrate(): Boolean {
-        return this.mode == ApplicationMode.ADMIN && this.clientState.authorisedToAdministrate
+        return this.isAdminMode() && this.clientState.authorisedToAdministrate
     }
 
     fun isGameUnderway(): Boolean {

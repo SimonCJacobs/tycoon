@@ -31,6 +31,7 @@ class PageWrapper( kodein: Kodein ) : Component {
     private fun getCurrentPage(): Page {
         return when {
             this.uiController.isAuthorisedToAdminstrate() -> this.adminPage
+            this.uiController.isAdminMode() -> this.entryPage // TODO: Should limit number of attempts to login to admin
             this.uiController.hasGameBeenInitialised() == false -> this.splashPage
             this.uiController.userOfClientMachineHasSignedUpForGame() == false && this.uiController.isSignUpPhase()
                 -> this.entryPage
