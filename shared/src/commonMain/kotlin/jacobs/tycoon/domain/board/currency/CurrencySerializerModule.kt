@@ -1,13 +1,13 @@
 package jacobs.tycoon.domain.board.currency
 
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.SerializersModule
 
-fun currencySerializerModule(): SerialModule {
+fun currencySerializerModule(): SerializersModule {
     return SerializersModule {
         polymorphic ( Currency::class ) {
-            NullCurrency::class with NullCurrency.serializer()
-            PoundsSterling::class with PoundsSterling.serializer()
+            subclass( NullCurrency::class, NullCurrency.serializer() )
+            subclass( PoundsSterling::class, PoundsSterling.serializer() )
         }
     }
 }

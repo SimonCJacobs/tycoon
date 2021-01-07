@@ -52,7 +52,7 @@ class RollingForOrder (
     }
 
     private fun getPlayersWithMaximumRoll(): List < Player > {
-        return this.rollResults.values.filterNotNull().map { it.result }.max()
+        return this.rollResults.values.filterNotNull().map { it.result }.maxOrNull()
             .let { maxValue -> this.rollResults.filterValues { it?.result == maxValue }.keys }
             .toList()
     }

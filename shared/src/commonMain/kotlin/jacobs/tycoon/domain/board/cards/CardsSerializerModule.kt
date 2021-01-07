@@ -1,13 +1,13 @@
 package jacobs.tycoon.domain.board.cards
 
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.SerializersModule
 
-fun cardsSerializerModule(): SerialModule {
+fun cardsSerializerModule(): SerializersModule {
     return SerializersModule {
         polymorphic ( CardSet::class ) {
-            ChanceCards::class with ChanceCards.serializer()
-            CommunityChestCards::class with CommunityChestCards.serializer()
+            subclass( ChanceCards::class, ChanceCards.serializer() )
+            subclass( CommunityChestCards::class, CommunityChestCards.serializer() )
         }
     }
 }

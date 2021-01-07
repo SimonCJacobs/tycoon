@@ -1,6 +1,6 @@
 package jacobs.tycoon.services.speechsynthesis
 
-import kotlin.browser.window
+import kotlinx.browser.window
 
 class VoiceSynthesiser {
 

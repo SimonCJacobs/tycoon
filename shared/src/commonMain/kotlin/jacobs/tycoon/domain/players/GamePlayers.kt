@@ -88,7 +88,7 @@ class GamePlayers {
             if ( this.playerStatuses.isEmpty() )
                 0
             else
-                this.playerStatuses.values.map { it.position }.max()!!.index + 1
+                this.playerStatuses.values.map { it.position }.maxOrNull()!!.index + 1
         return SeatingPosition( newPositionIndex )
     }
 

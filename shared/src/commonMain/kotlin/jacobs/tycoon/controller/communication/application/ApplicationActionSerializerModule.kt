@@ -1,13 +1,13 @@
 package jacobs.tycoon.controller.communication.application
 
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.SerializersModule
 
-fun applicationActionSerializerModule(): SerialModule {
+fun applicationActionSerializerModule(): SerializersModule {
     return SerializersModule {
         polymorphic( ApplicationAction::class ) {
-            AccessAdminModeRequest::class with AccessAdminModeRequest.serializer()
-            UpdateCashHoldingsRequest::class with UpdateCashHoldingsRequest.serializer()
+            subclass( AccessAdminModeRequest::class, AccessAdminModeRequest.serializer() )
+            subclass( UpdateCashHoldingsRequest::class, UpdateCashHoldingsRequest.serializer() )
         }
     }
 }

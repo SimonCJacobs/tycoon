@@ -8,6 +8,7 @@ repositories {
 plugins {
     kotlin( "multiplatform" )
     kotlin( "plugin.serialization" )
+    id( "jacobs-private-repo-plugin" )
 }
 
 kotlin {
@@ -30,8 +31,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api( kotlin( "stdlib-common" ) )
-                implementation( project( ":websockets" ) )
-                implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core-common:${ Versions.kotlinCoroutines }" )
+                implementation( "jacobs:kotlin-websockets:${ Versions.kotlinWebsockets }" )
                 implementation( "org.kodein.di:kodein-di-erased:${ Versions.kodein }"  )
             }
         }
@@ -39,28 +39,29 @@ kotlin {
             dependencies {
                 implementation( kotlin( "test-common" ) )
                 implementation( kotlin( "test-annotations-common" ) )
+                implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core:${ Versions.kotlinCoroutines }" )
             }
         }
         val jsMain by getting {
             dependencies {
                 api( kotlin( "stdlib-js" ) )
-                implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${ Versions.kotlinCoroutines }" )
             }
         }
         val jsTest by getting {
             dependencies {
                 implementation( kotlin( "test-js" ) )
+                implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core-js:${ Versions.kotlinCoroutines }" )
             }
         }
         val jvmMain by getting {
             dependencies {
                 api( kotlin( "stdlib-jdk8" ) )
-                implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core:${ Versions.kotlinCoroutines }" )
             }
         }
         val jvmTest by getting {
             dependencies {
                 implementation( kotlin( "test-junit" ) )
+                implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core:${ Versions.kotlinCoroutines }" )
             }
         }
     }

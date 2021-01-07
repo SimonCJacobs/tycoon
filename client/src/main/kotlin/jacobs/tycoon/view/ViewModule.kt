@@ -22,7 +22,7 @@ import org.kodein.di.erased.bind
 import org.kodein.di.erased.singleton
 import org.w3c.dom.HTMLElement
 import org.w3c.dom.get
-import kotlin.browser.document
+import kotlinx.browser.document
 
 fun viewModule( mode: ApplicationMode ) = Kodein.Module( "view" ) {
 

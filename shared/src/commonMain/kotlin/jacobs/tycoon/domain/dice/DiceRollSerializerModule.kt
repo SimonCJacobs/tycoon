@@ -1,13 +1,13 @@
 package jacobs.tycoon.domain.dice
 
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.SerializersModule
 
-fun diceRollSerializerModule(): SerialModule {
+fun diceRollSerializerModule(): SerializersModule {
     return SerializersModule {
         polymorphic( DiceRoll::class ) {
-            DiceRollImpl::class with DiceRollImpl.serializer()
-            NullDiceRoll::class with NullDiceRoll.serializer()
+            subclass( DiceRollImpl::class, DiceRollImpl.serializer() )
+            subclass( NullDiceRoll::class, NullDiceRoll.serializer() )
         }
     }
 }

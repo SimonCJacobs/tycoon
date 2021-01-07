@@ -1,23 +1,23 @@
 package jacobs.tycoon.domain.board.squares
 
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.SerializersModule
 
-fun squareSerializerModule(): SerialModule {
+fun squareSerializerModule(): SerializersModule {
     return SerializersModule {
-        polymorphic( Square::class, Property::class, ActionSquare::class ) {
-            CardSquare::class with CardSquare.serializer()
-            FreeParkingSquare::class with FreeParkingSquare.serializer()
-            GoSquare::class with GoSquare.serializer()
-            GoToJailSquare::class with GoToJailSquare.serializer()
-            JailSquare::class with JailSquare.serializer()
-            JustVisitingJailSquare::class with JustVisitingJailSquare.serializer()
-            NullProperty::class with NullProperty.serializer()
-            NullSquare::class with NullSquare.serializer()
-            Station::class with Station.serializer()
-            Street::class with Street.serializer()
-            TaxSquare::class with TaxSquare.serializer()
-            Utility::class with Utility.serializer()
+        polymorphic( Square::class ) {
+            subclass( CardSquare::class, CardSquare.serializer() )
+            subclass( FreeParkingSquare::class, FreeParkingSquare.serializer() )
+            subclass( GoSquare::class, GoSquare.serializer() )
+            subclass( GoToJailSquare::class, GoToJailSquare.serializer() )
+            subclass( JailSquare::class, JailSquare.serializer() )
+            subclass( JustVisitingJailSquare::class, JustVisitingJailSquare.serializer() )
+            subclass( NullProperty::class, NullProperty.serializer() )
+            subclass( NullSquare::class, NullSquare.serializer() )
+            subclass( Station::class, Station.serializer() )
+            subclass( Street::class, Street.serializer() )
+            subclass( TaxSquare::class, TaxSquare.serializer() )
+            subclass( Utility::class, Utility.serializer() )
         }
     }
 }

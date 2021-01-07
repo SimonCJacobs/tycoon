@@ -9,19 +9,18 @@ plugins {
     kotlin( "jvm" )
     application
     id( "jacobs.deployserver" )
+    id( "jacobs-private-repo-plugin" )
 }
 
 application {
     mainClassName = "jacobs.tycoon.MainKt"
 }
 
-version = "0.0.1"
-
 dependencies {
     implementation( kotlin( "stdlib-jdk8" ) )
     implementation( kotlin( "reflect" ) )
     implementation( project( ":shared", "jvmDefault" ) )
-    implementation( project( ":websockets" ) )
+    implementation( group = "jacobs", name = "kotlin-websockets", version = Versions.kotlinWebsockets )
     implementation( "org.jetbrains.kotlinx:kotlinx-coroutines-core:${ Versions.kotlinCoroutines }" )
     testImplementation( "org.junit.jupiter:junit-jupiter-api:${ Versions.jUnit }" )
     testRuntimeOnly( "org.junit.jupiter:junit-jupiter-engine:${ Versions.jUnit }" )
@@ -35,8 +34,7 @@ tasks {
     }
     withType < KotlinCompile > {
         kotlinOptions {
-            freeCompilerArgs = listOf(
-                "-Xopt-in=io.ktor.util.KtorExperimentalAPI",
+            freeCompilerArgs = freeCompilerArgs + listOf(
                 "-Xopt-in=kotlin.ExperimentalStdlibApi",
                 "-Xopt-in=kotlinx.coroutines.ExperimentalCoroutinesApi"
             )

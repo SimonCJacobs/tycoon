@@ -52,7 +52,7 @@ class BuildingProject(
     }
 
     private fun isDevelopmentEven(): Boolean {
-        return newDistribution.max()!! - newDistribution.min()!! <= 1
+        return newDistribution.maxOrNull()!! - newDistribution.minOrNull()!! <= 1
     }
 
     private fun isDevelopmentWithinMinimumBuildingPerProperty(): Boolean {

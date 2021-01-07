@@ -2,7 +2,7 @@ package jacobs.tycoon.domain.phases.results
 
 import jacobs.tycoon.domain.dice.DiceRoll
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.SerializersModule
 
 @Serializable
@@ -42,12 +42,12 @@ class NonDiceJailResult(
     override val rollForMoveResult: RollForMoveResult = RollForMoveResult.NULL
 }
 
-fun jailResultSerializerModule(): SerialModule {
+fun jailResultSerializerModule(): SerializersModule {
     return SerializersModule {
         polymorphic( RollForMoveFromJailResult::class ) {
-            FailedEscapeResult::class with FailedEscapeResult.serializer()
-            MovingOutOfJailWithDiceResult::class with MovingOutOfJailWithDiceResult.serializer()
-            NonDiceJailResult::class with NonDiceJailResult.serializer()
+            subclass( FailedEscapeResult::class, FailedEscapeResult.serializer() )
+            subclass( MovingOutOfJailWithDiceResult::class, MovingOutOfJailWithDiceResult.serializer() )
+            subclass( NonDiceJailResult::class, NonDiceJailResult.serializer() )
         }
     }
 }

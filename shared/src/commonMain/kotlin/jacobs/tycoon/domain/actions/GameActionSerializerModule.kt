@@ -29,11 +29,11 @@ import jacobs.tycoon.domain.actions.property.RespondToPropertyOffer
 import jacobs.tycoon.domain.actions.property.SellBuildings
 import jacobs.tycoon.domain.actions.trading.OfferTrade
 import jacobs.tycoon.domain.actions.trading.RespondToTradeOffer
+import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.PolymorphicModuleBuilder
-import kotlinx.serialization.modules.SerialModule
 import kotlinx.serialization.modules.SerializersModule
 
-fun gameActionSerializerModule(): SerialModule {
+fun gameActionSerializerModule(): SerializersModule {
     return SerializersModule {
         polymorphic( GameAction::class ) {
             gameActions()
@@ -49,40 +49,40 @@ fun gameActionSerializerModule(): SerialModule {
     }
 }
 
-private fun PolymorphicModuleBuilder < in GameAction >.gameActions() {
-    AuctionNotification::class with AuctionNotification.serializer()
-    CompleteSignUp::class with CompleteSignUp.serializer()
-    ConcludeAuction::class with ConcludeAuction.serializer()
-    CarryOutBankruptcyProceedings::class with CarryOutBankruptcyProceedings.serializer()
-    NewGame::class with NewGame.serializer()
-    SetBoard::class with SetBoard.serializer()
-    SetPieces::class with SetPieces.serializer()
-    UpdateCashHoldings::class with UpdateCashHoldings.serializer()
+private fun PolymorphicModuleBuilder < GameAction >.gameActions() {
+    subclass( AuctionNotification::class, AuctionNotification.serializer() )
+    subclass( CompleteSignUp::class, CompleteSignUp.serializer() )
+    subclass( ConcludeAuction::class, ConcludeAuction.serializer() )
+    subclass( CarryOutBankruptcyProceedings::class, CarryOutBankruptcyProceedings.serializer() )
+    subclass( NewGame::class, NewGame.serializer() )
+    subclass( SetBoard::class, SetBoard.serializer() )
+    subclass( SetPieces::class, SetPieces.serializer() )
+    subclass( UpdateCashHoldings::class, UpdateCashHoldings.serializer() )
 }
 
-private fun PolymorphicModuleBuilder < in PositionalGameAction >.positionalGameActions() {
-    AcceptFunds::class with AcceptFunds.serializer()
-    AttemptToPay::class with AttemptToPay.serializer()
-    AuctionBid::class with AuctionBid.serializer()
-    Build::class with Build.serializer()
-    MortgageProperty::class with MortgageProperty.serializer()
-    OfferTrade::class with OfferTrade.serializer()
-    PayFineOrTakeCard::class with PayFineOrTakeCard.serializer()
-    PayOffMortgage::class with PayOffMortgage.serializer()
-    PieceMoved::class with PieceMoved.serializer()
-    PlayGetOutOfJailFreeCard::class with PlayGetOutOfJailFreeCard.serializer()
-    PayJailFineVoluntarily::class with PayJailFineVoluntarily.serializer()
-    ReadCard::class with ReadCard.serializer()
-    RentCharge::class with RentCharge.serializer()
-    RespondToPropertyOffer::class with RespondToPropertyOffer.serializer()
-    RespondToTradeOffer::class with RespondToTradeOffer.serializer()
-    RollForMove::class with RollForMove.serializer()
-    RollForMoveFromJail::class with RollForMoveFromJail.serializer()
-    RollForOrderAction::class with RollForOrderAction.serializer()
-    SellBuildings::class with SellBuildings.serializer()
-    UseGetOutOfJailFreeCard::class with UseGetOutOfJailFreeCard.serializer()
+private fun PolymorphicModuleBuilder < PositionalGameAction >.positionalGameActions() {
+    subclass( AcceptFunds::class, AcceptFunds.serializer() )
+    subclass( AttemptToPay::class, AttemptToPay.serializer() )
+    subclass( AuctionBid::class, AuctionBid.serializer() )
+    subclass( Build::class, Build.serializer() )
+    subclass( MortgageProperty::class, MortgageProperty.serializer() )
+    subclass( OfferTrade::class, OfferTrade.serializer() )
+    subclass( PayFineOrTakeCard::class, PayFineOrTakeCard.serializer() )
+    subclass( PayOffMortgage::class, PayOffMortgage.serializer() )
+    subclass( PieceMoved::class, PieceMoved.serializer() )
+    subclass( PlayGetOutOfJailFreeCard::class, PlayGetOutOfJailFreeCard.serializer() )
+    subclass( PayJailFineVoluntarily::class, PayJailFineVoluntarily.serializer() )
+    subclass( ReadCard::class, ReadCard.serializer() )
+    subclass( RentCharge::class, RentCharge.serializer() )
+    subclass( RespondToPropertyOffer::class, RespondToPropertyOffer.serializer() )
+    subclass( RespondToTradeOffer::class, RespondToTradeOffer.serializer() )
+    subclass( RollForMove::class, RollForMove.serializer() )
+    subclass( RollForMoveFromJail::class, RollForMoveFromJail.serializer() )
+    subclass( RollForOrderAction::class, RollForOrderAction.serializer() )
+    subclass( SellBuildings::class, SellBuildings.serializer() )
+    subclass( UseGetOutOfJailFreeCard::class, UseGetOutOfJailFreeCard.serializer() )
 }
 
-private fun PolymorphicModuleBuilder < in GameActionWithResponse >.gameActionsWithResponse() {
-    AddPlayer::class with AddPlayer.serializer()
+private fun PolymorphicModuleBuilder < GameActionWithResponse >.gameActionsWithResponse() {
+    subclass( AddPlayer::class, AddPlayer.serializer() )
 }

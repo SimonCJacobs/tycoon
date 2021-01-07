@@ -12,8 +12,7 @@ import jacobs.tycoon.view.viewModule
 import org.kodein.di.Kodein
 import org.kodein.di.direct
 import org.kodein.di.erased.instance
-import org.kodein.di.erased.on
-import kotlin.browser.window
+import kotlinx.browser.window
 
 class ApplicationBootstrapper {
 

@@ -8,6 +8,7 @@ repositories {
 plugins {
     kotlin( "multiplatform" ) apply false
     kotlin( "plugin.serialization" ) version Versions.kotlin apply false
+    id( "jacobs-private-repo-plugin" ) version Versions.jacobsPrivateRepoPlugin apply false
 }
 
 gradle.addBuildListener(

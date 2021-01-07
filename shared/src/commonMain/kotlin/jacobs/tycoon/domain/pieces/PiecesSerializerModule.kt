@@ -1,12 +1,12 @@
 package jacobs.tycoon.domain.pieces
 
-import kotlinx.serialization.modules.SerialModule
+import kotlinx.serialization.modules.polymorphic
 import kotlinx.serialization.modules.SerializersModule
 
-fun pieceSetSerializerModule(): SerialModule {
+fun pieceSetSerializerModule(): SerializersModule {
     return SerializersModule {
         polymorphic( PieceSet::class ) {
-            ClassicPieces::class with ClassicPieces.serializer()
+            subclass( ClassicPieces::class, ClassicPieces.serializer() )
         }
     }
 }

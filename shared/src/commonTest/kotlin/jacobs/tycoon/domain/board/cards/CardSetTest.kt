@@ -7,7 +7,6 @@ import jacobs.tycoon.domain.board.currency.PoundsSterling
 import jacobs.tycoon.domain.rules.MiscellaneousRules
 import jacobs.tycoon.domain.rules.StandardMiscellaneousRules
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonConfiguration
 import org.kodein.di.Kodein
 import org.kodein.di.erased.bind
 import org.kodein.di.erased.instance
@@ -28,12 +27,11 @@ class CardSetTest {
     @Test
     fun serializesAndDeserializesCommunityChestAsCardSet() {
         val communityChestCards = this.getNewInstance()
-        val json = Json(
-            JsonConfiguration.Stable,
-            context = cardsSerializerModule()
-        )
-        val serializedCards = json.stringify( CardSet.serializer(), communityChestCards )
-        val deserializedCards = json.parse( CardSet.serializer(), serializedCards )
+        val json = Json {
+            serializersModule = cardsSerializerModule()
+        }
+        val serializedCards = json.encodeToString( CardSet.serializer(), communityChestCards )
+        val deserializedCards = json.decodeFromString( CardSet.serializer(), serializedCards )
         asserter.assertEquals(
             "Deserializes to same class",
             CommunityChestCards::class,
