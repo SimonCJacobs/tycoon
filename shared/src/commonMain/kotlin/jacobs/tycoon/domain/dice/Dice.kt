@@ -19,7 +19,7 @@ class Dice {
     }
 
     private fun rollForReal(): DiceRoll {
-        return DiceRollImpl( NUMBER_OF_SIDES )
+        return DiceRollImpl.random( NUMBER_OF_SIDES )
     }
 
 }

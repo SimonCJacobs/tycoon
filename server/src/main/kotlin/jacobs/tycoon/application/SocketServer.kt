@@ -8,6 +8,7 @@ import jacobs.websockets.SocketId
 import jacobs.websockets.content.MessageContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import org.kodein.di.Kodein
 import org.kodein.di.erased.instance
 
@@ -38,7 +39,7 @@ internal class SocketServer ( kodein: Kodein ) {
         }
     }
 
-    fun notifySocketAtIndex( socket: SocketId, notification: MessageContent  ) {
+    fun notifySocketAtIndex( socket: SocketId, notification: MessageContent ) {
         coroutineScope.launch { websockets.notifySocket( socket, notification ) }
     }
 

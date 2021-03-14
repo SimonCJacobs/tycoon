@@ -32,7 +32,7 @@ class GameExecutorWrapper( kodein: Kodein ) : GameExecutor {
     }
 
     /**
-     * This is a sole exception to the thread safety point! Callers must start the game before allow any
+     * This is a sole exception to the thread safety point! Callers must start the game before allowing any
      * other actions to be executed
      */
     override suspend fun startGame() {
