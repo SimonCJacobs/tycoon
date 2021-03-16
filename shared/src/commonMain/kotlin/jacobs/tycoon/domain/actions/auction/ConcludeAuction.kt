@@ -11,7 +11,7 @@ class ConcludeAuction : GameAction() {
 
     var status: AuctionStatus = AuctionStatus.NULL
 
-    override fun < T > accept(visitor: ActionVisitor<T>): T {
+    override fun < T > accept( visitor: ActionVisitor < T > ): T {
         return visitor.visit( this )
     }
 

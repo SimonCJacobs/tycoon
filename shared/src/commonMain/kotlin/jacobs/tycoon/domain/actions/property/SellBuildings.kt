@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 class SellBuildings (
-    val streets: List <Street>,
+    val streets: List < Street >,
     val housesToSell: List < Int >,
     override val playerPosition: SeatingPosition
 ): PositionalGameAction() {

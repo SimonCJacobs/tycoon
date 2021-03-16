@@ -213,7 +213,7 @@ class Game(
         }
     }
 
-    fun respondToPropertyOffer(gameCycle: GameCycle, decidedToBuy: Boolean, position: SeatingPosition ) {
+    fun respondToPropertyOffer( gameCycle: GameCycle, decidedToBuy: Boolean, position: SeatingPosition ) {
         return gameCycle.doOnTurnPhaseAndCycle < PotentialPurchase, Unit > ( this, position ) {
             this.respondToOffer( decidedToBuy )
         }

@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 class CompleteSignUp : GameAction() {
 
-    override fun < T > accept( visitor: ActionVisitor<T>): T {
+    override fun < T > accept( visitor: ActionVisitor < T > ): T {
         return visitor.visit( this )
     }
 

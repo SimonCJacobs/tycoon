@@ -12,7 +12,7 @@ class ReadCard( override val playerPosition: SeatingPosition ) : PositionalGameA
 
     var result: ReadCardResult = ReadCardResult.NULL
 
-    override fun < T > accept( visitor: ActionVisitor<T>): T {
+    override fun < T > accept( visitor: ActionVisitor < T > ): T {
         return visitor.visit( this )
     }
 

@@ -13,7 +13,7 @@ class AuctionBid (
     override val playerPosition: SeatingPosition
 ) : PositionalGameAction() {
 
-    override fun < T > accept(visitor: ActionVisitor<T>): T {
+    override fun < T > accept( visitor: ActionVisitor < T > ): T {
         return visitor.visit( this )
     }
 

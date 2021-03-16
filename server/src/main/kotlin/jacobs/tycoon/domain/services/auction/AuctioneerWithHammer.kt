@@ -42,7 +42,7 @@ class AuctioneerWithHammer( kodein: Kodein ) : Auctioneer( kodein ) {
     }
 
     private suspend fun notifyAuctionOfPhaseChange( auctionPhase: AuctionPhase ) {
-        this.gameExecutor.execute(AuctionNotification( auctionPhase ) )
+        this.gameExecutor.execute( AuctionNotification( auctionPhase ) )
     }
 
     private suspend fun completeAuction() {

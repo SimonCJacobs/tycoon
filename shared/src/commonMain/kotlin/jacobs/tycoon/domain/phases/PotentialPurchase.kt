@@ -12,7 +12,7 @@ class PotentialPurchase (
     val decidedToBuy: Boolean
         get() = maybeDecidedToBuy ?: throw Error( "Early request for decision: Not responded to purchase offer yet" )
 
-    override fun accept(turnBasedPhaseVisitor: TurnBasedPhaseVisitor ) {
+    override fun accept( turnBasedPhaseVisitor: TurnBasedPhaseVisitor ) {
         turnBasedPhaseVisitor.visit( this )
     }
 

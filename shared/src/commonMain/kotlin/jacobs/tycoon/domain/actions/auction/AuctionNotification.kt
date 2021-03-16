@@ -11,7 +11,7 @@ class AuctionNotification (
     val newPhase: AuctionPhase
 ) : GameAction() {
 
-    override fun < T > accept( visitor: ActionVisitor<T>): T {
+    override fun < T > accept( visitor: ActionVisitor < T > ): T {
         return visitor.visit( this )
     }
 
