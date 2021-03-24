@@ -12,7 +12,7 @@ class TradeCashAndCardsForm(
 ) : Component {
 
     override fun view(): VNode {
-        return m( Tag.form ) {
+        return m( Tag.div ) {
             children(
                 getCashOffered(),
                 getGetOutOfJailFreeCardsOffered(),

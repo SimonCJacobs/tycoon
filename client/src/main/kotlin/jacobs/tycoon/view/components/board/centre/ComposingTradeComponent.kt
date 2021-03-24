@@ -11,7 +11,7 @@ class ComposingTradeComponent(
     override var squaresToASideExcludingCorners: Int
 ) : ComposingDealComponent() {
 
-    private val tradeCashAndCardsForm: TradeCashAndCardsForm =TradeCashAndCardsForm( dealController )
+    private val tradeCashAndCardsForm: TradeCashAndCardsForm = TradeCashAndCardsForm( dealController )
 
     companion object {
         private const val PLAYER_CHOICE_NAME = "playerChoice"
@@ -63,14 +63,17 @@ class ComposingTradeComponent(
 
     @Suppress( "unused" )
     override fun getDoTheDealButton(): VNode {
-        return m( Tag.button ) {
+        return m( Tag.input ) {
             attributes ( object {
-                val type = "button"
+                val type = "submit"
+                val value = "Offer trade"
             } )
             eventHandlers {
-                onclick = { dealController.offerTrade() }
+                onclick = {
+                    it.preventDefault()
+                    dealController.offerTrade()
+                }
             }
-            content( "Offer trade" )
         }
     }
 

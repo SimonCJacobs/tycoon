@@ -28,7 +28,7 @@ class EntryPage( kodein: Kodein ) : Page {
     }
 
     private fun getPlayerEntryForm() : VNode {
-        return m( Tag.div ) {
+        return m( Tag.form ) {
             children(
                 getPlayerEntryFields(),
                 getSubmitButton(),
@@ -38,7 +38,7 @@ class EntryPage( kodein: Kodein ) : Page {
     }
 
     private fun getPlayerEntryFields() : VNode {
-        return m( Tag.form ) {
+        return m( Tag.div ) {
             children(
                 getPlayerNameEntry(),
                 getPlayerPieceSelection()
@@ -103,14 +103,17 @@ class EntryPage( kodein: Kodein ) : Page {
 
     @Suppress( "unused" )
     private fun getSubmitButton(): VNode {
-        return m( Tag.button ) {
+        return m( Tag.input ) {
             attributes ( object {
-                val type = "button"
+                val type = "submit"
+                val value = "Play the game already!"
             } )
             eventHandlers {
-                onclick = { controller.onEntryPageButtonClick() }
+                onclick = { e ->
+                    e.preventDefault()
+                    controller.onEntryPageButtonClick()
+                }
             }
-            content( "Play the game already!" )
         }
     }
 

@@ -91,13 +91,16 @@ class AuctionComponent : CentreCellComponent() {
                         }
                     }
                 },
-                m( Tag.button ){
+                m( Tag.input ){
                     attributes ( object {
-                        val type = "button"
+                        val type = "submit"
+                        val value = "Submit bid"
                     } )
-                    content( "Submit bid" )
                     eventHandlers {
-                        onclick = { auctionController.makeBid() }
+                        onclick = {
+                            it.preventDefault()
+                            auctionController.makeBid()
+                        }
                     }
                 }
             )
